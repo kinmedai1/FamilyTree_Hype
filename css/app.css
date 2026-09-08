@@ -588,6 +588,25 @@ button:hover {
     height: 100%;
 }
 
+.ancestor-face-preview {
+    width: min(112px, 100%);
+    height: auto;
+    aspect-ratio: 1;
+    margin-bottom: 8px;
+    border-radius: 8px;
+}
+
+.ancestor-face-preview.is-unavailable::after {
+    content: "外見情報なし";
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    color: var(--text-color);
+    opacity: 0.7;
+    font-size: 11px;
+}
+
 .face-preview-container.is-loading::after {
     content: "顔を描画中…";
     position: absolute;

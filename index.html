@@ -8,7 +8,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="./css/app.css?v=20260904-1">
+    <link rel="stylesheet" href="./css/app.css?v=20260909-1">
 </head>
 
 <body>
@@ -984,16 +984,16 @@
             }
         }
 
-        async function renderChampionFace(championCardId, statusText) {
-            const championEl = document.getElementById(championCardId);
-            const preview = championEl?.querySelector('.face-preview-container');
+        async function renderFacePreview(preview, statusText, thumbnail = false) {
             const canvas = preview?.querySelector('.face-preview-canvas');
-            if (!preview || !canvas || !window.DenpamenFaceRenderer) return;
+            if (!preview?.isConnected || !canvas || !window.DenpamenFaceRenderer) return;
 
             preview.classList.add('is-loading');
             preview.classList.remove('is-error');
             try {
-                await window.DenpamenFaceRenderer.render(canvas, statusText, { transparent: true });
+                if (thumbnail) await window.DenpamenFaceRenderer.renderThumbnail(canvas, statusText, { size: 192 });
+                else await window.DenpamenFaceRenderer.render(canvas, statusText, { transparent: true });
+                preview.dataset.rendered = 'true';
             } catch (error) {
                 console.error('顔プレビューの描画に失敗しました。', error);
                 preview.classList.add('is-error');
@@ -1001,6 +1001,47 @@
             } finally {
                 preview.classList.remove('is-loading');
             }
+        }
+
+        let ancestorFaceObserver = null;
+        const ancestorFaceTasks = new Map();
+        function resetAncestorFaces() {
+            ancestorFaceObserver?.disconnect();
+            ancestorFaceObserver = null;
+            ancestorFaceTasks.clear();
+        }
+        function queueAncestorFace(task) {
+            if (task.queued) return;
+            task.queued = true;
+            ancestorFaceObserver?.unobserve(task.preview);
+            // Capture the element, not its reused card ID, when scheduling a render.
+            currentFaceRenderPromise = currentFaceRenderPromise.catch(() => {}).then(() => renderFacePreview(task.preview, task.statusText, true));
+        }
+        function setupAncestorFaces(plans) {
+            resetAncestorFaces();
+            if (typeof IntersectionObserver === 'function') {
+                ancestorFaceObserver = new IntersectionObserver(entries => {
+                    for (const entry of entries) {
+                        const task = ancestorFaceTasks.get(entry.target);
+                        if (entry.isIntersecting && task) queueAncestorFace(task);
+                    }
+                }, { rootMargin: '200px' });
+            }
+            for (const plan of plans) {
+                const preview = document.getElementById(plan.id)?.querySelector('.ancestor-face-preview');
+                if (!preview || !plan.complete) continue;
+                const task = { preview, statusText: plan.statusText, queued: false };
+                ancestorFaceTasks.set(preview, task);
+                if (ancestorFaceObserver) ancestorFaceObserver.observe(preview);
+                else queueAncestorFace(task);
+            }
+        }
+        async function ensureTreeFacesRendered() {
+            // Export includes off-screen cards, but not ancestors hidden by birth completion.
+            for (const task of ancestorFaceTasks.values()) {
+                if (task.preview.isConnected && !task.preview.closest('.player-card').classList.contains('collapsed')) queueAncestorFace(task);
+            }
+            await currentFaceRenderPromise;
         }
         function applyAppearanceInfo(championCardId, statusText) { const championEl = document.getElementById(championCardId); const paletteContainer = championEl.querySelector('.custom-color-palette'); if (!paletteContainer) return; paletteContainer.innerHTML = ''; if (!statusText) return; const colorMatch = statusText.match(/色:([\s\S]*?)(柄:|髪:|髪色:|肌色:|眉:|目:|鼻:|頬:|口:|$)/); if (colorMatch && colorMatch[1]) { const colorNames = colorMatch[1].trim().split(/\s+/); colorNames.forEach(name => { if (COLOR_MAP[name]) { const item = document.createElement('div'); item.className = 'palette-item'; const box = document.createElement('div'); box.className = 'palette-color-box'; box.style.backgroundColor = COLOR_MAP[name]; const text = document.createTextNode(name); item.appendChild(box); item.appendChild(text); paletteContainer.appendChild(item); } }); } const patternMatch = statusText.match(/柄:([\s\S]*?)(髪:|髪色:|肌色:|眉:|目:|鼻:|頬:|口:|$)/); if (patternMatch && patternMatch[1]) { const patternName = patternMatch[1].trim(); const rank = PATTERN_RANK_MAP[patternName]; if (rank) { const item = document.createElement('div'); item.className = 'palette-item pattern-rank'; item.textContent = `柄ランク:${rank}`; let borderColor = 'var(--primary-accent)'; if (rank === 'D(単色)') { borderColor = '#FFFFFF'; } else if (rank === 'C') { borderColor = '#90EE90'; } else if (rank === 'B') { borderColor = '#ADD8E6'; } else if (rank === 'A') { borderColor = '#F08080'; } item.style.borderColor = borderColor; paletteContainer.appendChild(item); } } }
         // --- 折り畳み状態の保存ヘルパー ---
@@ -1355,6 +1396,8 @@
                 const reversedRounds = [...roundsData].reverse();
 
                 const preparedNodesMap = new Map(reversedRounds.flat().map(node => [node.uniqueId, node]));
+                const appearanceRecords = new Map((binary?.parsed.records || []).map(record => [record.sourceIndex, record]));
+                const ancestorFaces = [];
 
                 let html = "";
                 let cardCounter = 0;
@@ -1408,6 +1451,15 @@
                         const isLeafNode = !node.participants.length;
                         const collapsibleClass = !isLeafNode ? ' collapsible' : '';
                         const qrHtml = isLeafNode && HyperionCore.normalRsid(node.id) ? `<div class="qr-code" data-id="${node.id}"></div><div class="rsid-text">${node.id}</div>` : '';
+                        let ancestorFaceHtml = '';
+                        if (!isChampionRound && binary) {
+                            const record = appearanceRecords.get(node.sourceIndex);
+                            const complete = !!record?.appearanceComplete && window.DenpamenFaceRenderer.hasCompleteAppearance(record.statusText);
+                            ancestorFaces.push({ id: node.uniqueId, complete, statusText: record?.statusText || '' });
+                            ancestorFaceHtml = complete
+                                ? `<div class="face-preview-container ancestor-face-preview is-loading"><canvas class="face-preview-canvas" width="1" height="1" aria-label="${escapeHtml(node.name)}の顔プレビュー"></canvas></div>`
+                                : '<div class="face-preview-container ancestor-face-preview is-unavailable" role="img" aria-label="外見情報なし" title="外見情報が不足しているか、未対応の顔パーツがあります。元データは保持されています。"></div>';
+                        }
 
                         const cardHtml = isChampionRound ?
                             `<div class="player-card champion-card${collapsibleClass}${pairClass}" id="${node.uniqueId}" style="${cardStyle}">
@@ -1421,6 +1473,7 @@
                         </div>`
                             :
                             `<div class="player-card${collapsibleClass}${pairClass}" id="${node.uniqueId}" style="${cardStyle}">
+                            ${ancestorFaceHtml}
                             <div class="name">${escapeHtml(node.name)}${nameSuffix}</div>
                             ${relationHtml}
                             ${qrHtml}
@@ -1462,9 +1515,11 @@
                         preview.classList.add('is-error');
                         preview.title = '未対応の顔情報があります。元データは保持されています。';
                     } else {
-                        currentFaceRenderPromise = currentFaceRenderPromise.catch(() => {}).then(() => renderChampionFace(championNode.uniqueId, statusString));
+                        const preview = document.getElementById(championNode.uniqueId).querySelector('.face-preview-container');
+                        currentFaceRenderPromise = currentFaceRenderPromise.catch(() => {}).then(() => renderFacePreview(preview, statusString));
                     }
                 }
+                setupAncestorFaces(ancestorFaces);
 
                 requestAnimationFrame(() => {
                     // アニメーションなしで即座に線を描画
@@ -1518,6 +1573,7 @@
             void HyperionTransfer.collect();
             document.getElementById('rsid-input').value = '';
             document.getElementById('bracket-container').innerHTML = '<svg id="bracket-lines"></svg>';
+            resetAncestorFaces();
             document.getElementById('error-message').style.display = 'none';
             // 変換UIもリセット
             resetConversionUI();
@@ -1550,7 +1606,7 @@
                 return;
             }
 
-            await currentFaceRenderPromise;
+            await ensureTreeFacesRendered();
             drawLines(currentRoundsData);
             container.classList.add('screenshot-mode');
 
@@ -1861,7 +1917,7 @@
             webhookBtn.disabled = true;
 
             try {
-                await currentFaceRenderPromise;
+                await ensureTreeFacesRendered();
                 // スクリーンショットモードに切り替え
                 drawLines(currentRoundsData);
                 container.classList.add('screenshot-mode');
