@@ -1,0 +1,857 @@
+[
+  {
+    "id": 0,
+    "face": "face0",
+    "hair": "hair0",
+    "face_id": 0,
+    "hair_id": 0,
+    "face_file": "face0.png",
+    "hair_file": "hair0.png"
+  },
+  {
+    "id": 1,
+    "face": "face1",
+    "hair": "hair0",
+    "face_id": 1,
+    "hair_id": 0,
+    "face_file": "face1.png",
+    "hair_file": "hair0.png"
+  },
+  {
+    "id": 2,
+    "face": "face2",
+    "hair": "hair0",
+    "face_id": 2,
+    "hair_id": 0,
+    "face_file": "face2.png",
+    "hair_file": "hair0.png"
+  },
+  {
+    "id": 3,
+    "face": "face3",
+    "hair": "hair0",
+    "face_id": 3,
+    "hair_id": 0,
+    "face_file": "face3.png",
+    "hair_file": "hair0.png"
+  },
+  {
+    "id": 4,
+    "face": "face4",
+    "hair": "hair0",
+    "face_id": 4,
+    "hair_id": 0,
+    "face_file": "face4.png",
+    "hair_file": "hair0.png"
+  },
+  {
+    "id": 5,
+    "face": "face5",
+    "hair": "hair0",
+    "face_id": 5,
+    "hair_id": 0,
+    "face_file": "face5.png",
+    "hair_file": "hair0.png"
+  },
+  {
+    "id": 6,
+    "face": "face6",
+    "hair": "hair0",
+    "face_id": 6,
+    "hair_id": 0,
+    "face_file": "face6.png",
+    "hair_file": "hair0.png"
+  },
+  {
+    "id": 7,
+    "face": "face7",
+    "hair": "hair0",
+    "face_id": 7,
+    "hair_id": 0,
+    "face_file": "face7.png",
+    "hair_file": "hair0.png"
+  },
+  {
+    "id": 8,
+    "face": "face8",
+    "hair": "hair0",
+    "face_id": 8,
+    "hair_id": 0,
+    "face_file": "face8.png",
+    "hair_file": "hair0.png"
+  },
+  {
+    "id": 9,
+    "face": "face0",
+    "hair": "hair1",
+    "face_id": 0,
+    "hair_id": 1,
+    "face_file": "face0.png",
+    "hair_file": "hair1.png"
+  },
+  {
+    "id": 10,
+    "face": "face0",
+    "hair": "hair2",
+    "face_id": 0,
+    "hair_id": 2,
+    "face_file": "face0.png",
+    "hair_file": "hair2.png"
+  },
+  {
+    "id": 11,
+    "face": "face4",
+    "hair": "hair3",
+    "face_id": 4,
+    "hair_id": 3,
+    "face_file": "face4.png",
+    "hair_file": "hair3.png"
+  },
+  {
+    "id": 12,
+    "face": "face0",
+    "hair": "hair4",
+    "face_id": 0,
+    "hair_id": 4,
+    "face_file": "face0.png",
+    "hair_file": "hair4.png"
+  },
+  {
+    "id": 13,
+    "face": "face7",
+    "hair": "hair5",
+    "face_id": 7,
+    "hair_id": 5,
+    "face_file": "face7.png",
+    "hair_file": "hair5.png"
+  },
+  {
+    "id": 14,
+    "face": "face6",
+    "hair": "hair6",
+    "face_id": 6,
+    "hair_id": 6,
+    "face_file": "face6.png",
+    "hair_file": "hair6.png"
+  },
+  {
+    "id": 15,
+    "face": "face1",
+    "hair": "hair7",
+    "face_id": 1,
+    "hair_id": 7,
+    "face_file": "face1.png",
+    "hair_file": "hair7.png"
+  },
+  {
+    "id": 16,
+    "face": "face0",
+    "hair": "hair8",
+    "face_id": 0,
+    "hair_id": 8,
+    "face_file": "face0.png",
+    "hair_file": "hair8.png"
+  },
+  {
+    "id": 17,
+    "face": "face2",
+    "hair": "hair9",
+    "face_id": 2,
+    "hair_id": 9,
+    "face_file": "face2.png",
+    "hair_file": "hair9.png"
+  },
+  {
+    "id": 18,
+    "face": "face0",
+    "hair": "hair10",
+    "face_id": 0,
+    "hair_id": 10,
+    "face_file": "face0.png",
+    "hair_file": "hair10.png"
+  },
+  {
+    "id": 19,
+    "face": "face7",
+    "hair": "hair11",
+    "face_id": 7,
+    "hair_id": 11,
+    "face_file": "face7.png",
+    "hair_file": "hair11.png"
+  },
+  {
+    "id": 20,
+    "face": "face2",
+    "hair": "hair12",
+    "face_id": 2,
+    "hair_id": 12,
+    "face_file": "face2.png",
+    "hair_file": "hair12.png"
+  },
+  {
+    "id": 21,
+    "face": "face7",
+    "hair": "hair13",
+    "face_id": 7,
+    "hair_id": 13,
+    "face_file": "face7.png",
+    "hair_file": "hair13.png"
+  },
+  {
+    "id": 22,
+    "face": "face4",
+    "hair": "hair14",
+    "face_id": 4,
+    "hair_id": 14,
+    "face_file": "face4.png",
+    "hair_file": "hair14.png"
+  },
+  {
+    "id": 23,
+    "face": "face1",
+    "hair": "hair15",
+    "face_id": 1,
+    "hair_id": 15,
+    "face_file": "face1.png",
+    "hair_file": "hair15.png"
+  },
+  {
+    "id": 24,
+    "face": "face3",
+    "hair": "hair16",
+    "face_id": 3,
+    "hair_id": 16,
+    "face_file": "face3.png",
+    "hair_file": "hair16.png"
+  },
+  {
+    "id": 25,
+    "face": "face1",
+    "hair": "hair17",
+    "face_id": 1,
+    "hair_id": 17,
+    "face_file": "face1.png",
+    "hair_file": "hair17.png"
+  },
+  {
+    "id": 26,
+    "face": "face5",
+    "hair": "hair18",
+    "face_id": 5,
+    "hair_id": 18,
+    "face_file": "face5.png",
+    "hair_file": "hair18.png"
+  },
+  {
+    "id": 27,
+    "face": "face3",
+    "hair": "hair19",
+    "face_id": 3,
+    "hair_id": 19,
+    "face_file": "face3.png",
+    "hair_file": "hair19.png"
+  },
+  {
+    "id": 28,
+    "face": "face0",
+    "hair": "hair20",
+    "face_id": 0,
+    "hair_id": 20,
+    "face_file": "face0.png",
+    "hair_file": "hair20.png"
+  },
+  {
+    "id": 29,
+    "face": "face8",
+    "hair": "hair21",
+    "face_id": 8,
+    "hair_id": 21,
+    "face_file": "face8.png",
+    "hair_file": "hair21.png"
+  },
+  {
+    "id": 30,
+    "face": "face8",
+    "hair": "hair22",
+    "face_id": 8,
+    "hair_id": 22,
+    "face_file": "face8.png",
+    "hair_file": "hair22.png"
+  },
+  {
+    "id": 31,
+    "face": "face0",
+    "hair": "hair23",
+    "face_id": 0,
+    "hair_id": 23,
+    "face_file": "face0.png",
+    "hair_file": "hair23.png"
+  },
+  {
+    "id": 32,
+    "face": "face0",
+    "hair": "hair24",
+    "face_id": 0,
+    "hair_id": 24,
+    "face_file": "face0.png",
+    "hair_file": "hair24.png"
+  },
+  {
+    "id": 33,
+    "face": "face0",
+    "hair": "hair25",
+    "face_id": 0,
+    "hair_id": 25,
+    "face_file": "face0.png",
+    "hair_file": "hair25.png"
+  },
+  {
+    "id": 34,
+    "face": "face0",
+    "hair": "hair26",
+    "face_id": 0,
+    "hair_id": 26,
+    "face_file": "face0.png",
+    "hair_file": "hair26.png"
+  },
+  {
+    "id": 35,
+    "face": "face0",
+    "hair": "hair27",
+    "face_id": 0,
+    "hair_id": 27,
+    "face_file": "face0.png",
+    "hair_file": "hair27.png"
+  },
+  {
+    "id": 36,
+    "face": "face1",
+    "hair": "hair28",
+    "face_id": 1,
+    "hair_id": 28,
+    "face_file": "face1.png",
+    "hair_file": "hair28.png"
+  },
+  {
+    "id": 37,
+    "face": "face0",
+    "hair": "hair29",
+    "face_id": 0,
+    "hair_id": 29,
+    "face_file": "face0.png",
+    "hair_file": "hair29.png"
+  },
+  {
+    "id": 38,
+    "face": "face0",
+    "hair": "hair30",
+    "face_id": 0,
+    "hair_id": 30,
+    "face_file": "face0.png",
+    "hair_file": "hair30.png"
+  },
+  {
+    "id": 39,
+    "face": "face3",
+    "hair": "hair31",
+    "face_id": 3,
+    "hair_id": 31,
+    "face_file": "face3.png",
+    "hair_file": "hair31.png"
+  },
+  {
+    "id": 40,
+    "face": "face9",
+    "hair": "hair0",
+    "face_id": 9,
+    "hair_id": 0,
+    "face_file": "face9.png",
+    "hair_file": "hair0.png"
+  },
+  {
+    "id": 41,
+    "face": "face10",
+    "hair": "hair0",
+    "face_id": 10,
+    "hair_id": 0,
+    "face_file": "face10.png",
+    "hair_file": "hair0.png"
+  },
+  {
+    "id": 42,
+    "face": "face11",
+    "hair": "hair0",
+    "face_id": 11,
+    "hair_id": 0,
+    "face_file": "face11.png",
+    "hair_file": "hair0.png"
+  },
+  {
+    "id": 43,
+    "face": "face1",
+    "hair": "hair32",
+    "face_id": 1,
+    "hair_id": 32,
+    "face_file": "face1.png",
+    "hair_file": "hair32.png"
+  },
+  {
+    "id": 44,
+    "face": "face0",
+    "hair": "hair33",
+    "face_id": 0,
+    "hair_id": 33,
+    "face_file": "face0.png",
+    "hair_file": "hair33.png"
+  },
+  {
+    "id": 45,
+    "face": "face10",
+    "hair": "hair34",
+    "face_id": 10,
+    "hair_id": 34,
+    "face_file": "face10.png",
+    "hair_file": "hair34.png"
+  },
+  {
+    "id": 46,
+    "face": "face3",
+    "hair": "hair35",
+    "face_id": 3,
+    "hair_id": 35,
+    "face_file": "face3.png",
+    "hair_file": "hair35.png"
+  },
+  {
+    "id": 47,
+    "face": "face0",
+    "hair": "hair36",
+    "face_id": 0,
+    "hair_id": 36,
+    "face_file": "face0.png",
+    "hair_file": "hair36.png"
+  },
+  {
+    "id": 48,
+    "face": "face4",
+    "hair": "hair37",
+    "face_id": 4,
+    "hair_id": 37,
+    "face_file": "face4.png",
+    "hair_file": "hair37.png"
+  },
+  {
+    "id": 49,
+    "face": "face3",
+    "hair": "hair38",
+    "face_id": 3,
+    "hair_id": 38,
+    "face_file": "face3.png",
+    "hair_file": "hair38.png"
+  },
+  {
+    "id": 50,
+    "face": "face0",
+    "hair": "hair39",
+    "face_id": 0,
+    "hair_id": 39,
+    "face_file": "face0.png",
+    "hair_file": "hair39.png"
+  },
+  {
+    "id": 51,
+    "face": "face9",
+    "hair": "hair4",
+    "face_id": 9,
+    "hair_id": 4,
+    "face_file": "face9.png",
+    "hair_file": "hair4.png"
+  },
+  {
+    "id": 52,
+    "face": "face6",
+    "hair": "hair11",
+    "face_id": 6,
+    "hair_id": 11,
+    "face_file": "face6.png",
+    "hair_file": "hair11.png"
+  },
+  {
+    "id": 53,
+    "face": "face0",
+    "hair": "hair12",
+    "face_id": 0,
+    "hair_id": 12,
+    "face_file": "face0.png",
+    "hair_file": "hair12.png"
+  },
+  {
+    "id": 54,
+    "face": "face10",
+    "hair": "hair12",
+    "face_id": 10,
+    "hair_id": 12,
+    "face_file": "face10.png",
+    "hair_file": "hair12.png"
+  },
+  {
+    "id": 55,
+    "face": "face0",
+    "hair": "hair15",
+    "face_id": 0,
+    "hair_id": 15,
+    "face_file": "face0.png",
+    "hair_file": "hair15.png"
+  },
+  {
+    "id": 56,
+    "face": "face9",
+    "hair": "hair15",
+    "face_id": 9,
+    "hair_id": 15,
+    "face_file": "face9.png",
+    "hair_file": "hair15.png"
+  },
+  {
+    "id": 57,
+    "face": "face0",
+    "hair": "hair17",
+    "face_id": 0,
+    "hair_id": 17,
+    "face_file": "face0.png",
+    "hair_file": "hair17.png"
+  },
+  {
+    "id": 58,
+    "face": "face0",
+    "hair": "hair21",
+    "face_id": 0,
+    "hair_id": 21,
+    "face_file": "face0.png",
+    "hair_file": "hair21.png"
+  },
+  {
+    "id": 59,
+    "face": "face9",
+    "hair": "hair21",
+    "face_id": 9,
+    "hair_id": 21,
+    "face_file": "face9.png",
+    "hair_file": "hair21.png"
+  },
+  {
+    "id": 60,
+    "face": "face3",
+    "hair": "hair26",
+    "face_id": 3,
+    "hair_id": 26,
+    "face_file": "face3.png",
+    "hair_file": "hair26.png"
+  },
+  {
+    "id": 61,
+    "face": "face6",
+    "hair": "hair26",
+    "face_id": 6,
+    "hair_id": 26,
+    "face_file": "face6.png",
+    "hair_file": "hair26.png"
+  },
+  {
+    "id": 62,
+    "face": "face0",
+    "hair": "hair28",
+    "face_id": 0,
+    "hair_id": 28,
+    "face_file": "face0.png",
+    "hair_file": "hair28.png"
+  },
+  {
+    "id": 63,
+    "face": "face9",
+    "hair": "hair39",
+    "face_id": 9,
+    "hair_id": 39,
+    "face_file": "face9.png",
+    "hair_file": "hair39.png"
+  },
+  {
+    "id": 64,
+    "face": "face12",
+    "hair": "hair0",
+    "face_id": 12,
+    "hair_id": 0,
+    "face_file": "face12.png",
+    "hair_file": "hair0.png"
+  },
+  {
+    "id": 65,
+    "face": "face13",
+    "hair": "hair0",
+    "face_id": 13,
+    "hair_id": 0,
+    "face_file": "face13.png",
+    "hair_file": "hair0.png"
+  },
+  {
+    "id": 66,
+    "face": "face14",
+    "hair": "hair0",
+    "face_id": 14,
+    "hair_id": 0,
+    "face_file": "face14.png",
+    "hair_file": "hair0.png"
+  },
+  {
+    "id": 67,
+    "face": "face12",
+    "hair": "hair40",
+    "face_id": 12,
+    "hair_id": 40,
+    "face_file": "face12.png",
+    "hair_file": "hair40.png"
+  },
+  {
+    "id": 68,
+    "face": "face12",
+    "hair": "hair41",
+    "face_id": 12,
+    "hair_id": 41,
+    "face_file": "face12.png",
+    "hair_file": "hair41.png"
+  },
+  {
+    "id": 69,
+    "face": "face12",
+    "hair": "hair42",
+    "face_id": 12,
+    "hair_id": 42,
+    "face_file": "face12.png",
+    "hair_file": "hair42.png"
+  },
+  {
+    "id": 70,
+    "face": "face12",
+    "hair": "hair43",
+    "face_id": 12,
+    "hair_id": 43,
+    "face_file": "face12.png",
+    "hair_file": "hair43.png"
+  },
+  {
+    "id": 71,
+    "face": "face15",
+    "hair": "hair44",
+    "face_id": 15,
+    "hair_id": 44,
+    "face_file": "face15.png",
+    "hair_file": "hair44.png"
+  },
+  {
+    "id": 72,
+    "face": "face15",
+    "hair": "hair45",
+    "face_id": 15,
+    "hair_id": 45,
+    "face_file": "face15.png",
+    "hair_file": "hair45.png"
+  },
+  {
+    "id": 73,
+    "face": "face12",
+    "hair": "hair46",
+    "face_id": 12,
+    "hair_id": 46,
+    "face_file": "face12.png",
+    "hair_file": "hair46.png"
+  },
+  {
+    "id": 74,
+    "face": "face12",
+    "hair": "hair47",
+    "face_id": 12,
+    "hair_id": 47,
+    "face_file": "face12.png",
+    "hair_file": "hair47.png"
+  },
+  {
+    "id": 75,
+    "face": "face15",
+    "hair": "hair48",
+    "face_id": 15,
+    "hair_id": 48,
+    "face_file": "face15.png",
+    "hair_file": "hair48.png"
+  },
+  {
+    "id": 76,
+    "face": "face12",
+    "hair": "hair49",
+    "face_id": 12,
+    "hair_id": 49,
+    "face_file": "face12.png",
+    "hair_file": "hair49.png"
+  },
+  {
+    "id": 77,
+    "face": "face15",
+    "hair": "hair50",
+    "face_id": 15,
+    "hair_id": 50,
+    "face_file": "face15.png",
+    "hair_file": "hair50.png"
+  },
+  {
+    "id": 78,
+    "face": "face12",
+    "hair": "hair51",
+    "face_id": 12,
+    "hair_id": 51,
+    "face_file": "face12.png",
+    "hair_file": "hair51.png"
+  },
+  {
+    "id": 79,
+    "face": "face13",
+    "hair": "hair52",
+    "face_id": 13,
+    "hair_id": 52,
+    "face_file": "face13.png",
+    "hair_file": "hair52.png"
+  },
+  {
+    "id": 80,
+    "face": "face13",
+    "hair": "hair53",
+    "face_id": 13,
+    "hair_id": 53,
+    "face_file": "face13.png",
+    "hair_file": "hair53.png"
+  },
+  {
+    "id": 81,
+    "face": "face15",
+    "hair": "hair54",
+    "face_id": 15,
+    "hair_id": 54,
+    "face_file": "face15.png",
+    "hair_file": "hair54.png"
+  },
+  {
+    "id": 82,
+    "face": "face15",
+    "hair": "hair1",
+    "face_id": 15,
+    "hair_id": 1,
+    "face_file": "face15.png",
+    "hair_file": "hair1.png"
+  },
+  {
+    "id": 83,
+    "face": "face15",
+    "hair": "hair27",
+    "face_id": 15,
+    "hair_id": 27,
+    "face_file": "face15.png",
+    "hair_file": "hair27.png"
+  },
+  {
+    "id": 84,
+    "face": "face0",
+    "hair": "hair19",
+    "face_id": 0,
+    "hair_id": 19,
+    "face_file": "face0.png",
+    "hair_file": "hair19.png"
+  },
+  {
+    "id": 85,
+    "face": "face0",
+    "hair": "hair55",
+    "face_id": 0,
+    "hair_id": 55,
+    "face_file": "face0.png",
+    "hair_file": "hair55.png"
+  },
+  {
+    "id": 86,
+    "face": "face12",
+    "hair": "hair55",
+    "face_id": 12,
+    "hair_id": 55,
+    "face_file": "face12.png",
+    "hair_file": "hair55.png"
+  },
+  {
+    "id": 87,
+    "face": "face0",
+    "hair": "hair56",
+    "face_id": 0,
+    "hair_id": 56,
+    "face_file": "face0.png",
+    "hair_file": "hair56.png"
+  },
+  {
+    "id": 88,
+    "face": "face12",
+    "hair": "hair56",
+    "face_id": 12,
+    "hair_id": 56,
+    "face_file": "face12.png",
+    "hair_file": "hair56.png"
+  },
+  {
+    "id": 89,
+    "face": "face0",
+    "hair": "hair51",
+    "face_id": 0,
+    "hair_id": 51,
+    "face_file": "face0.png",
+    "hair_file": "hair51.png"
+  },
+  {
+    "id": 90,
+    "face": "face0",
+    "hair": "hair57",
+    "face_id": 0,
+    "hair_id": 57,
+    "face_file": "face0.png",
+    "hair_file": "hair57.png"
+  },
+  {
+    "id": 91,
+    "face": "face12",
+    "hair": "hair57",
+    "face_id": 12,
+    "hair_id": 57,
+    "face_file": "face12.png",
+    "hair_file": "hair57.png"
+  },
+  {
+    "id": 92,
+    "face": "face15",
+    "hair": "hair0",
+    "face_id": 15,
+    "hair_id": 0,
+    "face_file": "face15.png",
+    "hair_file": "hair0.png"
+  },
+  {
+    "id": 93,
+    "face": "face3",
+    "hair": "hair58",
+    "face_id": 3,
+    "hair_id": 58,
+    "face_file": "face3.png",
+    "hair_file": "hair58.png"
+  },
+  {
+    "id": 94,
+    "face": "face4",
+    "hair": "hair59",
+    "face_id": 4,
+    "hair_id": 59,
+    "face_file": "face4.png",
+    "hair_file": "hair59.png"
+  }
+]

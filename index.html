@@ -1,0 +1,2227 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>家系図ジェネレーター(顔プレビュー付き)</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="./css/app.css?v=20260904-1">
+</head>
+
+<body>
+
+    <div class="history-sidebar">
+        <div class="history-header">
+            📋 履歴
+            <button class="history-clear-btn" id="history-clear-btn">全削除</button>
+        </div>
+        <div class="history-list" id="history-list">
+            <div class="history-new-item" id="history-new-btn">
+                <span class="history-new-item-icon">＋</span> 新規作成
+            </div>
+            <div class="history-empty" id="history-empty">まだ履歴がありません。<br>家系図を生成すると<br>ここに保存されます。</div>
+        </div>
+        <div class="history-actions" style="display: none;">
+        </div>
+        <input type="file" id="history-import-file" accept=".json" style="display: none;">
+    </div>
+
+    <div class="container">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <h1 style="flex-grow: 1;">家系図ジェネレーター(顔プレビュー付き)</h1>
+            <button class="theme-toggle" id="theme-toggle" title="テーマ切替"></button>
+        </div>
+        <div class="textarea-container">
+            <textarea id="rsid-input" placeholder="RSIDを貼り付けてください"></textarea>
+        </div>
+        <div class="button-group">
+            <button id="paste-btn"><span
+                    style="color: #ffeb3b; margin-right: 4px; text-shadow: 0 0 8px rgba(255,235,59,0.6);">①</span>貼り付け</button>
+            <button id="generate-btn"><span
+                    style="color: #ffeb3b; margin-right: 4px; text-shadow: 0 0 8px rgba(255,235,59,0.6);">②</span>家系図を生成</button>
+            <button id="clear-btn">削除</button>
+            <button id="collapse-all-btn">すべて折りたたむ</button>
+        </div>
+        <div class="player-id-area">
+            <div style="display: flex; gap: 20px; align-items: stretch;">
+                <!-- 左に大きく配置する変換ボタン -->
+                <button id="convert-rsid-btn"
+                    style="background: linear-gradient(90deg, #10b981, #3ce4c8); box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3); padding: 0 30px; font-size: 16px; border: none; border-radius: 8px; color: white; font-weight: bold; cursor: pointer; white-space: nowrap; transition: transform 0.2s, box-shadow 0.2s; display: flex; align-items: center; justify-content: center;">
+                    <span
+                        style="color: #ffeb3b; margin-right: 4px; text-shadow: 0 0 8px rgba(255,235,59,0.6);">③</span>プレイヤーIDを用いて変換
+                </button>
+                <div id="spinner" class="loading-spinner" style="display: none; align-self: center;"></div>
+
+                <!-- 右側の入力・セレクトエリア -->
+                <div
+                    style="display: flex; flex-direction: column; gap: 10px; margin-left: 150px; justify-content: center; flex-grow: 1;">
+                    <div class="player-id-row"
+                        style="margin: 0; display: flex; gap: 10px; align-items: center; width: 100%;">
+                        <label for="player-id-input"
+                            style="white-space: nowrap; width: auto; min-width: 100px; flex-shrink: 0;">プレイヤーID:</label>
+                        <select class="player-id-select" id="player-id-select"
+                            style="width: 200px; min-width: 200px; flex-shrink: 0;">
+                            <option value="">-- 手動入力 --</option>
+                        </select>
+                        <input type="text" id="player-id-input" placeholder="例: cc0db7" maxlength="6"
+                            style="flex-grow: 1; min-width: 100px;">
+                    </div>
+
+                    <!-- プルダウンの下に配置する登録ボタンとフォーム -->
+                    <div style="display: flex; gap: 15px; align-items: center; margin-left: 110px;">
+                        <div style="display: flex; gap: 8px; width: 200px; flex-shrink: 0;">
+                            <button id="show-register-btn"
+                                style="background: rgba(127, 90, 240, 0.2); border: 1px solid rgba(127, 90, 240, 0.5); color: var(--text-color); padding: 6px 0; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: bold; transition: background 0.2s; flex: 1; text-align: center;">
+                                ＋ ID登録
+                            </button>
+                            <button id="pid-del-btn"
+                                style="background: rgba(220, 53, 69, 0.15); border: 1px solid rgba(220, 53, 69, 0.4); color: #ff6b6b; padding: 6px 0; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: bold; transition: background 0.2s; display: none; flex: 1; text-align: center;">削除</button>
+                        </div>
+
+                        <div class="player-id-manage-row" id="player-id-manage-row" style="display: none; margin: 0;">
+                            <input type="text" id="pid-name-input" placeholder="名前 (例: 自分)" style="width: 120px;">
+                            <input type="text" id="pid-id-input" placeholder="ID (例: cc0db7)" maxlength="6"
+                                style="width: 100px;">
+                            <button class="pid-add-btn" id="pid-add-btn">登録を確定</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="progress-container">
+                <div id="progress-bar-wrapper">
+                    <div id="progress-bar"></div>
+                </div>
+                <span id="progress-text">準備中...</span>
+            </div>
+        </div>
+        <div class="webhook-settings" style="margin-top: 80px;">
+            <label for="webhook-url-input">Webhook URL:</label>
+            <input type="url" id="webhook-url-input" placeholder="https://discord.com/api/webhooks/...">
+            <button id="webhook-save-btn">保存</button>
+            <span id="webhook-status"></span>
+        </div>
+        <div class="button-group" style="margin-top: 15px;">
+            <button id="save-btn">画像として保存</button>
+            <button id="webhook-share-btn">Webhookで共有</button>
+            <button id="history-export-btn">jsonでエクスポート</button>
+            <button id="history-import-btn">jsonでインポート</button>
+        </div>
+        <p id="hyperion-transfer-status" role="status" aria-live="polite" hidden></p>
+        <p id="error-message"></p>
+        <div class="bracket-container" id="bracket-container">
+            <svg id="bracket-lines"></svg>
+        </div>
+    </div>
+
+    <div id="modal-overlay" class="modal-overlay">
+        <span id="close-modal">&times;</span>
+        <button id="modal-prev" class="modal-nav-btn modal-nav-prev" title="前へ">&#10094;</button>
+        <div id="modal-inner-wrapper">
+            <div id="modal-name" class="modal-name"></div>
+            <div id="modal-content"></div>
+            <div id="modal-counter" class="modal-counter"></div>
+        </div>
+        <button id="modal-next" class="modal-nav-btn modal-nav-next" title="次へ">&#10095;</button>
+    </div>
+
+    <div id="global-history-tooltip" class="history-tooltip"></div>
+
+    <script src="./face-renderer.js?v=20260908-1"></script>
+    <script src="./hyperion-core.js?v=20260908-1"></script>
+    <script src="./hyperion-transfer.js?v=20260908-1"></script>
+    <script>
+        // --- 色と柄の定数マッピング ---
+        const COLOR_MAP = {
+            "黄": "#efe70a", "金": "#a37900", "銀": "#6e7f7f", "黒": "#262626", "紫": "#7817f6", "水": "#23bfe9",
+            "青": "#0f2eec", "赤": "#e6130b", "桃": "#fa4789", "濃黄": "#e8be14", "濃金": "#696900", "濃銀": "#566262",
+            "濃黒": "#191919", "濃紫": "#320296", "濃水": "#1180a7", "濃青": "#142591", "濃赤": "#b50d0d", "濃桃": "#be2655",
+            "濃白": "#beb4aa", "濃緑": "#307a2a", "濃橙": "#d15f0b", "白": "#d8d0c8", "薄黄": "#f0ef6e", "薄金": "#b4b428",
+            "薄銀": "#96b4c6", "薄黒": "#3c3c3c", "薄紫": "#b45ef8", "薄水": "#80e5ee", "薄青": "#5382fb", "薄赤": "#f43246",
+            "薄桃": "#fea0cf", "薄白": "#f5f5c8", "薄緑": "#73e46d", "薄橙": "#f5a72c", "緑": "#1fc448", "橙": "#fd711f",
+            // 旧履歴との互換表記
+            "黄色": "#efe70a", "水色": "#23bfe9", "濃黄色": "#e8be14", "濃水色": "#1180a7", "薄黄色": "#f0ef6e", "薄水色": "#80e5ee",
+            "通常黒": "#262626", "通常赤": "#e6130b", "通常水色": "#23bfe9", "通常緑": "#1fc448", "通常橙": "#fd711f", "通常黄色": "#efe70a",
+            "通常青": "#0f2eec", "通常白": "#d8d0c8", "通常紫": "#7817f6", "通常桃": "#fa4789", "通常金": "#a37900", "通常銀": "#6e7f7f"
+        };
+        const PATTERN_RANK_MAP = { 'なし': 'D(単色)', 'ツートン': 'C', 'ボーダー': 'C', 'ストライプ': 'C', '水玉': 'C', 'アニマル': 'C', '斜めボーダー': 'C', 'ギンガムチェック': 'B', 'ダイヤ': 'B', '鱗文': 'B', 'シェブロン': 'B', 'バブルドット': 'B', 'スペード': 'B', 'ピンドット': 'A', 'レンガ': 'A', 'スプラッシュ': 'A', 'マーブル': 'A', 'ヘビ': 'A', 'しずく': 'A', 'うろこ': 'A', 'トラ': 'S', '花': 'S', '星': 'S' };
+
+        // =============================================================
+        // --- IndexedDB ヘルパー ---
+        // =============================================================
+        const IDB_NAME = 'kakeizuApp';
+        const IDB_VERSION = 1;
+        const STORE_HISTORY = 'history';
+        const STORE_CACHE = 'rsidCache';
+
+        function openDB() {
+            return new Promise((resolve, reject) => {
+                const req = indexedDB.open(IDB_NAME, IDB_VERSION);
+                req.onupgradeneeded = (e) => {
+                    const db = e.target.result;
+                    if (!db.objectStoreNames.contains(STORE_HISTORY)) {
+                        db.createObjectStore(STORE_HISTORY, { keyPath: 'key' });
+                    }
+                    if (!db.objectStoreNames.contains(STORE_CACHE)) {
+                        db.createObjectStore(STORE_CACHE, { keyPath: 'key' });
+                    }
+                };
+                req.onsuccess = () => resolve(req.result);
+                req.onerror = () => reject(req.error);
+            });
+        }
+
+        async function migrateFromIndexedDB() {
+            try {
+                if (localStorage.getItem('idb_to_local_migrated') === 'true') return;
+                const db = await openDB();
+                
+                await new Promise((resolve) => {
+                    const txHistory = db.transaction(STORE_HISTORY, 'readonly');
+                    const storeHistory = txHistory.objectStore(STORE_HISTORY);
+                    const reqHistory = storeHistory.get('main');
+                    reqHistory.onsuccess = () => {
+                        if (reqHistory.result && reqHistory.result.data) {
+                            if (!localStorage.getItem('rsidHistory')) {
+                                localStorage.setItem('rsidHistory', JSON.stringify(reqHistory.result.data));
+                            }
+                        }
+                        resolve();
+                    };
+                    reqHistory.onerror = () => resolve();
+                });
+
+                await new Promise((resolve) => {
+                    const txCache = db.transaction(STORE_CACHE, 'readonly');
+                    const storeCache = txCache.objectStore(STORE_CACHE);
+                    const reqCache = storeCache.get('main');
+                    reqCache.onsuccess = () => {
+                        if (reqCache.result && reqCache.result.data) {
+                            if (!localStorage.getItem('rsidConversionCache')) {
+                                localStorage.setItem('rsidConversionCache', JSON.stringify(reqCache.result.data));
+                            }
+                        }
+                        resolve();
+                    };
+                    reqCache.onerror = () => resolve();
+                });
+                
+                localStorage.setItem('idb_to_local_migrated', 'true');
+            } catch (e) {
+                console.error('データのマイグレーションに失敗しました:', e);
+            }
+        }
+
+        // --- 履歴管理 (IndexedDB) ---
+        const MAX_HISTORY = 50; // 最大保存件数
+        let currentActiveHistoryId = null;
+        let activeHyperion = null;
+        let hyperionNavigationVersion = 0;
+
+        function escapeHtml(value) {
+            return String(value ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+        }
+
+        /**
+         * IndexedDBから履歴配列を取得する
+         * @returns {Promise<Array<{id: string, name: string, data: string, date: string}>>}
+         */
+        function getHistory() {
+            try {
+                const data = localStorage.getItem('rsidHistory');
+                return data ? JSON.parse(data) : [];
+            } catch (e) {
+                return [];
+            }
+        }
+
+        /**
+         * 履歴をlocalStorageに保存（または更新）する
+         * @param {string} championName - チャンピオン名
+         * @param {string} rsidData - RSIDテキストデータ
+         * @param {string} [statusText] - アンテナや柄などのステータス文字列
+         */
+        function saveToHistory(championName, rsidData, statusText) {
+            const history = getHistory();
+            const now = new Date();
+            const dateStr = `${now.getFullYear()}/${(now.getMonth() + 1).toString().padStart(2, '0')}/${now.getDate().toString().padStart(2, '0')} ${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
+
+            // すでにアクティブな履歴がある場合はそれを更新
+            let existingIndex = -1;
+            if (currentActiveHistoryId) {
+                existingIndex = history.findIndex(h => h.id === currentActiveHistoryId);
+            }
+
+            if (existingIndex !== -1) {
+                // 既存の履歴を更新
+                history[existingIndex].name = championName || history[existingIndex].name;
+                if (history[existingIndex].data !== rsidData) {
+                    history[existingIndex].data = rsidData;
+                    delete history[existingIndex].convertedPlayerId;
+                }
+                history[existingIndex].date = dateStr; // 更新日時を更新
+                history[existingIndex].image = null; // 画像は保存しない
+                if (statusText !== undefined) {
+                    history[existingIndex].statusText = statusText;
+                }
+            } else {
+                // 新規作成
+                const entry = {
+                    id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
+                    name: championName,
+                    data: rsidData,
+                    date: dateStr,
+                    image: null,
+                    statusText: statusText || null
+                };
+                currentActiveHistoryId = entry.id; // アクティブにする
+                history.unshift(entry);
+            }
+
+            const savedEntry = history.find(h => h.id === currentActiveHistoryId);
+            if (activeHyperion && savedEntry) savedEntry.hyperion = { binaryId: activeHyperion.binaryId, appearanceComplete: activeHyperion.parsed.appearanceComplete };
+
+            // 最大件数を超えたら古いものを削除
+            if (history.length > MAX_HISTORY) {
+                history.splice(MAX_HISTORY);
+            }
+
+            try {
+                localStorage.setItem('rsidHistory', JSON.stringify(history));
+            } catch (e) {
+                console.error('履歴の保存に失敗しました:', e);
+                alert('ブラウザの容量不足のため、履歴を保存できませんでした。不要な履歴を削除してください。');
+                return false;
+            }
+            renderHistoryList();
+            void HyperionTransfer.collect(history);
+            return true;
+        }
+
+        /**
+         * 指定IDの履歴を削除する
+         * @param {string} entryId
+         */
+        function deleteHistoryEntry(entryId) {
+            let history = getHistory();
+            history = history.filter(h => h.id !== entryId);
+            if (currentActiveHistoryId === entryId) {
+                currentActiveHistoryId = null;
+            }
+            localStorage.setItem('rsidHistory', JSON.stringify(history));
+            renderHistoryList();
+            void HyperionTransfer.collect(history);
+        }
+
+        /**
+         * 全履歴を削除する
+         */
+        function clearAllHistory() {
+            localStorage.removeItem('rsidHistory');
+            currentActiveHistoryId = null;
+            renderHistoryList();
+            void HyperionTransfer.collect([]);
+        }
+
+        /**
+         * 履歴項目を選択してRSIDをテキストエリアに読み込む
+         * @param {string} entryId
+         */
+        function saveConvertedPlayerIdToHistory(entryId, playerIdHex) {
+            const history = getHistory();
+            const existingIndex = history.findIndex(h => h.id === entryId);
+            if (existingIndex !== -1) {
+                history[existingIndex].convertedPlayerId = playerIdHex;
+                localStorage.setItem('rsidHistory', JSON.stringify(history));
+            }
+        }
+
+        function restoreConversionState(playerIdHex) {
+            const errorEl = document.getElementById('error-message');
+            const progressContainer = document.getElementById('progress-container');
+            const progressBar = document.getElementById('progress-bar');
+            const progressText = document.getElementById('progress-text');
+            const convertBtn = document.getElementById('convert-rsid-btn');
+            const spinner = document.getElementById('spinner');
+
+            // プレイヤーIDの入力と選択状態を更新
+            document.getElementById('player-id-input').value = playerIdHex;
+            const select = document.getElementById('player-id-select');
+            let optionExists = false;
+            for (let i = 0; i < select.options.length; i++) {
+                if (select.options[i].value === playerIdHex) {
+                    select.value = playerIdHex;
+                    optionExists = true;
+                    break;
+                }
+            }
+            if (optionExists) {
+                document.getElementById('pid-del-btn').style.display = 'block';
+            } else {
+                select.value = '';
+                document.getElementById('pid-del-btn').style.display = 'none';
+            }
+
+            // キャッシュから変換データを取得して適用
+            let cache; try { cache = JSON.parse(localStorage.getItem('rsidConversionCache')); } catch(e){} if(!cache) cache = {};
+            if (!cache) cache = {};
+
+            const convertedResults = [];
+            for (const round of currentRoundsData) {
+                for (const node of round) {
+                    if (!node.participants || node.participants.length === 0) {
+                        const rsidForConversion = node.originalId || node.id;
+                        if (!rsidForConversion) continue;
+
+                        const cacheKey = `${playerIdHex}_${rsidForConversion}`;
+                        if (cache[cacheKey]) {
+                            convertedResults.push({ uniqueId: node.uniqueId, newId: cache[cacheKey], id: rsidForConversion });
+                        }
+                    }
+                }
+            }
+
+            if (convertedResults.length > 0) {
+                // 結果を反映
+                for (const result of convertedResults) {
+                    if (result.newId) {
+                        const cardEl = document.getElementById(result.uniqueId);
+                        if (cardEl) {
+                            const rsidTextEl = cardEl.querySelector('.rsid-text');
+                            if (rsidTextEl) {
+                                rsidTextEl.textContent = result.newId;
+                            }
+                            const qrEl = cardEl.querySelector('.qr-code');
+                            if (qrEl) {
+                                qrEl.innerHTML = '';
+                                qrEl.dataset.id = result.newId;
+                                const alphanumericOnlyId = result.newId.replace(/[^a-zA-Z0-9]/g, '');
+                                new QRCode(qrEl, {
+                                    text: alphanumericOnlyId,
+                                    width: 150,
+                                    height: 150
+                                });
+                            }
+                        }
+                    }
+                }
+
+                // UI表示を完了状態にする
+                progressContainer.style.display = 'block';
+                progressBar.style.width = '100%';
+                progressText.textContent = '変換完了';
+                spinner.style.display = 'none';
+                convertBtn.disabled = false;
+                errorEl.style.color = '#3ce4c8';
+                errorEl.textContent = '全QRコードの変換が完了しました';
+                errorEl.style.display = 'block';
+            }
+        }
+
+        // 履歴読み込み中フラグ（重複保存防止）
+        let isLoadingFromHistory = false;
+
+        async function loadHistoryEntry(entryId) {
+            const history = getHistory();
+            const entry = history.find(h => h.id === entryId);
+            if (!entry) return;
+
+            const navigation = ++hyperionNavigationVersion;
+            let binary = null;
+            if (entry.hyperion) {
+                try {
+                    binary = { binaryId: entry.hyperion.binaryId, parsed: await HyperionTransfer.model(entry.hyperion.binaryId) };
+                    if (entry.data.trim() !== binary.parsed.treeText.trim()) throw new Error('履歴の文字列とバイナリが一致しません。');
+                } catch (error) { HyperionTransfer.status(error.message, true); return; }
+            }
+            if (navigation !== hyperionNavigationVersion) return;
+            activeHyperion = binary;
+            HyperionTransfer.setActiveBinary(binary?.binaryId);
+
+            // 変換UIの状態を完全にリセット（前の家系図の変換状態を引き継がない）
+            resetConversionUI();
+
+            currentActiveHistoryId = entryId;
+
+            // テキストエリアに反映
+            const textarea = document.getElementById('rsid-input');
+            textarea.value = entry.data || "";
+            textarea.style.height = 'auto';
+            textarea.style.height = `${textarea.scrollHeight}px`;
+
+            // フラグを立てて自動生成（再保存を防止）
+            isLoadingFromHistory = true;
+            if (entry.data) {
+                document.getElementById('generate-btn').click();
+
+                // 折り畳み状態を復元
+                if (entry.collapsedNodes && entry.collapsedNodes.length > 0) {
+                    entry.collapsedNodes.forEach(nodeId => {
+                        const el = document.getElementById(nodeId);
+                        if (el) {
+                            el.dataset.collapsed = 'true';
+                            addBirthCompleteLabel(el);
+                        }
+                    });
+                    updateAllVisibility(nodesMap);
+                }
+
+                // 以前に変換完了していた場合、自動的にキャッシュから変換を適用してUIを維持する
+                if (entry.convertedPlayerId) {
+                    restoreConversionState(entry.convertedPlayerId);
+                }
+            } else {
+                // データが空ならクリアのみ
+                document.getElementById('clear-btn').click();
+            }
+            renderHistoryList(); // activeクラスをつけるため
+        }
+
+        let historyFaceObserver = null;
+        let historyFaceRenderGeneration = 0;
+        const historyFaceJobs = new WeakMap();
+
+        function renderHistoryFaceThumbnail(canvas, statusText, generation) {
+            const indicator = canvas.closest('.color-indicator');
+            if (!indicator) return;
+            if (!statusText) {
+                indicator.classList.add('is-unavailable');
+                indicator.title = 'この履歴には顔情報がありません';
+                return;
+            }
+
+            indicator.classList.add('is-loading');
+            window.DenpamenFaceRenderer.renderThumbnail(canvas, statusText, { size: 96 })
+                .then(() => {
+                    if (generation !== historyFaceRenderGeneration || !canvas.isConnected) return;
+                    indicator.classList.remove('is-loading', 'is-error');
+                })
+                .catch(error => {
+                    if (generation !== historyFaceRenderGeneration || !canvas.isConnected) return;
+                    console.error('履歴の顔サムネイル描画に失敗しました。', error);
+                    indicator.classList.remove('is-loading');
+                    indicator.classList.add('is-error');
+                    indicator.title = error.message;
+                });
+        }
+
+        function observeHistoryFaceThumbnail(canvas, statusText, generation) {
+            if (!statusText) {
+                renderHistoryFaceThumbnail(canvas, statusText, generation);
+                return;
+            }
+            if (!historyFaceObserver) {
+                renderHistoryFaceThumbnail(canvas, statusText, generation);
+                return;
+            }
+            historyFaceJobs.set(canvas, { statusText, generation });
+            historyFaceObserver.observe(canvas);
+        }
+
+        /**
+         * サイドバーの履歴リストを再描画する
+         */
+        function renderHistoryList() {
+            const listEl = document.getElementById('history-list');
+            const emptyEl = document.getElementById('history-empty');
+            const history = getHistory();
+            historyFaceObserver?.disconnect();
+            const faceRenderGeneration = ++historyFaceRenderGeneration;
+            historyFaceObserver = 'IntersectionObserver' in window
+                ? new IntersectionObserver((entries, observer) => {
+                    entries.forEach(observerEntry => {
+                        if (!observerEntry.isIntersecting) return;
+                        observer.unobserve(observerEntry.target);
+                        const job = historyFaceJobs.get(observerEntry.target);
+                        if (job) renderHistoryFaceThumbnail(observerEntry.target, job.statusText, job.generation);
+                    });
+                }, { root: listEl, rootMargin: '120px 0px' })
+                : null;
+
+            // 描画開始時にツールチップを一旦非表示にする（残存バグ防止）
+            const tooltip = document.getElementById('global-history-tooltip');
+            if (tooltip) tooltip.style.display = 'none';
+
+            // 既存の項目をクリア（empty要素は保持）
+            listEl.querySelectorAll('.history-item').forEach(el => el.remove());
+
+            if (history.length === 0) {
+                if (emptyEl) emptyEl.style.display = 'block';
+                return;
+            }
+
+            if (emptyEl) emptyEl.style.display = 'none';
+
+            // 状態パース用ヘルパー
+            const parseStatus = (statusText) => {
+                const res = { antenna: 'なし', head: '普通', size: '普通', correction: 'なし', colors: [], pattern: 'なし' };
+                if (!statusText) return res;
+                
+                // アンテナ:
+                const antennaMatch = statusText.match(/アンテナ:([^\s]+)/);
+                if (antennaMatch) res.antenna = antennaMatch[1];
+                
+                // 頭:
+                const headMatch = statusText.match(/頭:([^\s]+)/);
+                if (headMatch) res.head = headMatch[1];
+                
+                // 体格:
+                const sizeMatch = statusText.match(/体格:([^\s]+)/);
+                if (sizeMatch) res.size = sizeMatch[1];
+                
+                // 補正:
+                const correctionMatch = statusText.match(/補正:([^\s]+)/);
+                if (correctionMatch) {
+                    res.correction = correctionMatch[1];
+                } else {
+                    const correctionMatch2 = statusText.match(/([^\s]+補正)/);
+                    if (correctionMatch2) {
+                        res.correction = correctionMatch2[1];
+                    }
+                }
+                
+                // 色:
+                const colorMatch = statusText.match(/色:([\s\S]+?)(?=柄:|髪:|髪色:|肌色:|眉:|目:|鼻:|頬:|口:|$)/);
+                if (colorMatch) {
+                    res.colors = colorMatch[1].trim().split(/\s+/).map(c => c.trim()).filter(Boolean);
+                }
+
+                // 柄:
+                const patternMatch = statusText.match(/柄:([^\s]+)/);
+                if (patternMatch) res.pattern = patternMatch[1];
+                
+                return res;
+            };
+
+            const getGradientBackground = (colors) => {
+                if (!colors || colors.length === 0) {
+                    return 'linear-gradient(135deg, #3a3a50 50%, #2c2c3e 50%)'; // デフォルト背景を対角線で分ける
+                }
+                const hexColors = colors.map(c => COLOR_MAP[c] || COLOR_MAP['通常' + c] || '#3a3a50');
+                if (hexColors.length === 1) {
+                    return hexColors[0]; // 1色の場合は無理に分割せず単一色にする
+                }
+                if (hexColors.length === 2) {
+                    return `linear-gradient(135deg, ${hexColors[0]} 50%, ${hexColors[1]} 50%)`; // 2色を対角線でクッキリ分ける
+                }
+                const stops = [];
+                const step = 100 / hexColors.length;
+                for (let i = 0; i < hexColors.length; i++) {
+                    const start = i * step;
+                    const end = (i + 1) * step;
+                    stops.push(`${hexColors[i]} ${start}%`);
+                    stops.push(`${hexColors[i]} ${end}%`);
+                }
+                return `linear-gradient(135deg, ${stops.join(', ')})`;
+            };
+
+            let dragSrcEl = null;
+
+            history.forEach((entry, idx) => {
+                const item = document.createElement('div');
+                item.className = 'history-item';
+                item.dataset.id = entry.id;
+                item.dataset.index = idx;
+                item.draggable = true;
+
+                if (entry.id === currentActiveHistoryId) {
+                    item.classList.add('active');
+                }
+
+                // 配色とホバー時詳細ポップアップの動的設定
+                const details = entry.hyperion?.appearanceComplete === false ? null : parseStatus(entry.statusText);
+                let faceThumbnailHtml = '';
+                if (details) {
+                    const bgGradient = getGradientBackground(details.colors);
+                    faceThumbnailHtml = `<div class="color-indicator"><canvas class="history-face-thumbnail" width="96" height="96" aria-label="最終個体の顔"></canvas><button class="history-item-delete" title="削除">✕</button></div>`;
+
+                    item.addEventListener('mouseenter', () => {
+                        const tooltip = document.getElementById('global-history-tooltip');
+                        if (!tooltip) return;
+
+                        const patternRankText = (details.pattern && details.pattern !== 'なし') 
+                            ? `${PATTERN_RANK_MAP[details.pattern] || '不明'}(${details.pattern})` 
+                            : 'なし';
+
+                        tooltip.innerHTML = `
+                            <div class="history-tooltip-title">${escapeHtml(entry.name)} の特徴</div>
+                            <div class="history-tooltip-row">
+                                <span class="history-tooltip-label">色</span>
+                                <div class="tooltip-color-indicator" style="background: ${bgGradient};"></div>
+                            </div>
+                            <div class="history-tooltip-row">
+                                <span class="history-tooltip-label">柄ランク</span>
+                                <span>${patternRankText}</span>
+                            </div>
+                            <div class="history-tooltip-row"><span class="history-tooltip-label">アンテナ</span><span>${details.antenna}</span></div>
+                            <div class="history-tooltip-row"><span class="history-tooltip-label">頭の形</span><span>${details.head}</span></div>
+                            <div class="history-tooltip-row"><span class="history-tooltip-label">体格</span><span>${details.size}</span></div>
+                            <div class="history-tooltip-row"><span class="history-tooltip-label">補正</span><span>${details.correction}</span></div>
+                        `;
+
+                        // 位置計算（fixed配置のためウィンドウ絶対座標を使用）
+                        const rect = item.getBoundingClientRect();
+                        tooltip.style.left = `${rect.right + 10}px`;
+                        tooltip.style.top = `${rect.top + rect.height / 2}px`;
+                        tooltip.style.transform = 'translateY(-50%)';
+                        tooltip.style.display = 'block';
+                    });
+
+                    item.addEventListener('mouseleave', () => {
+                        const tooltip = document.getElementById('global-history-tooltip');
+                        if (tooltip) {
+                            tooltip.style.display = 'none';
+                        }
+                    });
+                }
+
+                item.innerHTML = `
+                <span class="drag-handle">☰</span>
+                <div class="history-item-info">
+                    <div class="history-item-name" title="${escapeHtml(entry.name)}">${escapeHtml(entry.name)}</div>
+                    <div class="history-item-date">${entry.date}</div>
+                </div>
+                ${faceThumbnailHtml}
+            `;
+
+                // ドラッグ＆ドロップイベント
+                item.addEventListener('dragstart', (e) => {
+                    dragSrcEl = item;
+                    item.classList.add('dragging');
+                    e.dataTransfer.effectAllowed = 'move';
+                    e.dataTransfer.setData('text/plain', entry.id);
+                });
+
+                item.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                    e.dataTransfer.dropEffect = 'move';
+                    item.classList.add('drag-over');
+                });
+
+                item.addEventListener('dragleave', () => {
+                    item.classList.remove('drag-over');
+                });
+
+                item.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    item.classList.remove('drag-over');
+                    if (dragSrcEl === item) return;
+
+                    const draggedId = e.dataTransfer.getData('text/plain');
+                    const history = getHistory();
+                    const fromIdx = history.findIndex(h => h.id === draggedId);
+                    const toIdx = history.findIndex(h => h.id === entry.id);
+                    if (fromIdx === -1 || toIdx === -1) return;
+
+                    const [moved] = history.splice(fromIdx, 1);
+                    history.splice(toIdx, 0, moved);
+                    localStorage.setItem('rsidHistory', JSON.stringify(history));
+                    renderHistoryList();
+                });
+
+                item.addEventListener('dragend', () => {
+                    item.classList.remove('dragging');
+                    listEl.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
+                    dragSrcEl = null;
+                });
+
+                // 項目クリック → 読み込み
+                item.addEventListener('click', (e) => {
+                    // 削除ボタン・ドラッグハンドルのクリックは除外
+                    if (e.target.closest('.history-item-delete')) return;
+                    if (e.target.closest('.drag-handle')) return;
+                    loadHistoryEntry(entry.id);
+                });
+
+                // 削除ボタンクリック
+                const deleteBtn = item.querySelector('.history-item-delete');
+                deleteBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    deleteHistoryEntry(entry.id);
+                });
+
+                listEl.insertBefore(item, emptyEl);
+                const faceCanvas = item.querySelector('.history-face-thumbnail');
+                if (faceCanvas) observeHistoryFaceThumbnail(faceCanvas, entry.statusText, faceRenderGeneration);
+            });
+        }
+
+        // 全削除ボタン
+        document.getElementById('history-clear-btn').addEventListener('click', () => {
+            if (confirm('すべての履歴を削除しますか？')) {
+                clearAllHistory();
+            }
+        });
+
+        // 新規作成ボタン
+        document.getElementById('history-new-btn').addEventListener('click', (e) => {
+            // UIをクリア
+            document.getElementById('clear-btn').click();
+
+            // 空の履歴エントリを作成
+            currentActiveHistoryId = null;
+            saveToHistory('新しい家系図', '');
+
+            // テキストエリアにフォーカスして入力待ちに
+            const textarea = document.getElementById('rsid-input');
+            textarea.focus();
+        });
+
+        // ページ読込時にマイグレーションと履歴描画を実行
+        (async () => {
+            await migrateFromIndexedDB();
+            renderHistoryList();
+        })();
+
+        // --- Web Worker初期化（RSID変換はWorkerで実行） ---
+        let rsidWorker = null;
+        // 変換セッションID（家系図切り替え時に無効化するためのガード）
+        let conversionSessionId = 0;
+
+        /**
+         * RSID変換UIの状態を完全にリセットする
+         * 家系図切り替え時や削除時に呼び出す
+         */
+        function resetConversionUI() {
+            conversionSessionId++; // 進行中の変換コールバックを無効化
+            // 実行中のWorkerがあれば終了
+            if (rsidWorker) {
+                rsidWorker.terminate();
+                rsidWorker = null;
+            }
+            const pc = document.getElementById('progress-container');
+            if (pc) pc.removeAttribute('style'); // CSSのdisplay:noneに戻す
+            const pb = document.getElementById('progress-bar');
+            if (pb) pb.removeAttribute('style');
+            const pt = document.getElementById('progress-text');
+            if (pt) pt.textContent = '準備中...';
+            const sp = document.getElementById('spinner');
+            if (sp) sp.style.display = 'none';
+            const cb = document.getElementById('convert-rsid-btn');
+            if (cb) cb.disabled = false;
+            const err = document.getElementById('error-message');
+            if (err) {
+                err.style.display = 'none';
+                err.style.color = '#f96666';
+            }
+        }
+
+        function hexToBigInt(hex) {
+            return BigInt('0x' + hex);
+        }
+
+        let currentRoundsData = [];
+        let currentFaceRenderPromise = Promise.resolve();
+        let nodesMap = new Map();
+
+        function parseNode(str) {
+            str = str.trim();
+            if (!str.startsWith("(")) {
+                const parts = str.split(/\s+/);
+                let id = parts.shift();
+                let name = parts.join(" ");
+                if (!name && !HyperionCore.normalRsid(id)) {
+                    name = id;
+                    id = "";
+                }
+                if (!name) name = id;
+                return { id, name, participants: [] };
+            }
+            let balance = 0, end = -1;
+            for (let i = 0; i < str.length; i++) {
+                if (str[i] === "(") balance++;
+                else if (str[i] === ")") balance--;
+                if (balance === 0) { end = i; break; }
+            }
+            if (end === -1) throw new Error("括弧の対応が正しくありません。");
+            const winner = str.substring(end + 1).trim();
+            const inside = str.substring(1, end).trim();
+            let depth = 0, split = -1;
+            for (let i = 0; i < inside.length; i++) {
+                if (inside[i] === "(") depth++;
+                else if (inside[i] === ")") depth--;
+                else if (inside[i] === "+" && depth === 0) { split = i; break; }
+            }
+            if (split === -1) throw new Error("'+' 区切りが見つかりません。");
+            const left = inside.substring(0, split).trim();
+            const right = inside.substring(split + 1).trim();
+            return { name: winner, participants: [parseNode(left), parseNode(right)], id: null };
+        }
+
+        function clearLines() {
+            const svg = document.getElementById('bracket-lines');
+            if (svg) {
+                svg.innerHTML = '';
+            }
+        }
+
+        function drawLines(rounds) {
+            if (!rounds || rounds.length === 0) return;
+            const container = document.getElementById('bracket-container');
+            const svg = document.getElementById('bracket-lines');
+            svg.innerHTML = '';
+            svg.setAttribute('width', container.scrollWidth);
+            svg.setAttribute('height', container.scrollHeight);
+
+            function getElementPosition(id) {
+                const el = document.getElementById(id);
+                if (!el || el.classList.contains('collapsed')) return null;
+                const containerRect = container.getBoundingClientRect();
+                const elRect = el.getBoundingClientRect();
+                return {
+                    id: id,
+                    cx: elRect.left - containerRect.left + container.scrollLeft + elRect.width / 2,
+                    top: elRect.top - containerRect.top + container.scrollTop,
+                    bottom: elRect.top - containerRect.top + container.scrollTop + elRect.height,
+                };
+            }
+
+            function connectCards(fromIds, toId, delay, pairIndex = 0, totalPairsInRound = 1) {
+                const toPos = getElementPosition(toId);
+                if (!toPos) return;
+
+                const fromPositions = fromIds.map(getElementPosition).filter(Boolean);
+                if (fromPositions.length === 0) return;
+
+                const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+
+                path.id = `path-for-${toId}`;
+
+                let pathData = "";
+                fromPositions.sort((a, b) => a.cx - b.cx);
+
+                if (fromPositions.length === 2) {
+                    const leftParentPos = fromPositions[0];
+                    const rightParentPos = fromPositions[1];
+
+                    const leftParentEl = document.getElementById(leftParentPos.id);
+                    const rightParentEl = document.getElementById(rightParentPos.id);
+
+                    let anchorParentPos = leftParentPos;
+                    if (leftParentEl && rightParentEl) {
+                        const leftHasQr = leftParentEl.querySelector('.qr-code') !== null;
+                        const rightHasQr = rightParentEl.querySelector('.qr-code') !== null;
+                        if (leftHasQr && !rightHasQr) {
+                            anchorParentPos = rightParentPos;
+                        } else if (!leftHasQr && rightHasQr) {
+                            anchorParentPos = leftParentPos;
+                        }
+                    }
+
+                    const parentCenterY = anchorParentPos.top + (anchorParentPos.bottom - anchorParentPos.top) / 2;
+                    const midX = (leftParentPos.cx + rightParentPos.cx) / 2;
+
+                    pathData += `M ${leftParentPos.cx},${parentCenterY} L ${rightParentPos.cx},${parentCenterY} `;
+
+                    const baseOffsetY = 120;
+                    const maxAvailableSpace = 80;
+                    const spacing = totalPairsInRound > 1 ? maxAvailableSpace / (totalPairsInRound - 1) : 0;
+                    const yOffset = baseOffsetY - (pairIndex * spacing);
+                    const verticalDropY = toPos.top - yOffset;
+
+                    pathData += `M ${midX},${parentCenterY} L ${midX},${verticalDropY} `;
+                    pathData += `L ${toPos.cx},${verticalDropY} `;
+                    pathData += `L ${toPos.cx},${toPos.top} `;
+
+                } else if (fromPositions.length === 1) {
+                    const fromPos = fromPositions[0];
+                    const midX = (fromPos.cx + toPos.cx) / 2;
+
+                    pathData += `M ${fromPos.cx},${fromPos.bottom} L ${fromPos.cx},${fromPos.bottom + 40} `;
+                    pathData += `L ${midX},${fromPos.bottom + 40} `;
+                    pathData += `L ${midX},${toPos.top - 40} `;
+                    pathData += `L ${toPos.cx},${toPos.top - 40} `;
+                    pathData += `L ${toPos.cx},${toPos.top} `;
+                }
+
+                path.setAttribute("d", pathData);
+
+                // 子ノードの先/後に応じて線の色を設定
+                const toEl = document.getElementById(toId);
+                if (toEl) {
+                    if (toEl.classList.contains('pair-first')) {
+                        path.classList.add('line-red');
+                    } else if (toEl.classList.contains('pair-second')) {
+                        path.classList.add('line-blue');
+                    }
+                }
+
+                svg.appendChild(path);
+            }
+
+            for (let i = 0; i < rounds.length - 1; i++) {
+                const parentRound = rounds[i + 1];
+                let activePairsCount = 0;
+                parentRound.forEach(n => {
+                    if (n.participants && n.participants.length > 0) activePairsCount++;
+                });
+
+                let pairCounter = 0;
+                parentRound.forEach((parentNode) => {
+                    if (parentNode.participants && parentNode.participants.length > 0) {
+                        const childIds = parentNode.participants.map(p => p.uniqueId);
+                        connectCards(childIds, parentNode.uniqueId, 0, pairCounter, activePairsCount);
+                        pairCounter++;
+                    }
+                });
+            }
+        }
+
+        function applyFaceColorSwatches(championCardId, statusText) {
+            const championEl = document.getElementById(championCardId);
+            if (!championEl) return;
+            const colorConfig = {
+                "髪色": { selector: '.hair-color-box', folder: 'face-assets/色・柄情報/髪色画像' },
+                "肌色": { selector: '.skin-color-box', folder: 'face-assets/色・柄情報/肌色画像' }
+            };
+            for (const [key, config] of Object.entries(colorConfig)) {
+                const element = championEl.querySelector(config.selector);
+                if (!element) continue;
+                const match = statusText?.match(new RegExp(`${key}:(\\d+)`));
+                element.style.backgroundImage = match ? `url('${config.folder}/${match[1]}.png')` : 'none';
+            }
+        }
+
+        async function renderChampionFace(championCardId, statusText) {
+            const championEl = document.getElementById(championCardId);
+            const preview = championEl?.querySelector('.face-preview-container');
+            const canvas = preview?.querySelector('.face-preview-canvas');
+            if (!preview || !canvas || !window.DenpamenFaceRenderer) return;
+
+            preview.classList.add('is-loading');
+            preview.classList.remove('is-error');
+            try {
+                await window.DenpamenFaceRenderer.render(canvas, statusText, { transparent: true });
+            } catch (error) {
+                console.error('顔プレビューの描画に失敗しました。', error);
+                preview.classList.add('is-error');
+                preview.title = error.message;
+            } finally {
+                preview.classList.remove('is-loading');
+            }
+        }
+        function applyAppearanceInfo(championCardId, statusText) { const championEl = document.getElementById(championCardId); const paletteContainer = championEl.querySelector('.custom-color-palette'); if (!paletteContainer) return; paletteContainer.innerHTML = ''; if (!statusText) return; const colorMatch = statusText.match(/色:([\s\S]*?)(柄:|髪:|髪色:|肌色:|眉:|目:|鼻:|頬:|口:|$)/); if (colorMatch && colorMatch[1]) { const colorNames = colorMatch[1].trim().split(/\s+/); colorNames.forEach(name => { if (COLOR_MAP[name]) { const item = document.createElement('div'); item.className = 'palette-item'; const box = document.createElement('div'); box.className = 'palette-color-box'; box.style.backgroundColor = COLOR_MAP[name]; const text = document.createTextNode(name); item.appendChild(box); item.appendChild(text); paletteContainer.appendChild(item); } }); } const patternMatch = statusText.match(/柄:([\s\S]*?)(髪:|髪色:|肌色:|眉:|目:|鼻:|頬:|口:|$)/); if (patternMatch && patternMatch[1]) { const patternName = patternMatch[1].trim(); const rank = PATTERN_RANK_MAP[patternName]; if (rank) { const item = document.createElement('div'); item.className = 'palette-item pattern-rank'; item.textContent = `柄ランク:${rank}`; let borderColor = 'var(--primary-accent)'; if (rank === 'D(単色)') { borderColor = '#FFFFFF'; } else if (rank === 'C') { borderColor = '#90EE90'; } else if (rank === 'B') { borderColor = '#ADD8E6'; } else if (rank === 'A') { borderColor = '#F08080'; } item.style.borderColor = borderColor; paletteContainer.appendChild(item); } } }
+        // --- 折り畳み状態の保存ヘルパー ---
+        function saveCollapseStateToHistory() {
+            if (!currentActiveHistoryId) return;
+            const collapsedNodes = [];
+            document.querySelectorAll('[data-collapsed="true"]').forEach(el => {
+                collapsedNodes.push(el.id);
+            });
+            const history = getHistory();
+            const idx = history.findIndex(h => h.id === currentActiveHistoryId);
+            if (idx !== -1) {
+                history[idx].collapsedNodes = collapsedNodes;
+                localStorage.setItem('rsidHistory', JSON.stringify(history));
+            }
+        }
+
+        // --- 出生完了ラベルの追加/削除ヘルパー ---
+        function addBirthCompleteLabel(cardEl) {
+            if (cardEl.querySelector('.birth-complete-label')) return;
+            const nameEl = cardEl.querySelector('.name');
+            if (nameEl) {
+                const label = document.createElement('span');
+                label.className = 'birth-complete-label';
+                label.textContent = '出生完了';
+                nameEl.appendChild(label);
+            }
+        }
+
+        function removeBirthCompleteLabel(cardEl) {
+            const label = cardEl.querySelector('.birth-complete-label');
+            if (label) label.remove();
+        }
+
+        function setupQRCodeModal() {
+            const modalOverlay = document.getElementById('modal-overlay');
+            const modalContent = document.getElementById('modal-content');
+            const modalNameEl = document.getElementById('modal-name');
+            const modalCounterEl = document.getElementById('modal-counter');
+            const closeModalBtn = document.getElementById('close-modal');
+            const prevBtn = document.getElementById('modal-prev');
+            const nextBtn = document.getElementById('modal-next');
+
+            // 現在表示中のQRリストとインデックス
+            let qrList = [];
+            let currentQrIndex = -1;
+
+            const closeModal = () => {
+                modalOverlay.style.display = 'none';
+                modalContent.innerHTML = '';
+                modalNameEl.textContent = '';
+                modalCounterEl.textContent = '';
+                document.getElementById('bracket-container').classList.remove('qr-blur-active');
+                qrList = [];
+                currentQrIndex = -1;
+            };
+
+            /**
+             * 表示中のQRリストを構築する（非表示でないQRコードのみ）
+             */
+            function buildQrList() {
+                const allQrs = document.querySelectorAll('#bracket-container .qr-code[data-id]');
+                qrList = [];
+                allQrs.forEach(el => {
+                    // collapsed（非表示）ではない親カード内のQRのみ対象
+                    const card = el.closest('.player-card');
+                    if (card && !card.classList.contains('collapsed')) {
+                        const nameEl = card.querySelector('.name');
+                        let name = '';
+                        if (nameEl) {
+                            // birth-complete-label を除外して名前を取得
+                            name = Array.from(nameEl.childNodes)
+                                .filter(n => !n.classList || !n.classList.contains('birth-complete-label'))
+                                .map(n => n.textContent)
+                                .join('')
+                                .trim();
+                        }
+                        qrList.push({
+                            id: el.dataset.id,
+                            name: name,
+                            element: el
+                        });
+                    }
+                });
+            }
+
+            /**
+             * 指定インデックスのQRをモーダルに表示する
+             */
+            function showQrAtIndex(index) {
+                if (index < 0 || index >= qrList.length) return;
+                currentQrIndex = index;
+                const item = qrList[index];
+
+                // QRコード生成
+                const qrContainer = document.createElement('div');
+                qrContainer.style.background = 'white';
+                qrContainer.style.padding = '15px';
+                qrContainer.style.borderRadius = '8px';
+                modalContent.innerHTML = '';
+                modalContent.appendChild(qrContainer);
+                const alphanumericOnlyQrData = item.id.replace(/[^a-zA-Z0-9]/g, '');
+                new QRCode(qrContainer, {
+                    text: alphanumericOnlyQrData,
+                    width: 400,
+                    height: 400
+                });
+
+                // 個体名を表示
+                modalNameEl.textContent = item.name || item.id;
+
+                // カウンターを表示
+                modalCounterEl.textContent = `${index + 1} / ${qrList.length}`;
+
+                // ナビボタンの表示/非表示
+                prevBtn.style.visibility = index > 0 ? 'visible' : 'hidden';
+                nextBtn.style.visibility = index < qrList.length - 1 ? 'visible' : 'hidden';
+            }
+
+            // QRコードクリックでモーダルを開く
+            document.getElementById('bracket-container').addEventListener('click', (event) => {
+                const qrEl = event.target.closest('.qr-code');
+                if (!qrEl) return;
+                event.stopPropagation();
+                const qrData = qrEl.dataset.id;
+                if (qrData) {
+                    buildQrList();
+                    // クリックされたQRのインデックスを検索
+                    const clickedIndex = qrList.findIndex(q => q.element === qrEl);
+                    if (clickedIndex === -1) return;
+
+                    showQrAtIndex(clickedIndex);
+                    modalOverlay.style.display = 'flex';
+                    document.getElementById('bracket-container').classList.add('qr-blur-active');
+                }
+            });
+
+            // ナビゲーションボタン
+            prevBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                if (currentQrIndex > 0) {
+                    showQrAtIndex(currentQrIndex - 1);
+                }
+            });
+
+            nextBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                if (currentQrIndex < qrList.length - 1) {
+                    showQrAtIndex(currentQrIndex + 1);
+                }
+            });
+
+            // キーボードナビゲーション
+            document.addEventListener('keydown', (e) => {
+                if (modalOverlay.style.display !== 'flex') return;
+                if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+                    e.preventDefault();
+                    if (currentQrIndex > 0) showQrAtIndex(currentQrIndex - 1);
+                } else if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+                    e.preventDefault();
+                    if (currentQrIndex < qrList.length - 1) showQrAtIndex(currentQrIndex + 1);
+                } else if (e.key === 'Escape') {
+                    closeModal();
+                }
+            });
+
+            closeModalBtn.addEventListener('click', closeModal);
+            modalOverlay.addEventListener('click', (event) => {
+                if (event.target === modalOverlay) {
+                    closeModal();
+                }
+            });
+        }
+
+        function getAllAncestorIds(node, nodesMap) {
+            let ancestors = new Set();
+            function find(currentNode) {
+                if (!currentNode || !currentNode.participants || currentNode.participants.length === 0) return;
+                for (const parent of currentNode.participants) {
+                    ancestors.add(parent.uniqueId);
+                    const parentNode = nodesMap.get(parent.uniqueId);
+                    if (parentNode) {
+                        find(parentNode);
+                    }
+                }
+            }
+            find(node);
+            return ancestors;
+        }
+
+        function updateAllVisibility(nodesMap) {
+            const allNodeElements = document.querySelectorAll('.player-card');
+            const hiddenNodeIds = new Set();
+
+            document.querySelectorAll('[data-collapsed="true"]').forEach(collapsedNodeEl => {
+                const node = nodesMap.get(collapsedNodeEl.id);
+                if (node) {
+                    const ancestorIds = getAllAncestorIds(node, nodesMap);
+                    ancestorIds.forEach(id => hiddenNodeIds.add(id));
+                }
+            });
+
+            allNodeElements.forEach(el => {
+                if (hiddenNodeIds.has(el.id)) {
+                    el.classList.add('collapsed');
+                } else {
+                    el.classList.remove('collapsed');
+                }
+            });
+
+            requestAnimationFrame(() => {
+                drawLines(currentRoundsData);
+            });
+        }
+
+        function setupCollapseInteraction(nodesMap) {
+            document.querySelectorAll('.collapsible').forEach(card => {
+                card.addEventListener('click', (event) => {
+                    if (event.target.closest('.qr-code')) {
+                        return;
+                    }
+
+                    const cardEl = event.currentTarget;
+                    const isCollapsed = cardEl.dataset.collapsed === 'true';
+
+                    if (isCollapsed) {
+                        delete cardEl.dataset.collapsed;
+                        removeBirthCompleteLabel(cardEl);
+                    } else {
+                        cardEl.dataset.collapsed = 'true';
+                        addBirthCompleteLabel(cardEl);
+                    }
+
+                    updateAllVisibility(nodesMap);
+                    saveCollapseStateToHistory();
+                });
+            });
+        }
+
+        function setupHighlightInteraction(nodesMap) {
+            const container = document.getElementById('bracket-container');
+            if (!container) return;
+
+            const allPaths = () => container.querySelectorAll('#bracket-lines path');
+            const allCards = () => container.querySelectorAll('.player-card');
+
+            document.querySelectorAll('.player-card').forEach(card => {
+                card.addEventListener('mouseenter', () => {
+                    container.classList.add('highlight-active');
+
+                    const currentId = card.id;
+                    const node = nodesMap.get(currentId);
+                    if (!node) return;
+
+                    card.classList.add('highlight-focus');
+
+                    if (node.participants.length > 0) {
+                        const myBirthPath = document.getElementById(`path-for-${currentId}`);
+                        if (myBirthPath) myBirthPath.classList.add('highlight-focus');
+
+                        node.participants.forEach(parent => {
+                            const parentCard = document.getElementById(parent.uniqueId);
+                            if (parentCard) parentCard.classList.add('highlight-focus');
+                        });
+                    }
+
+                    if (node.parentId) {
+                        const childNode = nodesMap.get(node.parentId);
+                        if (childNode) {
+                            const childCard = document.getElementById(childNode.uniqueId);
+                            if (childCard) childCard.classList.add('highlight-focus');
+
+                            const myCreationPath = document.getElementById(`path-for-${childNode.uniqueId}`);
+                            if (myCreationPath) myCreationPath.classList.add('highlight-focus');
+
+                            const pairNode = childNode.participants.find(p => p.uniqueId !== currentId);
+                            if (pairNode) {
+                                const pairCard = document.getElementById(pairNode.uniqueId);
+                                if (pairCard) pairCard.classList.add('highlight-focus');
+                            }
+                        }
+                    }
+                });
+
+                card.addEventListener('mouseleave', () => {
+                    container.classList.remove('highlight-active');
+                    allPaths().forEach(p => p.classList.remove('highlight-focus'));
+                    allCards().forEach(c => c.classList.remove('highlight-focus'));
+                });
+            });
+        }
+
+
+        function renderFamilyTree(input, options = {}) {
+            input = input.trim();
+            const binary = options.hyperion || (activeHyperion?.parsed.treeText.trim() === input ? activeHyperion : null);
+            const errorEl = document.getElementById('error-message');
+            const container = document.getElementById('bracket-container');
+            errorEl.style.display = 'none';
+            if (!input) return false;
+
+            try {
+                let stringToParse = input;
+                let statusString = '';
+                let formattedStatus = '';
+                const treeForCheck = binary ? structuredClone(binary.parsed.tree) : parseNode(stringToParse);
+                const winnerName = treeForCheck.name;
+
+                // 「頭:」「アンテナ:」のうち、先に現れる位置から全ステータスを取り出す
+                const statusStartIndex = window.DenpamenFaceRenderer.findStatusStart(winnerName);
+
+                if (statusStartIndex !== -1) {
+                    statusString = winnerName.substring(statusStartIndex);
+                    const winnerNameOnly = winnerName.substring(0, statusStartIndex).trim();
+                    const lastWinnerNameIndex = stringToParse.lastIndexOf(winnerName);
+                    stringToParse = stringToParse.substring(0, lastWinnerNameIndex) + winnerNameOnly;
+                }
+                if (binary) {
+                    statusString = binary.parsed.statusText;
+                    binary.parsed.appearanceComplete &&= window.DenpamenFaceRenderer.hasCompleteAppearance(statusString);
+                }
+                if (statusString) {
+                    let tempStatus = statusString;
+                    tempStatus = tempStatus.replace(
+                        /(色:)([\s\S]*?)(?=(?:柄:|髪:|髪色:|肌色:|眉:|目:|鼻:|頬:|口:)|$)/,
+                        (match, colorKeyword, colorText) => {
+                            const processedText = colorText.trim().replace(/\s+/g, '&');
+                            return colorKeyword + processedText + '\n';
+                        }
+                    );
+                    formattedStatus = tempStatus.replace(/\s+/g, '\n').trim();
+                }
+
+                const tree = binary ? treeForCheck : parseNode(stringToParse);
+                const roundsData = [];
+                let nodeCount = 0;
+
+                function assignDepthAndId(node, depth, parentId = null) {
+                    if (depth > HyperionCore.LIMITS.depth || ++nodeCount > HyperionCore.LIMITS.cards) throw new Error('家系図の表示上限を超えています。');
+                    if (!roundsData[depth]) roundsData[depth] = [];
+                    node.uniqueId = `d${depth}_${roundsData[depth].length}`;
+                    node.parentId = parentId;
+                    // リーフノードの場合、元のRSIDを保持する
+                    if (!node.participants || node.participants.length === 0) {
+                        node.originalId = node.id;
+                    }
+                    roundsData[depth].push(node);
+                    node.participants.forEach(p => assignDepthAndId(p, depth + 1, node.uniqueId));
+                }
+
+                assignDepthAndId(tree, 0);
+                const reversedRounds = [...roundsData].reverse();
+
+                const preparedNodesMap = new Map(reversedRounds.flat().map(node => [node.uniqueId, node]));
+
+                let html = "";
+                let cardCounter = 0;
+                reversedRounds.forEach((round, i) => {
+                    const isChampionRound = i === reversedRounds.length - 1;
+                    html += `<div class="round">`;
+                    html += round.map(node => {
+
+                        let pairName = "なし";
+                        let childName = "なし";
+                        let pairClass = '';
+
+                        // ★追加: 親の名前を取得する処理
+                        let parentsText = "なし";
+                        if (node.participants && node.participants.length > 0) {
+                            parentsText = node.participants.map(p => p.name.split(' ')[0]).join(' + ');
+                        }
+
+                        if (node.parentId) {
+                            const childNode = preparedNodesMap.get(node.parentId);
+                            if (childNode) {
+                                childName = childNode.name.split(' ')[0];
+                                if (childNode.participants.length === 2) {
+                                    const pairNode = childNode.participants.find(p => p.uniqueId !== node.uniqueId);
+                                    if (pairNode) {
+                                        pairName = pairNode.name.split(' ')[0];
+                                    }
+
+                                    if (childNode.participants[0].uniqueId === node.uniqueId) {
+                                        pairClass = ' pair-first';
+                                    } else if (childNode.participants[1].uniqueId === node.uniqueId) {
+                                        pairClass = ' pair-second';
+                                    }
+                                }
+                            }
+                        }
+
+                        // ★変更: 親:◯◯ を表示に追加
+                        const relationHtml = `
+                        <div class="relation-info">
+                            <div>親: ${escapeHtml(parentsText)}</div>
+                            <div>ペア: ${escapeHtml(pairName)}</div>
+                            <div>子: ${escapeHtml(childName)}</div>
+                        </div>`;
+
+                        let nameSuffix = '';
+                        if (pairClass.includes('pair-first')) nameSuffix = '(先)';
+                        else if (pairClass.includes('pair-second')) nameSuffix = '(後)';
+
+                        let cardStyle = ``;
+                        const isLeafNode = !node.participants.length;
+                        const collapsibleClass = !isLeafNode ? ' collapsible' : '';
+                        const qrHtml = isLeafNode && HyperionCore.normalRsid(node.id) ? `<div class="qr-code" data-id="${node.id}"></div><div class="rsid-text">${node.id}</div>` : '';
+
+                        const cardHtml = isChampionRound ?
+                            `<div class="player-card champion-card${collapsibleClass}${pairClass}" id="${node.uniqueId}" style="${cardStyle}">
+                            <div class="face-preview-container"><canvas class="face-preview-canvas" width="1024" height="1024" aria-label="最終個体の顔プレビュー"></canvas></div>
+                            <div class="color-info-container"> <div class="color-info-item">髪色<div class="color-preview-box hair-color-box"></div></div> <div class="color-info-item">肌色<div class="color-preview-box skin-color-box"></div></div> </div>
+                            <div class="custom-color-palette"></div>
+                            <div class="name">${escapeHtml(node.name).replace(' ', '<br>')}${nameSuffix}</div>
+                            ${relationHtml}
+                            ${formattedStatus ? `<div class="status">${escapeHtml(formattedStatus)}</div>` : ''}
+                            ${qrHtml}
+                        </div>`
+                            :
+                            `<div class="player-card${collapsibleClass}${pairClass}" id="${node.uniqueId}" style="${cardStyle}">
+                            <div class="name">${escapeHtml(node.name)}${nameSuffix}</div>
+                            ${relationHtml}
+                            ${qrHtml}
+                        </div>`;
+
+                        cardCounter++;
+                        return cardHtml;
+                    }).join('');
+                    html += `</div>`;
+                });
+                // Build QR elements before replacing the visible tree, so a failed receive preserves it.
+                const prepared = document.createElement('div');
+                prepared.innerHTML = '<svg id="bracket-lines"></svg>' + html;
+                prepared.querySelectorAll('.qr-code').forEach(el => {
+                    new QRCode(el, { text: el.dataset.id, width: 150, height: 150 });
+                });
+                resetConversionUI();
+                currentRoundsData = reversedRounds;
+                nodesMap = preparedNodesMap;
+                container.replaceChildren(...prepared.childNodes);
+
+                document.querySelectorAll('.round').forEach(roundEl => {
+                    const count = roundEl.querySelectorAll('.player-card').length;
+                    if (count >= 12) { roundEl.classList.add('is-super-crowded'); }
+                    else if (count >= 8) { roundEl.classList.add('is-crowded'); }
+                    else if (count >= 4) { roundEl.classList.add('is-dense'); }
+                });
+
+                setupQRCodeModal();
+                setupCollapseInteraction(nodesMap);
+                setupHighlightInteraction(nodesMap);
+
+                const championNode = reversedRounds[reversedRounds.length - 1][0];
+                if (championNode) {
+                    applyFaceColorSwatches(championNode.uniqueId, statusString);
+                    applyAppearanceInfo(championNode.uniqueId, statusString);
+                    if (binary && !binary.parsed.appearanceComplete) {
+                        const preview = document.getElementById(championNode.uniqueId).querySelector('.face-preview-container');
+                        preview.classList.add('is-error');
+                        preview.title = '未対応の顔情報があります。元データは保持されています。';
+                    } else {
+                        currentFaceRenderPromise = currentFaceRenderPromise.catch(() => {}).then(() => renderChampionFace(championNode.uniqueId, statusString));
+                    }
+                }
+
+                requestAnimationFrame(() => {
+                    // アニメーションなしで即座に線を描画
+                    drawLines(currentRoundsData);
+                });
+
+                // --- 履歴をIndexedDBに保存（履歴からの読み込み時はスキップ） ---
+                if (!isLoadingFromHistory) {
+                    if (options.newHistory || (activeHyperion && !binary)) currentActiveHistoryId = null;
+                    activeHyperion = binary;
+                    HyperionTransfer.setActiveBinary(binary?.binaryId);
+                    const championName = tree.name || '名称不明';
+                    if (!saveToHistory(championName, input, statusString)) {
+                        options.warning = '履歴を保存できませんでした。再読み込み前に保存容量を確認してください。';
+                        HyperionTransfer.status(options.warning, true);
+                    }
+                }
+                isLoadingFromHistory = false;
+                return true;
+
+            } catch (e) {
+                errorEl.textContent = "エラー: " + e.message;
+                errorEl.style.display = 'block';
+                isLoadingFromHistory = false;
+                return false;
+            }
+        }
+
+        document.getElementById('generate-btn').addEventListener('click', () => {
+            ++hyperionNavigationVersion;
+            renderFamilyTree(document.getElementById('rsid-input').value);
+        });
+
+        HyperionTransfer.install(async (parsed, binaryId) => {
+            ++hyperionNavigationVersion;
+            isLoadingFromHistory = false;
+            const options = { hyperion: { parsed, binaryId }, newHistory: true };
+            if (!renderFamilyTree(parsed.treeText, options)) throw new Error(document.getElementById('error-message').textContent);
+            const input = document.getElementById('rsid-input');
+            input.value = parsed.treeText;
+            input.style.height = 'auto';
+            input.style.height = `${input.scrollHeight}px`;
+            return options.warning || '';
+        });
+
+        document.getElementById('clear-btn').addEventListener('click', () => {
+            ++hyperionNavigationVersion;
+            if (activeHyperion) currentActiveHistoryId = null;
+            activeHyperion = null;
+            HyperionTransfer.setActiveBinary(null);
+            void HyperionTransfer.collect();
+            document.getElementById('rsid-input').value = '';
+            document.getElementById('bracket-container').innerHTML = '<svg id="bracket-lines"></svg>';
+            document.getElementById('error-message').style.display = 'none';
+            // 変換UIもリセット
+            resetConversionUI();
+            currentRoundsData = [];
+            nodesMap.clear();
+        });
+
+        document.getElementById('collapse-all-btn').addEventListener('click', () => {
+            if (!nodesMap || nodesMap.size === 0) {
+                alert('先に家系図を生成してください。');
+                return;
+            }
+
+            const collapsibleNodes = document.querySelectorAll('.collapsible');
+            if (collapsibleNodes.length === 0) return;
+
+            collapsibleNodes.forEach(card => {
+                card.dataset.collapsed = 'true';
+                addBirthCompleteLabel(card);
+            });
+
+            updateAllVisibility(nodesMap);
+            saveCollapseStateToHistory();
+        });
+
+        document.getElementById('save-btn').addEventListener('click', async () => {
+            const container = document.getElementById('bracket-container');
+            if (container.children.length <= 1) {
+                alert('先に家系図を生成してください。');
+                return;
+            }
+
+            await currentFaceRenderPromise;
+            drawLines(currentRoundsData);
+            container.classList.add('screenshot-mode');
+
+            setTimeout(() => {
+                html2canvas(container, {
+                    useCORS: true, scale: 3, backgroundColor: "#2c2c3e", imageSmoothingEnabled: false,
+                    scrollX: 0,
+                    scrollY: 0,
+                    width: container.scrollWidth,
+                    height: container.scrollHeight,
+                }).then(canvas => {
+                    const link = document.createElement('a');
+                    link.href = canvas.toDataURL('image/png');
+                    link.download = 'family-tree.png';
+                    link.click();
+                }).finally(() => {
+                    container.classList.remove('screenshot-mode');
+                    drawLines(currentRoundsData);
+                });
+            }, 300);
+        });
+
+        const textarea = document.getElementById('rsid-input');
+        textarea.addEventListener('input', () => { textarea.style.height = 'auto'; textarea.style.height = `${textarea.scrollHeight}px`; });
+
+        let resizeTimer;
+        window.addEventListener('resize', () => {
+            clearTimeout(resizeTimer);
+            resizeTimer = setTimeout(() => {
+                drawLines(currentRoundsData);
+            }, 200);
+        });
+
+        let scrollTimer;
+        document.getElementById('bracket-container').addEventListener('scroll', () => {
+            clearTimeout(scrollTimer);
+            scrollTimer = setTimeout(() => {
+                drawLines(currentRoundsData);
+            }, 100);
+        });
+
+        document.getElementById('convert-rsid-btn').addEventListener('click', () => {
+            const errorEl = document.getElementById('error-message');
+            const spinner = document.getElementById('spinner');
+            const convertBtn = document.getElementById('convert-rsid-btn');
+            const progressContainer = document.getElementById('progress-container');
+            const progressBar = document.getElementById('progress-bar');
+            const progressText = document.getElementById('progress-text');
+            const playerIdHex = document.getElementById('player-id-input').value.trim();
+
+            if (!playerIdHex) {
+                errorEl.style.color = '#f96666'; // エラー色にリセット
+                errorEl.textContent = "エラー：プレイヤーIDを入力してください。";
+                errorEl.style.display = 'block';
+                return;
+            }
+
+            try {
+                Number(hexToBigInt(playerIdHex));
+            } catch (e) {
+                errorEl.style.color = '#f96666'; // エラー色にリセット
+                errorEl.textContent = "エラー：プレイヤーIDは正しい16進数（例: cc0db7）で入力してください。";
+                errorEl.style.display = 'block';
+                return;
+            }
+
+            if (!currentRoundsData || currentRoundsData.length === 0) {
+                errorEl.style.color = '#f96666'; // エラー色にリセット
+                errorEl.textContent = "エラー：先に家系図を生成してください。";
+                errorEl.style.display = 'block';
+                return;
+            }
+
+            // UIの状態を更新
+            errorEl.style.display = 'none';
+            spinner.style.display = 'block';
+            convertBtn.disabled = true;
+            progressContainer.style.display = 'block';
+            progressBar.style.width = '0%';
+            progressText.textContent = '準備中...';
+
+            // 現在の変換セッションIDを記録
+            const thisSessionId = ++conversionSessionId;
+
+            // キャッシュ機能の準備
+            let cache; try { cache = JSON.parse(localStorage.getItem('rsidConversionCache')); } catch(e){} if(!cache) cache = {};
+            if (!cache) cache = {};
+
+            function saveToCache(updates) {
+                Object.assign(cache, updates);
+                try {
+                    localStorage.setItem('rsidConversionCache', JSON.stringify(cache));
+                } catch (e) {
+                    console.error('キャッシュの保存に失敗しました:', e);
+                }
+            }
+
+            function applyConvertedResults(results) {
+                for (const result of results) {
+                    if (result.newId) {
+                        // 注意: node.id（元のRSID）は書き換えない。表示のみ更新する。
+                        const cardEl = document.getElementById(result.uniqueId);
+                        if (cardEl) {
+                            const rsidTextEl = cardEl.querySelector('.rsid-text');
+                            if (rsidTextEl) {
+                                rsidTextEl.textContent = result.newId;
+                            }
+                            const qrEl = cardEl.querySelector('.qr-code');
+                            if (qrEl) {
+                                qrEl.innerHTML = '';
+                                qrEl.dataset.id = result.newId;
+                                const alphanumericOnlyId = result.newId.replace(/[^a-zA-Z0-9]/g, '');
+                                new QRCode(qrEl, {
+                                    text: alphanumericOnlyId,
+                                    width: 150,
+                                    height: 150
+                                });
+                            }
+                        }
+                    }
+                }
+            }
+
+            // リーフノードを収集（常に originalId を使って変換する）
+            const leafNodesToConvert = [];
+            const cachedResults = [];
+            for (const round of currentRoundsData) {
+                for (const node of round) {
+                    if (!node.participants || node.participants.length === 0) {
+                        // originalId を使用（元のRSIDを基に変換）
+                        const rsidForConversion = node.originalId || node.id;
+                        if (!rsidForConversion) continue;
+
+                        const cacheKey = `${playerIdHex}_${rsidForConversion}`;
+                        if (cache[cacheKey]) {
+                            cachedResults.push({ uniqueId: node.uniqueId, newId: cache[cacheKey], id: rsidForConversion });
+                        } else {
+                            leafNodesToConvert.push({ uniqueId: node.uniqueId, id: rsidForConversion });
+                        }
+                    }
+                }
+            }
+
+            // キャッシュ済みの結果を即反映
+            if (cachedResults.length > 0) {
+                applyConvertedResults(cachedResults);
+            }
+
+            // 全てキャッシュにあった場合
+            if (leafNodesToConvert.length === 0) {
+                if (thisSessionId !== conversionSessionId) return; // 別の家系図に切り替え済み
+                progressBar.style.width = '100%';
+                progressText.textContent = '変換完了';
+                spinner.style.display = 'none';
+                convertBtn.disabled = false;
+                errorEl.style.color = '#3ce4c8';
+                errorEl.textContent = '全QRコードの変換が完了しました';
+                errorEl.style.display = 'block';
+
+                if (currentActiveHistoryId) {
+                    saveConvertedPlayerIdToHistory(currentActiveHistoryId, playerIdHex);
+                }
+                return;
+            }
+
+            // 既存のWorkerがあれば終了
+            if (rsidWorker) {
+                rsidWorker.terminate();
+            }
+
+            // Web Workerを起動
+            rsidWorker = new Worker('rsid-worker.js');
+
+            let progressUpdateCounter = 0;
+
+            rsidWorker.onmessage = (event) => {
+                const data = event.data;
+
+                // 別の家系図に切り替え済みならコールバックを無視
+                if (thisSessionId !== conversionSessionId) {
+                    rsidWorker.terminate();
+                    rsidWorker = null;
+                    return;
+                }
+
+                if (data.type === 'progress') {
+                    progressUpdateCounter++;
+                    if (progressUpdateCounter % 5 === 0 || data.current === data.total) {
+                        requestAnimationFrame(() => {
+                            const percent = Math.round((data.current / data.total) * 100);
+                            progressBar.style.width = percent + '%';
+                            progressText.textContent = data.message;
+                        });
+                    }
+                } else if (data.type === 'result') {
+                    const convertedNodes = data.convertedNodes;
+
+                    // 新規変換結果をキャッシュに保存（originalId ベースのキーを使用）
+                    const newCacheEntries = {};
+                    for (const result of convertedNodes) {
+                        if (result.newId) {
+                            const originalNode = leafNodesToConvert.find(n => n.uniqueId === result.uniqueId);
+                            if (originalNode && originalNode.id) {
+                                // originalNode.id は元のRSID（originalId）が入っている
+                                newCacheEntries[`${playerIdHex}_${originalNode.id}`] = result.newId;
+                            }
+                        }
+                    }
+                    saveToCache(newCacheEntries);
+
+                    // 変換結果を反映
+                    applyConvertedResults(convertedNodes);
+
+                    // 完了表示
+                    requestAnimationFrame(() => {
+                        if (thisSessionId !== conversionSessionId) return; // 別の家系図に切り替え済み
+                        progressBar.style.width = '100%';
+                        progressText.textContent = '変換完了';
+                        spinner.style.display = 'none';
+                        convertBtn.disabled = false;
+                        errorEl.style.color = '#3ce4c8'; // 成功色
+                        errorEl.textContent = '全QRコードの変換が完了しました';
+                        errorEl.style.display = 'block';
+
+                        if (currentActiveHistoryId) {
+                            saveConvertedPlayerIdToHistory(currentActiveHistoryId, playerIdHex);
+                        }
+                    });
+
+                    // Workerを終了
+                    rsidWorker.terminate();
+                    rsidWorker = null;
+                }
+            };
+
+            rsidWorker.onerror = (error) => {
+                console.error('Worker error:', error);
+                requestAnimationFrame(() => {
+                    spinner.style.display = 'none';
+                    convertBtn.disabled = false;
+                    progressContainer.style.display = 'none';
+                    errorEl.style.color = '#f96666'; // エラー色
+                    errorEl.textContent = "エラー：変換処理中に予期しない問題が発生しました。";
+                    errorEl.style.display = 'block';
+                });
+                rsidWorker.terminate();
+                rsidWorker = null;
+            };
+
+            // Workerにデータを送信して変換開始
+            rsidWorker.postMessage({
+                type: 'convert',
+                leafNodes: leafNodesToConvert,
+                playerIdHex: playerIdHex
+            });
+        });
+
+        // --- Discord Webhook機能 ---
+
+        // localStorage からWebhook URLを復元
+        const savedWebhookUrl = localStorage.getItem('webhookUrl');
+        if (savedWebhookUrl) {
+            document.getElementById('webhook-url-input').value = savedWebhookUrl;
+            document.getElementById('webhook-status').textContent = '✓ 保存済み';
+            document.getElementById('webhook-status').style.color = '#3ce4c8';
+        }
+
+        // Webhook URL保存ボタン
+        document.getElementById('webhook-save-btn').addEventListener('click', () => {
+            const url = document.getElementById('webhook-url-input').value.trim();
+            const statusEl = document.getElementById('webhook-status');
+            if (!url) {
+                localStorage.removeItem('webhookUrl');
+                statusEl.textContent = 'URLが空のため削除しました';
+                statusEl.style.color = '#f96666';
+                return;
+            }
+            if (!url.startsWith('https://discord.com/api/webhooks/') && !url.startsWith('https://discordapp.com/api/webhooks/')) {
+                statusEl.textContent = '⚠ 無効なWebhook URL';
+                statusEl.style.color = '#f96666';
+                return;
+            }
+            localStorage.setItem('webhookUrl', url);
+            statusEl.textContent = '✓ 保存しました';
+            statusEl.style.color = '#3ce4c8';
+        });
+
+        // Webhookで共有ボタン
+        document.getElementById('webhook-share-btn').addEventListener('click', async () => {
+            const container = document.getElementById('bracket-container');
+            const errorEl = document.getElementById('error-message');
+
+            if (container.children.length <= 1) {
+                alert('先に家系図を生成してください。');
+                return;
+            }
+
+            const webhookUrl = document.getElementById('webhook-url-input').value.trim() || localStorage.getItem('webhookUrl');
+            if (!webhookUrl) {
+                alert('Webhook URLを入力して保存してください。');
+                return;
+            }
+
+            // ボタンの状態を変更
+            const webhookBtn = document.getElementById('webhook-share-btn');
+            const originalText = webhookBtn.textContent;
+            webhookBtn.textContent = '送信中...';
+            webhookBtn.disabled = true;
+
+            try {
+                await currentFaceRenderPromise;
+                // スクリーンショットモードに切り替え
+                drawLines(currentRoundsData);
+                container.classList.add('screenshot-mode');
+
+                // html2canvasで画像をキャプチャ
+                await new Promise(resolve => setTimeout(resolve, 300));
+                const canvas = await html2canvas(container, {
+                    useCORS: true,
+                    scale: 3,
+                    backgroundColor: "#2c2c3e",
+                    imageSmoothingEnabled: false,
+                    scrollX: 0,
+                    scrollY: 0,
+                    width: container.scrollWidth,
+                    height: container.scrollHeight,
+                });
+
+                container.classList.remove('screenshot-mode');
+                drawLines(currentRoundsData);
+
+                // Canvas → Blob に変換
+                const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
+
+                // JSONエクスポートデータを生成
+                const history = getHistory();
+                const playerIds = getSavedPlayerIds();
+                const exportData = { history, playerIds };
+                const jsonStr = JSON.stringify(exportData, null, 2);
+                const jsonBlob = new Blob([jsonStr], { type: 'application/json' });
+                
+                // 現在時刻でファイル名を作成
+                const now = new Date();
+                const dateStr = `${now.getFullYear()}${(now.getMonth() + 1).toString().padStart(2, '0')}${now.getDate().toString().padStart(2, '0')}_${now.getHours().toString().padStart(2, '0')}${now.getMinutes().toString().padStart(2, '0')}`;
+                const jsonFileName = `kakeizu_data_${dateStr}.json`;
+
+                // FormDataに画像とJSONを添付して送信
+                const formData = new FormData();
+                formData.append('files[0]', blob, 'family-tree.png');
+                formData.append('files[1]', jsonBlob, jsonFileName);
+
+                // Webhookに送信
+                const response = await fetch(webhookUrl, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (response.ok) {
+                    errorEl.style.color = '#3ce4c8'; // 成功色
+                    errorEl.textContent = '✓ Discordへの送信に成功しました！';
+                    errorEl.style.display = 'block';
+                } else {
+                    const errorText = await response.text();
+                    console.error('Webhook送信エラー:', response.status, errorText);
+                    errorEl.style.color = '#f96666'; // エラー色
+                    errorEl.textContent = `エラー：Discordへの送信に失敗しました (HTTP ${response.status})`;
+                    errorEl.style.display = 'block';
+                }
+            } catch (e) {
+                console.error('Webhook送信中にエラー:', e);
+                container.classList.remove('screenshot-mode');
+                errorEl.style.color = '#f96666'; // エラー色
+                errorEl.textContent = "エラー：Webhook送信中に問題が発生しました。URLを確認してください。";
+                errorEl.style.display = 'block';
+            } finally {
+                webhookBtn.textContent = originalText;
+                webhookBtn.disabled = false;
+            }
+        });
+
+        // =============================================================
+        // --- クリップボードから貼り付けボタン ---
+        // =============================================================
+        document.getElementById('paste-btn').addEventListener('click', async () => {
+            try {
+                const text = await navigator.clipboard.readText();
+                const textarea = document.getElementById('rsid-input');
+                textarea.value = text;
+                textarea.style.height = 'auto';
+                textarea.style.height = `${textarea.scrollHeight}px`;
+            } catch (err) {
+                // HTTPS環境でない場合やユーザーが拒否した場合
+                alert('クリップボードの読み取りに失敗しました。\n手動で貼り付け (Ctrl+V) してください。');
+            }
+        });
+
+        // =============================================================
+        // --- ダークモード / ライトモード切り替え ---
+        // =============================================================
+        const THEME_KEY = 'appTheme';
+
+        function applyTheme(theme) {
+            document.documentElement.setAttribute('data-theme', theme);
+            localStorage.setItem(THEME_KEY, theme);
+        }
+
+        // 保存されたテーマを復元
+        const savedTheme = localStorage.getItem(THEME_KEY) || 'dark';
+        if (savedTheme === 'light') {
+            applyTheme('light');
+        }
+
+        document.getElementById('theme-toggle').addEventListener('click', () => {
+            const current = document.documentElement.getAttribute('data-theme');
+            applyTheme(current === 'light' ? 'dark' : 'light');
+        });
+
+        // =============================================================
+        // --- プレイヤーID記憶 & 複数登録 ---
+        // =============================================================        // --- プレイヤーID登録 (localStorage) ---
+        const PLAYER_IDS_KEY = 'savedPlayerIds';
+        const LAST_USED_ID_KEY = 'lastUsedPlayerId';
+
+        function getSavedPlayerIds() {
+            try {
+                const raw = localStorage.getItem(PLAYER_IDS_KEY);
+                return raw ? JSON.parse(raw) : [];
+            } catch (e) {
+                return [];
+            }
+        }
+
+        function renderPlayerIdDropdown() {
+            const select = document.getElementById('player-id-select');
+            const ids = getSavedPlayerIds();
+            // 既存のオプションを初期化（最初の手動入力オプション以外）
+            while (select.options.length > 1) {
+                select.remove(1);
+            }
+            ids.forEach(entry => {
+                const opt = document.createElement('option');
+                opt.value = entry.id;
+                opt.textContent = `${entry.name}: ${entry.id}`;
+                select.appendChild(opt);
+            });
+        }
+
+        // ドロップダウン変更時
+        document.getElementById('player-id-select').addEventListener('change', (e) => {
+            const val = e.target.value;
+            if (val) {
+                document.getElementById('player-id-input').value = val;
+                document.getElementById('pid-del-btn').style.display = 'block';
+            } else {
+                document.getElementById('pid-del-btn').style.display = 'none';
+            }
+            localStorage.setItem(LAST_USED_ID_KEY, val);
+        });
+
+        // 手動入力時も保存
+        document.getElementById('player-id-input').addEventListener('input', (e) => {
+            localStorage.setItem(LAST_USED_ID_KEY, e.target.value);
+            document.getElementById('player-id-select').value = '';
+            document.getElementById('pid-del-btn').style.display = 'none';
+        });
+
+        // 削除ボタン
+        document.getElementById('pid-del-btn').addEventListener('click', () => {
+            const select = document.getElementById('player-id-select');
+            const idToDelete = select.value;
+            if (!idToDelete) return;
+            if (!confirm(`登録済みのプレイヤーID「${idToDelete}」を削除しますか？`)) return;
+
+            let ids = getSavedPlayerIds();
+            ids = ids.filter(e => e.id !== idToDelete);
+            localStorage.setItem(PLAYER_IDS_KEY, JSON.stringify(ids));
+
+            renderPlayerIdDropdown();
+            document.getElementById('player-id-input').value = '';
+            document.getElementById('pid-del-btn').style.display = 'none';
+            localStorage.removeItem(LAST_USED_ID_KEY);
+        });
+
+        // 登録ボタン
+        document.getElementById('pid-add-btn').addEventListener('click', () => {
+            const name = document.getElementById('pid-name-input').value.trim();
+            const id = document.getElementById('pid-id-input').value.trim();
+            if (!name || !id) {
+                alert('名前とIDの両方を入力してください。');
+                return;
+            }
+            if (id.length > 6) {
+                alert('IDは6文字以内で入力してください。');
+                return;
+            }
+            const ids = getSavedPlayerIds();
+            // 重複チェック
+            if (ids.some(e => e.id === id)) {
+                alert('このIDは既に登録されています。');
+                return;
+            }
+            ids.push({ name, id });
+            localStorage.setItem(PLAYER_IDS_KEY, JSON.stringify(ids));
+            renderPlayerIdDropdown();
+            // フォームクリア
+            document.getElementById('pid-name-input').value = '';
+            document.getElementById('pid-id-input').value = '';
+            // 追加したIDを自動選択
+            document.getElementById('player-id-select').value = id;
+            document.getElementById('player-id-input').value = id;
+            document.getElementById('pid-del-btn').style.display = 'block';
+            document.getElementById('player-id-manage-row').style.display = 'none';
+            localStorage.setItem(LAST_USED_ID_KEY, id);
+        });
+
+        // ID登録フォームの表示切替
+        document.getElementById('show-register-btn').addEventListener('click', () => {
+            const row = document.getElementById('player-id-manage-row');
+            row.style.display = row.style.display === 'none' ? 'flex' : 'none';
+        });
+
+        // 初期描画
+        renderPlayerIdDropdown();
+
+        // 前回使用したIDの復元
+        const lastUsedId = localStorage.getItem(LAST_USED_ID_KEY);
+        if (lastUsedId) {
+            document.getElementById('player-id-input').value = lastUsedId;
+            const select = document.getElementById('player-id-select');
+            let optionExists = false;
+            for (let i = 0; i < select.options.length; i++) {
+                if (select.options[i].value === lastUsedId) {
+                    optionExists = true;
+                    break;
+                }
+            }
+            if (optionExists) {
+                select.value = lastUsedId;
+                document.getElementById('pid-del-btn').style.display = 'block';
+            }
+        }
+
+        // =============================================================
+        // --- 履歴・プレイヤーIDのJSON形式エクスポート / インポート ---
+        // =============================================================
+        document.getElementById('history-export-btn').addEventListener('click', async () => {
+            try {
+            const history = getHistory();
+            const playerIds = getSavedPlayerIds();
+            if (history.length === 0 && playerIds.length === 0) {
+                alert('エクスポートするデータがありません。');
+                return;
+            }
+            const exportData = {
+                schemaVersion: 2,
+                history: history,
+                playerIds: playerIds,
+                hyperionBinaries: await HyperionTransfer.exportBinaries(history)
+            };
+            const dataStr = JSON.stringify(exportData, null, 2);
+            const blob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            const now = new Date();
+            const dateStr = `${now.getFullYear()}${(now.getMonth() + 1).toString().padStart(2, '0')}${now.getDate().toString().padStart(2, '0')}`;
+            a.download = `kakeizu_data_${dateStr}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+            } catch (error) { alert('エクスポートに失敗しました: ' + error.message); }
+        });
+
+        document.getElementById('history-import-btn').addEventListener('click', () => {
+            document.getElementById('history-import-file').click();
+        });
+
+        document.getElementById('history-import-file').addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = async (ev) => {
+                try {
+                    const imported = JSON.parse(ev.target.result);
+                    let importedHistory = [];
+                    let importedPlayerIds = [];
+
+                    if (Array.isArray(imported)) {
+                        // 旧バージョンの履歴データフォーマット
+                        importedHistory = imported;
+                    } else if (imported && typeof imported === 'object') {
+                        // 新フォーマット { history: [...], playerIds: [...] }
+                        if (imported.history) importedHistory = imported.history;
+                        if (imported.playerIds) importedPlayerIds = imported.playerIds;
+                    } else {
+                        throw new Error('無効なフォーマット');
+                    }
+
+                    if (!Array.isArray(importedHistory) || !Array.isArray(importedPlayerIds) || importedHistory.length > 1000) throw new Error('履歴またはプレイヤーIDの形式・件数が不正です');
+                    // バリデーション - 履歴
+                    for (const entry of importedHistory) {
+                        if (!entry.id || !entry.name || typeof entry.data !== 'string') {
+                            throw new Error('無効な履歴エントリが含まれています');
+                        }
+                        if (entry.hyperion && (typeof entry.hyperion.binaryId !== 'string' || !/^[a-f0-9]{64}$/.test(entry.hyperion.binaryId))) throw new Error('無効なバイナリ参照です');
+                    }
+
+                    // バリデーション - プレイヤーID
+                    for (const entry of importedPlayerIds) {
+                        if (!entry.id || !entry.name) {
+                            throw new Error('無効なプレイヤーIDエントリが含まれています');
+                        }
+                    }
+
+                    const importWarning = await HyperionTransfer.importBinaries(importedHistory, imported.hyperionBinaries);
+
+                    // --- プレイヤーIDのマージ ---
+                    const existingPids = getSavedPlayerIds();
+                    const existingPidSet = new Set(existingPids.map(p => p.id));
+                    let pidAddedCount = 0;
+                    for (const entry of importedPlayerIds) {
+                        if (!existingPidSet.has(entry.id)) {
+                            existingPids.push(entry);
+                            existingPidSet.add(entry.id);
+                            pidAddedCount++;
+                        }
+                    }
+                    if (pidAddedCount > 0) {
+                        localStorage.setItem(PLAYER_IDS_KEY, JSON.stringify(existingPids));
+                        renderPlayerIdDropdown();
+                    }
+
+                    // --- 履歴のマージ ---
+                    const existingHistory = getHistory();
+                    const existingHids = new Set(existingHistory.map(h => h.id));
+
+                    let historyAddedCount = 0;
+                    for (const entry of importedHistory) {
+                        if (!existingHids.has(entry.id)) {
+                            existingHistory.push(entry);
+                            existingHids.add(entry.id);
+                            historyAddedCount++;
+                        }
+                    }
+
+                    // 最大件数制限
+                    if (existingHistory.length > MAX_HISTORY) {
+                        existingHistory.splice(MAX_HISTORY);
+                    }
+
+                    localStorage.setItem('rsidHistory', JSON.stringify(existingHistory));
+                    renderHistoryList();
+                    void HyperionTransfer.collect(existingHistory);
+                    if (importWarning) HyperionTransfer.status(importWarning, true);
+
+                    let msg = 'インポート完了:';
+                    if (historyAddedCount > 0) msg += `\n・履歴を ${historyAddedCount} 件追加`;
+                    if (pidAddedCount > 0) msg += `\n・プレイヤーIDを ${pidAddedCount} 件追加`;
+                    if (historyAddedCount === 0 && pidAddedCount === 0) msg += '\n・新しい追加データはありませんでした（重複をスキップ）';
+                    alert(msg);
+                } catch (err) {
+                    alert('インポートに失敗しました: ' + err.message);
+                } finally { HyperionTransfer.finishImport(); }
+            };
+            reader.readAsText(file);
+            // ファイル入力をリセット（同じファイルを再選択可能にする）
+            e.target.value = '';
+        });
+
+
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,23 @@
+# 開発用資料
+/docs/
+/Hyperion-家系図ジェネレーター融合計画.md
+/README.md
+
+# Python・Notebookの一時ファイル
+/Hyperion.ipynb
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+
+# 個人用の検証・ビルド補助
+/tests/
+/tools/
+
+# テスト生成物
+/tests/browser-smoke.png
+/tests/current-inline.js
+/tests/generated-notebook.html
+
+# ローカル実行時の保存データ
+/saves/
+*.hype.bin
