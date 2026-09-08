@@ -15,6 +15,7 @@ _HT_RECORD_SIZE = 132
 _HT_MAX_RECORDS = 10000
 _HT_MAX_BYTES = 2 * 1024 * 1024
 _HT_NONE = 0xffffffff
+_HT_MAX_SNAPSHOT_RECORDS = 50000
 
 
 class _HyperionExportResult(dict):
@@ -49,6 +50,68 @@ def hyperion_bind_result(results, output_name):
         _ht_contexts.popitem(last=False)
     results['_hyperion_context'] = context_id
     return results
+
+
+def hyperion_prepare_snapshot(results):
+    """Freeze exact bytes for the displayed rows and ancestors while Python is running.
+
+    Buttons select from this snapshot without calling the Colab kernel again.
+    Source files can subsequently change without changing the displayed individuals.
+    """
+    try:
+        context_id = results.get('_hyperion_context', '')
+        if context_id not in _ht_contexts:
+            raise ValueError('この検索結果は古くなっています。再検索してください。')
+        path, signature, header = _ht_contexts[context_id]
+        start, count = _ht_struct.unpack('<II', header)
+        if results.get('index') != start or results.get('size') != count:
+            raise ValueError('表示結果と結果ファイルが一致しません。再検索してください。')
+        if count - start > _HT_MAX_SNAPSHOT_RECORDS:
+            raise ValueError('結果表の個体数が多すぎます。検索条件を絞って表示し直してください。')
+        records, blocks = {}, _ht_OrderedDict()
+        with open(path, 'rb') as source:
+            if _ht_signature(_ht_os.fstat(source.fileno())) != signature or source.read(8) != header:
+                raise ValueError('結果ファイルが変更されています。再検索してください。')
+            stack = list(range(start, count))
+            while stack:
+                index = stack.pop()
+                if index in records:
+                    continue
+                if not 0 <= index < count:
+                    raise ValueError('親のレコード番号が範囲外です。')
+                if len(records) >= _HT_MAX_SNAPSHOT_RECORDS:
+                    raise ValueError('結果表と祖先の個体数が多すぎます。検索条件を絞って表示し直してください。')
+                # Group adjacent reads, including when saves/ is on mounted Drive.
+                block_id, offset = divmod(index, 256)
+                if block_id not in blocks:
+                    source.seek(8 + block_id * 256 * _HT_RECORD_SIZE)
+                    blocks[block_id] = source.read(min(256, count - block_id * 256) * _HT_RECORD_SIZE)
+                    if len(blocks) > 8:
+                        blocks.popitem(last=False)
+                blocks.move_to_end(block_id)
+                record = blocks[block_id][offset * _HT_RECORD_SIZE:(offset + 1) * _HT_RECORD_SIZE]
+                if len(record) != _HT_RECORD_SIZE:
+                    raise ValueError('結果ファイルが途中で切れています。')
+                records[index] = record
+                left, right = _ht_struct.unpack_from('<II', record, 124)
+                if (left == _HT_NONE) != (right == _HT_NONE):
+                    raise ValueError('片方だけの親参照には対応していません。')
+                if left != _HT_NONE:
+                    stack.extend((left, right))
+            if _ht_signature(_ht_os.fstat(source.fileno())) != signature or _ht_signature(_ht_os.stat(path)) != signature:
+                raise ValueError('準備中に結果ファイルが変更されました。再検索してください。')
+        indices = sorted(records)
+        return {
+            'meta': {
+                'schemaVersion': 1, 'recordSize': _HT_RECORD_SIZE, 'byteOrder': 'little-endian',
+                'sourceStart': start, 'sourceCount': count, 'recordIndices': indices,
+                'fileName': _ht_os.path.basename(path), 'tableVersion': HYPERION_TABLE_VERSION,
+                'sourceHash': globals().get('source_hash', ''), 'datasetCommit': globals().get('dataset_commit', '')
+            },
+            'base64': _ht_base64.b64encode(b''.join(records[i] for i in indices)).decode('ascii')
+        }
+    except (ValueError, OSError) as error:
+        return {'error': str(error)}
 
 
 def hyperion_export_tree(context_id, selected_index):

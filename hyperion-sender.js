@@ -3,6 +3,48 @@
     'use strict';
     const config = __HYPERION_CONTEXT__;
     const state = window.__hyperionSender || (window.__hyperionSender = { popup: null, busy: false });
+    let snapshot;
+    async function prepare(index) {
+        if (config.snapshot?.error) throw new Error(config.snapshot.error);
+        if (!config.snapshot?.meta || typeof config.snapshot.base64 !== 'string') {
+            throw new Error('この結果欄には転送用データがありません。更新済みNotebookで検索・出生結果を表示し直してください。');
+        }
+        if (!snapshot) {
+            const meta = config.snapshot.meta, indices = meta.recordIndices;
+            if (meta.recordSize !== 132 || !Array.isArray(indices) || indices.length > 50000 || config.snapshot.base64.length > 8800000) throw new Error('結果欄の転送用データが不正です。');
+            const raw = atob(config.snapshot.base64);
+            const bytes = Uint8Array.from(raw, c => c.charCodeAt(0));
+            if (bytes.length !== indices.length * 132) throw new Error('結果欄の転送用データが途中で切れています。');
+            const positions = new Map(indices.map((id, position) => [id, position]));
+            if (positions.size !== indices.length || indices.some(id => !Number.isInteger(id) || id < 0 || id >= meta.sourceCount)) throw new Error('結果欄のレコード番号が不正です。');
+            snapshot = { meta, bytes, positions, view: new DataView(bytes.buffer) };
+        }
+        const { meta, bytes, positions, view } = snapshot;
+        if (!Number.isInteger(index) || !positions.has(index)) throw new Error('選択個体が結果欄のデータにありません。表示し直してください。');
+        const selected = new Set(), stack = [index];
+        while (stack.length) {
+            const id = stack.pop();
+            if (selected.has(id)) continue;
+            if (!positions.has(id)) throw new Error('祖先の元データが不足しています。');
+            if (selected.size >= 10000) throw new Error('抽出する個体数が上限を超えています。');
+            selected.add(id);
+            const offset = positions.get(id) * 132;
+            const left = view.getUint32(offset + 124, true), right = view.getUint32(offset + 128, true);
+            if ((left === 0xffffffff) !== (right === 0xffffffff)) throw new Error('片方だけの親参照には対応していません。');
+            if (left !== 0xffffffff) stack.push(left, right);
+        }
+        const recordIndices = [...selected].sort((a, b) => a - b);
+        const metadata = new TextEncoder().encode(JSON.stringify({ ...meta, selectedIndex: index, recordIndices }));
+        const size = 12 + metadata.length + recordIndices.length * 132;
+        if (metadata.length > 256 * 1024 || size > 2 * 1024 * 1024) throw new Error('転送容量の上限を超えています。');
+        const payload = new Uint8Array(size);
+        payload.set(new TextEncoder().encode('HYTREE01'));
+        new DataView(payload.buffer).setUint32(8, metadata.length, true);
+        payload.set(metadata, 12);
+        recordIndices.forEach((id, i) => { const offset = positions.get(id) * 132; payload.set(bytes.subarray(offset, offset + 132), 12 + metadata.length + i * 132); });
+        const hash = new Uint8Array(await crypto.subtle.digest('SHA-256', payload));
+        return { buffer: payload.buffer, sha256: [...hash].map(v => v.toString(16).padStart(2, '0')).join('') };
+    }
     window.hyperionSend = async (index, button) => {
         if (state.busy) return;
         let origin, site;
@@ -35,8 +77,7 @@
                 const send = () => {
                     if (!prepared || !ready || sent || finished) return;
                     try {
-                        const raw = atob(prepared.base64);
-                        const buffer = Uint8Array.from(raw, c => c.charCodeAt(0)).buffer;
+                        const buffer = prepared.buffer;
                         popup.postMessage({ type: 'hyperion-data', version: 1, transferId, challenge: ready.challenge, sha256: prepared.sha256, buffer }, origin, [buffer]);
                         sent = true;
                     } catch (error) { reject(error); }
@@ -57,12 +98,11 @@
                 };
                 pulse = setInterval(hello, 500); hello();
                 timer = setTimeout(() => {
-                    const phase = !ready ? 'サイトからの応答待ち' : !prepared ? 'Colabでのデータ抽出待ち' : 'サイトでの受信・表示完了待ち';
+                    const phase = !ready ? 'サイトからの応答待ち' : !prepared ? '結果欄のデータ準備待ち' : 'サイトでの受信・表示完了待ち';
                     reject(new Error(`サイトとの通信がタイムアウトしました（${phase}）。サイトを再読み込みして再試行してください。送信元: ${location.origin}`));
                 }, 60000);
-                Promise.resolve().then(() => google.colab.kernel.invokeFunction('hyperion.export_tree', [config.contextId, index], {})).then(result => {
-                    prepared = result?.data?.['application/json'];
-                    if (!prepared || prepared.error) throw new Error(prepared?.error || 'Colabの抽出結果をJSONとして受け取れませんでした。更新済みNotebookの初期化セルを実行し、結果を表示し直してください。');
+                prepare(index).then(result => {
+                    prepared = result;
                     send();
                 }).catch(reject);
             });

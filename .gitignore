@@ -21,3 +21,6 @@ __pycache__/
 # ローカル実行時の保存データ
 /saves/
 *.hype.bin
+
+
+/dev_memo.txt
