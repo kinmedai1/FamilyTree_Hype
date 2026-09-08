@@ -34,10 +34,12 @@
                 let prepared, ready, sent = false;
                 const send = () => {
                     if (!prepared || !ready || sent || finished) return;
-                    sent = true;
-                    const raw = atob(prepared.base64);
-                    const buffer = Uint8Array.from(raw, c => c.charCodeAt(0)).buffer;
-                    popup.postMessage({ type: 'hyperion-data', version: 1, transferId, challenge: ready.challenge, sha256: prepared.sha256, buffer }, origin, [buffer]);
+                    try {
+                        const raw = atob(prepared.base64);
+                        const buffer = Uint8Array.from(raw, c => c.charCodeAt(0)).buffer;
+                        popup.postMessage({ type: 'hyperion-data', version: 1, transferId, challenge: ready.challenge, sha256: prepared.sha256, buffer }, origin, [buffer]);
+                        sent = true;
+                    } catch (error) { reject(error); }
                 };
                 listener = event => {
                     if (event.source !== popup || event.origin !== origin || event.data?.transferId !== transferId) return;
@@ -50,13 +52,17 @@
                 window.addEventListener('message', listener);
                 const hello = () => {
                     if (popup.closed) { reject(new Error('サイトのタブが閉じられました。再試行してください。')); return; }
-                    if (!sent) popup.postMessage({ type: 'hyperion-hello', version: 1, transferId }, origin);
+                    try { if (!sent) popup.postMessage({ type: 'hyperion-hello', version: 1, transferId }, origin); }
+                    catch (error) { reject(error); }
                 };
                 pulse = setInterval(hello, 500); hello();
-                timer = setTimeout(() => reject(new Error('サイトとの通信がタイムアウトしました。サイトの更新・URL・接続を確認して再試行してください。')), 60000);
+                timer = setTimeout(() => {
+                    const phase = !ready ? 'サイトからの応答待ち' : !prepared ? 'Colabでのデータ抽出待ち' : 'サイトでの受信・表示完了待ち';
+                    reject(new Error(`サイトとの通信がタイムアウトしました（${phase}）。サイトを再読み込みして再試行してください。送信元: ${location.origin}`));
+                }, 60000);
                 Promise.resolve().then(() => google.colab.kernel.invokeFunction('hyperion.export_tree', [config.contextId, index], {})).then(result => {
-                    prepared = result.data?.['application/json'];
-                    if (!prepared || prepared.error) throw new Error(prepared?.error || '抽出データを取得できませんでした。');
+                    prepared = result?.data?.['application/json'];
+                    if (!prepared || prepared.error) throw new Error(prepared?.error || 'Colabの抽出結果をJSONとして受け取れませんでした。更新済みNotebookの初期化セルを実行し、結果を表示し直してください。');
                     send();
                 }).catch(reject);
             });

@@ -178,9 +178,16 @@
         }
         window.addEventListener('message', async event => {
             const d = event.data;
-            if (!trustedOrigin(event.origin) || !event.source || !d || d.version !== 1 ||
+            if (!event.source || !d || d.version !== 1 ||
                 typeof d.transferId !== 'string' || !/^[a-f0-9-]{36}$/.test(d.transferId)) return;
             const reply = result => event.source.postMessage({ type: 'hyperion-result', transferId: d.transferId, ...result }, event.origin);
+            if (!trustedOrigin(event.origin)) {
+                // Return only a diagnostic to the exact sender origin; never accept its data.
+                if (d.type === 'hyperion-hello' && /^https?:\/\//.test(event.origin)) {
+                    reply({ ok: false, error: `この送信元からの接続は許可されていません: ${event.origin}` });
+                }
+                return;
+            }
             if (d.type === 'hyperion-hello') {
                 const previous = completed.get(d.transferId);
                 if (previous) {

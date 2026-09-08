@@ -17,6 +17,14 @@ _HT_MAX_BYTES = 2 * 1024 * 1024
 _HT_NONE = 0xffffffff
 
 
+class _HyperionExportResult(dict):
+    """Expose the JSON MIME result expected by Colab's invokeFunction()."""
+    def _repr_mimebundle_(self, include=None, exclude=None):
+        bundle = {'application/json': dict(self), 'text/plain': '<Hyperion tree transfer>'}
+        return {kind: value for kind, value in bundle.items()
+                if (include is None or kind in include) and (exclude is None or kind not in exclude)}
+
+
 def _ht_signature(stat):
     # Windows stat/fstat expose different ctime semantics; Colab/Linux ctime is useful.
     return (stat.st_dev, stat.st_ino, stat.st_size, stat.st_mtime_ns, stat.st_ctime_ns if _ht_os.name != 'nt' else 0)
@@ -103,6 +111,6 @@ def hyperion_export_tree(context_id, selected_index):
         payload = b'HYTREE01' + _ht_struct.pack('<I', len(encoded)) + encoded + b''.join(records[i] for i in indices)
         if len(payload) > _HT_MAX_BYTES:
             raise ValueError('転送容量の上限を超えています。対象の家系図を小さくしてください。')
-        return {'base64': _ht_base64.b64encode(payload).decode('ascii'), 'sha256': _ht_hashlib.sha256(payload).hexdigest()}
+        return _HyperionExportResult(base64=_ht_base64.b64encode(payload).decode('ascii'), sha256=_ht_hashlib.sha256(payload).hexdigest())
     except (ValueError, OSError) as error:
-        return {'error': str(error)}
+        return _HyperionExportResult(error=str(error))
