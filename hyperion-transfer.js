@@ -121,7 +121,7 @@
     }
     function install(receive) {
         window.name = 'HyperionFamilyTree';
-        let session = null, processing = false;
+        let session = null, processing = false, relayCloseTimer = null;
         const completed = new Map();
         // A manually opened tab can be in a different browsing-context group.
         // A newly opened same-origin tab relays to the older tab, then closes itself.
@@ -194,6 +194,9 @@
                     if (previous.source === event.source && previous.origin === event.origin) reply(previous.result);
                     return;
                 }
+                // A quick next click may reuse a relay tab during its close delay.
+                clearTimeout(relayCloseTimer);
+                relayCloseTimer = null;
                 if (processing) { reply({ ok: false, error: '別の家系図を読み込み中です。完了後に再試行してください。' }); return; }
                 if (!session || session.transferId !== d.transferId || session.source !== event.source || session.origin !== event.origin) {
                     session = { transferId: d.transferId, source: event.source, origin: event.origin, challenge: crypto.randomUUID(), created: Date.now() };
@@ -218,7 +221,9 @@
                 while (completed.size > 100) completed.delete(completed.keys().next().value);
                 status(result.warning || '家系図を表示しました。', !!result.warning);
                 reply(result);
-                if (owner && window.opener) setTimeout(() => window.close(), 750);
+                if (owner && window.opener) relayCloseTimer = setTimeout(() => {
+                    if (!processing && !session) window.close();
+                }, 750);
             } catch (error) {
                 status(error.message, true);
                 reply({ ok: false, error: error.message });

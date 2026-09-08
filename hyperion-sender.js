@@ -2,7 +2,25 @@
 (() => {
     'use strict';
     const config = __HYPERION_CONTEXT__;
-    const state = window.__hyperionSender || (window.__hyperionSender = { popup: null, busy: false });
+    let state = window.__hyperionSender || (window.__hyperionSender = { popup: null, busy: false });
+    function findTabState(site) {
+        // The Colab shell is cross-origin, but frame enumeration is allowed.
+        // Access only our marker on same-origin output frames in this notebook.
+        const pending = [window.top], visited = new Set();
+        while (pending.length && visited.size < 512) {
+            const frame = pending.shift();
+            if (visited.has(frame)) continue;
+            visited.add(frame);
+            try {
+                if (frame.__hyperionTabBroker?.version === 1) {
+                    return frame.__hyperionTabBroker.getState(site.origin + site.pathname);
+                }
+            } catch (_) { /* Cross-origin Colab shell / unrelated output. */ }
+            try { for (let i = 0; i < frame.length && pending.length < 512; i++) pending.push(frame.frames[i]); }
+            catch (_) { /* A frame may be unloading. */ }
+        }
+        return state;
+    }
     let snapshot;
     async function prepare(index) {
         if (config.snapshot?.error) throw new Error(config.snapshot.error);
@@ -46,7 +64,6 @@
         return { buffer: payload.buffer, sha256: [...hash].map(v => v.toString(16).padStart(2, '0')).join('') };
     }
     window.hyperionSend = async (index, button) => {
-        if (state.busy) return;
         let origin, site;
         try {
             site = new URL(config.siteUrl);
@@ -59,19 +76,26 @@
             if (!label) { label = document.createElement('span'); label.className = 'hyperion-send-error'; label.style.cssText = 'display:block;font-size:11px;max-width:180px;white-space:normal'; button.parentElement.append(label); }
             label.textContent = message; return;
         }
+        state = findTabState(site);
+        window.__hyperionSender = state;
+        // If the previous result frame was removed mid-send, release its abandoned lock.
+        if (state.busy && Date.now() < state.busyUntil && !state.busyOwner?.closed) return;
         state.busy = true;
+        state.busyOwner = window;
+        state.busyUntil = Date.now() + 65000;
         button.disabled = true;
         button.textContent = '送信中';
         button.parentElement.querySelector('.hyperion-send-error')?.remove();
         const transferId = crypto.randomUUID();
+        state.transferId = transferId;
         let timer, pulse, listener, finished = false;
         try {
             let popup = state.popup;
-            if (!popup || popup.closed) popup = window.open('', 'HyperionFamilyTree');
+            if (!popup || popup.closed) popup = state.open ? state.open() : window.open('', 'HyperionFamilyTree');
             if (!popup) throw new Error('別タブがブロックされました。ポップアップを許可して再試行してください。');
             state.popup = popup;
             try { if (popup.location.href === 'about:blank') popup.location.replace(site.href); } catch (_) { /* Existing cross-origin tab. */ }
-            popup.focus();
+            if (state.focus) state.focus(); else popup.focus();
             const exchange = new Promise((resolve, reject) => {
                 let prepared, ready, sent = false;
                 const send = () => {
@@ -119,7 +143,8 @@
             finished = true;
             clearTimeout(timer); clearInterval(pulse);
             if (listener) window.removeEventListener('message', listener);
-            button.disabled = false; state.busy = false;
+            button.disabled = false;
+            if (state.transferId === transferId) { state.busy = false; state.busyOwner = null; }
         }
     };
 })();
