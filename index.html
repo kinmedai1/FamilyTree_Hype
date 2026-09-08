@@ -8,7 +8,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="./css/app.css?v=20260909-1">
+    <link rel="stylesheet" href="./css/app.css?v=20260909-2">
 </head>
 
 <body>
@@ -42,7 +42,7 @@
                     style="color: #ffeb3b; margin-right: 4px; text-shadow: 0 0 8px rgba(255,235,59,0.6);">①</span>貼り付け</button>
             <button id="generate-btn"><span
                     style="color: #ffeb3b; margin-right: 4px; text-shadow: 0 0 8px rgba(255,235,59,0.6);">②</span>家系図を生成</button>
-            <button id="clear-btn">削除</button>
+            <button id="clear-btn">入力をクリア</button>
             <button id="collapse-all-btn">すべて折りたたむ</button>
         </div>
         <div class="player-id-area">
@@ -97,18 +97,23 @@
                 <span id="progress-text">準備中...</span>
             </div>
         </div>
-        <div class="webhook-settings" style="margin-top: 80px;">
-            <label for="webhook-url-input">Webhook URL:</label>
-            <input type="url" id="webhook-url-input" placeholder="https://discord.com/api/webhooks/...">
-            <button id="webhook-save-btn">保存</button>
-            <span id="webhook-status"></span>
-        </div>
-        <div class="button-group" style="margin-top: 15px;">
-            <button id="save-btn">画像として保存</button>
-            <button id="webhook-share-btn">Webhookで共有</button>
-            <button id="history-export-btn">jsonでエクスポート</button>
-            <button id="history-import-btn">jsonでインポート</button>
-        </div>
+        <details class="save-share-panel">
+            <summary>保存・共有</summary>
+            <div class="save-share-content">
+                <div class="webhook-settings">
+                    <label for="webhook-url-input">Webhook URL:</label>
+                    <input type="url" id="webhook-url-input" placeholder="https://discord.com/api/webhooks/...">
+                    <button id="webhook-save-btn">保存</button>
+                    <span id="webhook-status"></span>
+                </div>
+                <div class="button-group">
+                    <button id="save-btn">画像として保存</button>
+                    <button id="webhook-share-btn">Webhookで共有</button>
+                    <button id="history-export-btn">jsonでエクスポート</button>
+                    <button id="history-import-btn">jsonでインポート</button>
+                </div>
+            </div>
+        </details>
         <p id="hyperion-transfer-status" role="status" aria-live="polite" hidden></p>
         <p id="error-message"></p>
         <div class="bracket-container" id="bracket-container">

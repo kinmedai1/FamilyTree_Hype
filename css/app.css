@@ -956,6 +956,48 @@ button:hover {
     box-shadow: 0 6px 20px rgba(88, 101, 242, 0.5);
 }
 
+/* --- 保存・共有 --- */
+.save-share-panel {
+    margin-top: 20px;
+    border: 1px solid var(--primary-accent);
+    border-radius: 8px;
+}
+
+.save-share-panel > summary {
+    padding: 14px 16px;
+    color: var(--text-color);
+    font-weight: 700;
+    cursor: pointer;
+    border-radius: 8px;
+}
+
+.save-share-panel > summary:hover {
+    background-color: var(--card-bg);
+}
+
+.save-share-panel > summary:focus-visible {
+    outline: 2px solid var(--primary-accent);
+    outline-offset: 2px;
+}
+
+.save-share-content {
+    padding: 0 16px 16px;
+}
+
+.save-share-content .webhook-settings {
+    margin-top: 0;
+    margin-bottom: 15px;
+    flex-wrap: wrap;
+}
+
+.save-share-content .webhook-settings input {
+    min-width: 0;
+}
+
+.save-share-content .button-group {
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 180px), 1fr));
+}
+
 /* --- Webhook設定エリア --- */
 .webhook-settings {
     margin-top: 15px;
