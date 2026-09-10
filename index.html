@@ -8,7 +8,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="./css/app.css?v=20260909-2">
+    <link rel="stylesheet" href="./css/app.css?v=20260910-1">
 </head>
 
 <body>
@@ -1081,7 +1081,11 @@
             if (label) label.remove();
         }
 
+        let cleanupQRCodeModal = null;
         function setupQRCodeModal() {
+            cleanupQRCodeModal?.();
+            const controller = new AbortController();
+            const listenerOptions = { signal: controller.signal };
             const modalOverlay = document.getElementById('modal-overlay');
             const modalContent = document.getElementById('modal-content');
             const modalNameEl = document.getElementById('modal-name');
@@ -1102,6 +1106,10 @@
                 document.getElementById('bracket-container').classList.remove('qr-blur-active');
                 qrList = [];
                 currentQrIndex = -1;
+            };
+            cleanupQRCodeModal = () => {
+                controller.abort();
+                closeModal();
             };
 
             /**
@@ -1127,6 +1135,7 @@
                         qrList.push({
                             id: el.dataset.id,
                             name: name,
+                            faceStatusText: nodesMap.get(card.id)?.faceStatusText || '',
                             element: el
                         });
                     }
@@ -1143,11 +1152,24 @@
 
                 // QRコード生成
                 const qrContainer = document.createElement('div');
-                qrContainer.style.background = 'white';
-                qrContainer.style.padding = '15px';
-                qrContainer.style.borderRadius = '8px';
+                qrContainer.className = 'modal-qr-code';
+                const facePreview = document.createElement('div');
+                facePreview.className = 'face-preview-container modal-face-preview';
                 modalContent.innerHTML = '';
-                modalContent.appendChild(qrContainer);
+                modalContent.append(facePreview, qrContainer);
+                if (item.faceStatusText) {
+                    const canvas = document.createElement('canvas');
+                    canvas.className = 'face-preview-canvas';
+                    canvas.width = canvas.height = 192;
+                    canvas.setAttribute('aria-label', `${item.name || item.id}の顔プレビュー`);
+                    facePreview.appendChild(canvas);
+                    facePreview.classList.add('is-loading');
+                    // A new element per QR prevents a delayed render from painting the next individual's face.
+                    currentFaceRenderPromise = currentFaceRenderPromise.catch(() => {}).then(() => renderFacePreview(facePreview, item.faceStatusText, true));
+                } else {
+                    facePreview.classList.add('is-unavailable');
+                    facePreview.textContent = '外見情報なし';
+                }
                 const alphanumericOnlyQrData = item.id.replace(/[^a-zA-Z0-9]/g, '');
                 new QRCode(qrContainer, {
                     text: alphanumericOnlyQrData,
@@ -1182,7 +1204,7 @@
                     modalOverlay.style.display = 'flex';
                     document.getElementById('bracket-container').classList.add('qr-blur-active');
                 }
-            });
+            }, listenerOptions);
 
             // ナビゲーションボタン
             prevBtn.addEventListener('click', (e) => {
@@ -1190,14 +1212,14 @@
                 if (currentQrIndex > 0) {
                     showQrAtIndex(currentQrIndex - 1);
                 }
-            });
+            }, listenerOptions);
 
             nextBtn.addEventListener('click', (e) => {
                 e.stopPropagation();
                 if (currentQrIndex < qrList.length - 1) {
                     showQrAtIndex(currentQrIndex + 1);
                 }
-            });
+            }, listenerOptions);
 
             // キーボードナビゲーション
             document.addEventListener('keydown', (e) => {
@@ -1211,14 +1233,14 @@
                 } else if (e.key === 'Escape') {
                     closeModal();
                 }
-            });
+            }, listenerOptions);
 
-            closeModalBtn.addEventListener('click', closeModal);
+            closeModalBtn.addEventListener('click', closeModal, listenerOptions);
             modalOverlay.addEventListener('click', (event) => {
                 if (event.target === modalOverlay) {
                     closeModal();
                 }
-            });
+            }, listenerOptions);
         }
 
         function getAllAncestorIds(node, nodesMap) {
@@ -1402,6 +1424,11 @@
 
                 const preparedNodesMap = new Map(reversedRounds.flat().map(node => [node.uniqueId, node]));
                 const appearanceRecords = new Map((binary?.parsed.records || []).map(record => [record.sourceIndex, record]));
+                for (const node of preparedNodesMap.values()) {
+                    const record = appearanceRecords.get(node.sourceIndex);
+                    const faceStatus = binary ? (record?.appearanceComplete ? record.statusText : '') : (node === tree ? statusString : '');
+                    node.faceStatusText = window.DenpamenFaceRenderer.hasCompleteAppearance(faceStatus) ? faceStatus : '';
+                }
                 const ancestorFaces = [];
 
                 let html = "";
@@ -1571,6 +1598,7 @@
         });
 
         document.getElementById('clear-btn').addEventListener('click', () => {
+            cleanupQRCodeModal?.();
             ++hyperionNavigationVersion;
             if (activeHyperion) currentActiveHistoryId = null;
             activeHyperion = null;
