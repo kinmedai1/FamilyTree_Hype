@@ -1370,13 +1370,51 @@ button:hover {
 }
 
 /* --- 出生完了ラベル --- */
+.player-card[data-collapsed="true"] {
+    background-image: linear-gradient(rgba(60, 228, 170, 0.09), rgba(60, 228, 170, 0.09));
+}
+
+.player-card[data-collapsed="true"]::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 8px;
+    right: 8px;
+    height: 3px;
+    border-radius: 0 0 3px 3px;
+    background: #70ddba;
+    pointer-events: none;
+}
+
 .birth-complete-label {
-    color: #89c3eb;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    color: #a2efd3;
+    background: rgba(60, 228, 170, 0.12);
+    border: 1px solid rgba(112, 221, 186, 0.4);
+    border-radius: 6px;
+    padding: 2px 6px;
     font-size: 0.75em;
     margin-left: 6px;
     font-weight: 400;
-    opacity: 0.85;
     white-space: nowrap;
+    vertical-align: middle;
+}
+
+.birth-complete-check {
+    font-weight: 700;
+    line-height: 1;
+}
+
+[data-theme="light"] .birth-complete-label {
+    color: #176c52;
+    background: rgba(31, 143, 104, 0.1);
+    border-color: rgba(31, 143, 104, 0.35);
+}
+
+[data-theme="light"] .player-card[data-collapsed="true"]::before {
+    background: #278968;
 }
 
 /* --- 履歴項目ホバーツールチップ --- */
