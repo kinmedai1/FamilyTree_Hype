@@ -1371,7 +1371,7 @@ button:hover {
 
 /* --- 出生完了ラベル --- */
 .player-card[data-collapsed="true"] {
-    background-image: linear-gradient(rgba(60, 228, 170, 0.09), rgba(60, 228, 170, 0.09));
+    background-image: linear-gradient(rgba(232, 82, 229, 0.09), rgba(232, 82, 229, 0.09));
 }
 
 .player-card[data-collapsed="true"]::before {
@@ -1382,39 +1382,50 @@ button:hover {
     right: 8px;
     height: 3px;
     border-radius: 0 0 3px 3px;
-    background: #70ddba;
+    background: #e852e5;
     pointer-events: none;
 }
 
 .birth-complete-label {
+    position: relative;
     display: inline-flex;
     align-items: center;
-    gap: 4px;
-    color: #a2efd3;
-    background: rgba(60, 228, 170, 0.12);
-    border: 1px solid rgba(112, 221, 186, 0.4);
-    border-radius: 6px;
-    padding: 2px 6px;
+    justify-content: center;
+    color: #fff;
+    background: #e852e5;
+    border: 1px solid #ef86ec;
+    border-radius: 999px;
+    padding: 1px 12px 1px 2.1em;
     font-size: 0.75em;
-    margin-left: 6px;
-    font-weight: 400;
+    line-height: 1.65;
+    margin: 5px 0 5px 12px;
+    font-weight: 700;
+    text-shadow: 0 0 2px rgba(255, 255, 255, 0.45);
     white-space: nowrap;
     vertical-align: middle;
 }
 
 .birth-complete-check {
-    font-weight: 700;
-    line-height: 1;
+    position: absolute;
+    left: -0.45em;
+    top: 50%;
+    transform: translateY(-50%);
+    display: grid;
+    place-items: center;
+    width: 2.3em;
+    height: 2.3em;
+    box-sizing: border-box;
+    border: 2px solid #e866e5;
+    border-radius: 50%;
+    background: linear-gradient(145deg, #ff9afa, #f178ef);
+    box-shadow: inset 0 0 3px rgba(255, 255, 255, 0.6), 0 0 2px rgba(232, 82, 229, 0.45);
 }
 
-[data-theme="light"] .birth-complete-label {
-    color: #176c52;
-    background: rgba(31, 143, 104, 0.1);
-    border-color: rgba(31, 143, 104, 0.35);
-}
-
-[data-theme="light"] .player-card[data-collapsed="true"]::before {
-    background: #278968;
+.birth-complete-check svg {
+    display: block;
+    width: 83%;
+    height: 83%;
+    filter: drop-shadow(0 1px 1px rgba(203, 56, 198, 0.55));
 }
 
 /* --- 履歴項目ホバーツールチップ --- */
