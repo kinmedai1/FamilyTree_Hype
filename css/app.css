@@ -8,9 +8,13 @@
     --text-muted: #9a9a9a;
     --line-color: #3ce4c8;
     --line-offset-y: 240px;
+    --scene-overlay: rgba(10, 18, 36, 0.35);
+    --main-surface-bg: rgba(28, 30, 49, 0.64);
+    --sidebar-surface-bg: rgba(28, 30, 49, 0.85);
 }
 
 body {
+    isolation: isolate;
     font-family: 'Noto Sans JP', sans-serif;
     background-color: var(--bg-color);
     color: var(--text-color);
@@ -24,12 +28,27 @@ body {
     gap: 15px;
 }
 
+/* Keep the scene at viewport size even when the family tree is very tall. */
+body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background-image:
+        linear-gradient(var(--scene-overlay), var(--scene-overlay)),
+        url("../背景画像/IMG_2352.webp");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
 /* --- 履歴サイドバー --- */
 .history-sidebar {
     width: 260px;
     min-width: 260px;
     max-height: calc(100vh - 30px);
-    background: var(--container-bg);
+    background: var(--sidebar-surface-bg);
     border-radius: 16px;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
     border: 1px solid rgba(255, 255, 255, 0.1);
@@ -44,7 +63,7 @@ body {
     padding: 16px 20px;
     font-weight: 700;
     font-size: 15px;
-    color: #fff;
+    color: var(--text-color);
     border-bottom: 1px solid rgba(255, 255, 255, 0.08);
     display: flex;
     justify-content: space-between;
@@ -214,7 +233,7 @@ body {
 .container {
     flex-grow: 1;
     min-width: 0;
-    background: var(--container-bg);
+    background: var(--main-surface-bg);
     padding: 30px;
     border-radius: 16px;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
@@ -323,10 +342,14 @@ button:hover {
     margin-top: 40px;
     overflow-x: auto;
     padding: 20px;
-    background-color: var(--container-bg);
+    background-color: transparent;
     position: relative;
     width: 100%;
     box-sizing: border-box;
+}
+
+.bracket-container.screenshot-mode {
+    background-color: var(--container-bg);
 }
 
 .round {
@@ -1329,6 +1352,9 @@ button:hover {
     --text-color: #1e1e2e;
     --text-muted: #6b7280;
     --line-color: #0d9488;
+    --scene-overlay: rgba(238, 241, 245, 0.18);
+    --main-surface-bg: rgba(255, 255, 255, 0.8);
+    --sidebar-surface-bg: rgba(255, 255, 255, 0.9);
 }
 
 [data-theme="light"] body {
