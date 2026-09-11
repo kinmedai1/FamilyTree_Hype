@@ -367,7 +367,9 @@ button:hover {
 
 .player-card {
     border: 2px solid #829599;
-    background-color: var(--card-bg);
+    --card-gloss: linear-gradient(145deg, rgba(249, 255, 224, .14), rgba(249, 255, 224, 0) 45%, rgba(10, 27, 24, .12));
+    background-color: rgba(48, 60, 35, .38);
+    background-image: var(--card-gloss);
     padding: 12px;
     margin: 0 40px;
     border-radius: 14px;
@@ -474,10 +476,11 @@ button:hover {
 
 .relation-info {
     font-size: 0.9em;
-    color: var(--text-muted);
+    color: #fff;
+    text-shadow: 0 1px 2px rgba(7, 20, 16, .9);
     margin-top: 10px;
     padding-top: 10px;
-    border-top: 1px dashed #555;
+    border-top: 1px dashed rgba(255, 255, 255, .28);
     text-align: left;
     line-height: 1.5;
 }
@@ -1419,7 +1422,7 @@ button:hover {
 
 /* --- 出生完了ラベル --- */
 .player-card[data-collapsed="true"] {
-    background-image: linear-gradient(rgba(232, 82, 229, 0.09), rgba(232, 82, 229, 0.09));
+    background-image: linear-gradient(rgba(232, 82, 229, 0.09), rgba(232, 82, 229, 0.09)), var(--card-gloss);
 }
 
 .player-card[data-collapsed="true"]::before {
@@ -1519,19 +1522,20 @@ button:hover {
     font-weight: bold;
 }
 
-/* --- 電波人間カラー表示用のバッジ --- */
+/* --- 履歴の顔プレビュー（背景は透過） --- */
 .color-indicator {
     width: 64px;
     height: 64px;
     align-self: center;
     border-radius: 4px;
-    border: 1px solid rgba(255, 255, 255, 0.25);
+    border: 1px solid transparent;
     flex-shrink: 0;
     box-sizing: border-box;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+    box-shadow: none;
     position: relative;
     overflow: hidden;
-    background: rgba(15, 23, 42, 0.72);
+    background: transparent;
+    color: var(--text-color);
 }
 
 .history-face-thumbnail {
@@ -1549,7 +1553,7 @@ button:hover {
     height: 16px;
     margin: -10px 0 0 -10px;
     border: 2px solid rgba(255, 255, 255, 0.25);
-    border-top-color: #fff;
+    border-top-color: currentColor;
     border-radius: 50%;
     animation: history-face-spin 0.8s linear infinite;
     z-index: 1;
@@ -1562,7 +1566,7 @@ button:hover {
     inset: 0;
     display: grid;
     place-items: center;
-    color: rgba(255, 255, 255, 0.72);
+    color: currentColor;
     font-weight: 700;
     font-size: 20px;
     z-index: 1;
@@ -1573,8 +1577,11 @@ button:hover {
     height: 24px;
     z-index: 2;
     border-radius: 0 4px 0 4px;
-    background: rgba(0, 0, 0, 0.55);
+    background: transparent;
+    color: inherit;
 }
+
+.history-item.active .color-indicator { color: #243e51; }
 
 @keyframes history-face-spin {
     to { transform: rotate(360deg); }
@@ -1645,7 +1652,7 @@ button:hover {
 .menu-button-danger { --button-top: #ffe2e4; --button-bottom: #edb0b9; --button-edge: #c88597; }
 :is(#paste-btn, #generate-btn, #clear-btn, #collapse-all-btn, #convert-rsid-btn,
     #save-btn, #webhook-share-btn, #history-export-btn, #history-import-btn,
-    #show-register-btn, #pid-del-btn, #pid-add-btn, #webhook-save-btn).menu-button,
+    #show-register-btn, #pid-del-btn, #pid-add-btn, #webhook-save-btn, #history-clear-btn).menu-button,
 .history-new-item {
     box-sizing: border-box;
     min-height: 48px;
@@ -1662,13 +1669,13 @@ button:hover {
     text-shadow: 0 1px 0 rgba(255, 255, 255, .45);
     transition: transform .15s ease, filter .15s ease, box-shadow .15s ease;
 }
-.container .menu-button:hover:not(:disabled), .history-new-item:hover {
+.container .menu-button:hover:not(:disabled), #history-clear-btn:hover:not(:disabled), .history-new-item:hover {
     filter: brightness(1.07);
     transform: translateY(-2px);
 }
-.container .menu-button:active:not(:disabled), .history-new-item:active { transform: translateY(2px); }
+.container .menu-button:active:not(:disabled), #history-clear-btn:active:not(:disabled), .history-new-item:active { transform: translateY(2px); }
 .container .menu-button:disabled { opacity: .5; cursor: not-allowed; transform: none; filter: saturate(.5); }
-:is(#show-register-btn, #pid-del-btn, #pid-add-btn, #webhook-save-btn).menu-button-small { min-height: 36px; padding: 6px 14px; font-size: 12px; border-radius: 10px; }
+:is(#show-register-btn, #pid-del-btn, #pid-add-btn, #webhook-save-btn, #history-clear-btn).menu-button-small { min-height: 36px; padding: 6px 14px; font-size: 12px; border-radius: 10px; }
 .step-number { margin-right: 5px; font-size: 1.1em; }
 .primary-actions { gap: 12px; }
 .player-id-area, .save-share-panel {
@@ -1711,13 +1718,36 @@ button:hover {
 .webhook-settings label { color: var(--text-color); }
 .history-header { background: rgba(54, 168, 199, .2); border-bottom-color: var(--panel-edge); }
 .history-new-item { margin: 4px 4px 14px; }
-.history-item { border-radius: 12px; }
+.history-item { position: relative; border-radius: 12px; }
+.history-unread-dot {
+    position: absolute;
+    top: -3px;
+    right: -2px;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: #ff4854;
+    box-shadow: 0 0 0 1px rgba(255, 219, 219, .4);
+    pointer-events: none;
+    z-index: 3;
+}
+.history-item + .history-item::before {
+    content: "";
+    position: absolute;
+    top: -3px;
+    left: 12px;
+    right: 12px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(181, 224, 233, .23) 20%, rgba(181, 224, 233, .23) 80%, transparent);
+    pointer-events: none;
+}
+[data-theme="light"] .history-item + .history-item::before {
+    background: linear-gradient(90deg, transparent, rgba(36, 99, 118, .18) 20%, rgba(36, 99, 118, .18) 80%, transparent);
+}
 .history-item:hover { background: rgba(92, 201, 225, .16); border-color: var(--panel-edge); }
 .history-item.active { background: linear-gradient(135deg, #fff0a7, #f6d665); border-color: #d7b94f; box-shadow: inset 0 0 0 1px #fff5ca; }
 .history-item.active .history-item-name { color: #243e51; }
 .history-item.active .history-item-date { color: #536273; }
-.history-clear-btn { color: #ffb9c4; border: 1px solid rgba(246, 169, 186, .3); border-radius: 8px; }
-[data-theme="light"] .history-clear-btn { color: #963448; background: #fbe0e5; }
 .modal-nav-btn { border: 2px solid #72c9df; box-shadow: inset 0 0 0 2px rgba(255, 255, 255, .65); background: rgba(113, 214, 235, .85); color: #163e60; }
 @media (max-width: 1100px) {
     .primary-actions { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -1737,6 +1767,6 @@ button:hover {
     .history-item-delete { opacity: 1; }
 }
 @media (prefers-reduced-motion: reduce) {
-    .container .menu-button, .history-new-item { transition: none; }
-    .container .menu-button:hover:not(:disabled), .container .menu-button:active:not(:disabled), .history-new-item:hover { transform: none; }
+    .container .menu-button, #history-clear-btn, .history-new-item { transition: none; }
+    .container .menu-button:hover:not(:disabled), .container .menu-button:active:not(:disabled), #history-clear-btn:hover:not(:disabled), #history-clear-btn:active:not(:disabled), .history-new-item:hover { transform: none; }
 }
