@@ -29,7 +29,7 @@
     async function parse(buffer, sha256) {
         checkTransfer(buffer, sha256);
         return new Promise((resolve, reject) => {
-            const worker = new Worker('./hyperion-worker.js');
+            const worker = new Worker('./hyperion-worker.js?v=20260911-1');
             const timer = setTimeout(() => { worker.terminate(); reject(new Error('バイナリ解析がタイムアウトしました。')); }, 20000);
             const finish = () => { clearTimeout(timer); worker.terminate(); };
             worker.onmessage = ({ data }) => { finish(); data.ok ? resolve(data.parsed) : reject(new Error(data.error)); };
@@ -93,7 +93,7 @@
             const buffer = HyperionCore.fromBase64(item.base64);
             const parsed = await parse(buffer, id);
             for (const h of history.filter(h => h.hyperion?.binaryId === id)) {
-                if (h.data.trim() !== parsed.treeText.trim()) throw new Error('履歴の文字列とバイナリが一致しません。');
+                if (!HyperionCore.matchesHistoryText(h.data, parsed)) throw new Error('履歴の文字列とバイナリが一致しません。');
             }
             pending.push({ buffer, id, parsed });
         }

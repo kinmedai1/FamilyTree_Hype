@@ -6,7 +6,10 @@
     const NONE = 0xffffffff;
     const fail = message => { throw new Error(message); };
     const integer = (n, max = NONE) => Number.isSafeInteger(n) && n >= 0 && n <= max;
-    const normalRsid = value => typeof value === 'string' && /^[A-Za-z0-9]{6}$/.test(value);
+    // Hyperion marks the second member of a twin/parent-child pair with a trailing '_'.
+    // Keep that identity in records; only the QR payload drops the marker (as Colab does).
+    const normalRsid = value => typeof value === 'string' && /^[A-Za-z0-9]{6}_?$/.test(value);
+    const qrPayload = value => normalRsid(value) ? value.slice(0, 6) : '';
     function fromBase64(text) {
         if (typeof text !== 'string' || text.length > Math.ceil(LIMITS.bytes / 3) * 4 || text.length % 4 ||
             !/^[A-Za-z0-9+/]*={0,2}$/.test(text)) fail('転送データのBase64形式が不正です。');
@@ -98,13 +101,21 @@
         }
         const tree = build(meta.selectedIndex);
         function text(node) {
-            return node.participants.length ? `( ${text(node.participants[0])} + ${text(node.participants[1])} ) ${node.name}` :
-                `${node.id ? node.id + ' ' : ''}${node.name}`;
+            const identity = `${node.id ? node.id + ' ' : ''}${node.name}`;
+            return node.participants.length ? `( ${text(node.participants[0])} + ${text(node.participants[1])} ) ${identity}` : identity;
+        }
+        // Older site versions omitted pair-marked leaf IDs and every non-leaf ID.
+        // Reconstruct that exact text from the verified binary to safely reopen old history.
+        function legacyText(node) {
+            return node.participants.length ? `( ${legacyText(node.participants[0])} + ${legacyText(node.participants[1])} ) ${node.name}` :
+                `${/^[A-Za-z0-9]{6}$/.test(node.id) ? node.id + ' ' : ''}${node.name}`;
         }
         const statusText = records.get(meta.selectedIndex).statusText;
-        return { meta, tree, records: Array.from(records.values()), statusText, appearanceComplete: records.get(meta.selectedIndex).appearanceComplete, treeText: text(tree) + ' ' + statusText, sha256 };
+        return { meta, tree, records: Array.from(records.values()), statusText, appearanceComplete: records.get(meta.selectedIndex).appearanceComplete, treeText: text(tree) + ' ' + statusText, legacyTreeText: legacyText(tree) + ' ' + statusText, sha256 };
     }
-    const api = { LIMITS, normalRsid, fromBase64, toBase64, digest, parse };
+    const matchesHistoryText = (value, parsed) => typeof value === 'string' &&
+        [parsed.treeText, parsed.legacyTreeText].some(text => typeof text === 'string' && value.trim() === text.trim());
+    const api = { LIMITS, normalRsid, qrPayload, matchesHistoryText, fromBase64, toBase64, digest, parse };
     if (typeof module !== 'undefined' && module.exports) module.exports = api;
     root.HyperionCore = api;
 })(globalThis);

@@ -8,7 +8,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="./css/app.css?v=20260911-5">
+    <link rel="stylesheet" href="./css/app.css?v=20260911-7">
 </head>
 
 <body>
@@ -30,62 +30,50 @@
     </div>
 
     <div class="container">
-        <div style="display: flex; justify-content: space-between; align-items: center;">
-            <h1 style="flex-grow: 1;">家系図ジェネレーター(顔プレビュー付き)</h1>
+        <div class="app-header">
+            <h1>家系図ジェネレーター<span class="app-subtitle">顔プレビュー付き</span></h1>
             <button class="theme-toggle" id="theme-toggle" title="テーマ切替"></button>
         </div>
         <div class="textarea-container">
             <textarea id="rsid-input" placeholder="RSIDを貼り付けてください"></textarea>
         </div>
-        <div class="button-group">
-            <button id="paste-btn"><span
-                    style="color: #ffeb3b; margin-right: 4px; text-shadow: 0 0 8px rgba(255,235,59,0.6);">①</span>貼り付け</button>
-            <button id="generate-btn"><span
-                    style="color: #ffeb3b; margin-right: 4px; text-shadow: 0 0 8px rgba(255,235,59,0.6);">②</span>家系図を生成</button>
-            <button id="clear-btn">入力をクリア</button>
-            <button id="collapse-all-btn">すべて折りたたむ</button>
+        <div class="button-group primary-actions">
+            <button id="paste-btn" class="menu-button"><span class="step-number">①</span>貼り付け</button>
+            <button id="generate-btn" class="menu-button menu-button-gold"><span class="step-number">②</span>家系図を生成</button>
+            <button id="clear-btn" class="menu-button menu-button-muted">入力をクリア</button>
+            <button id="collapse-all-btn" class="menu-button">すべて折りたたむ</button>
         </div>
         <div class="player-id-area">
-            <div style="display: flex; gap: 20px; align-items: stretch;">
+            <div class="conversion-layout">
                 <!-- 左に大きく配置する変換ボタン -->
-                <button id="convert-rsid-btn"
-                    style="background: linear-gradient(90deg, #10b981, #3ce4c8); box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3); padding: 0 30px; font-size: 16px; border: none; border-radius: 8px; color: white; font-weight: bold; cursor: pointer; white-space: nowrap; transition: transform 0.2s, box-shadow 0.2s; display: flex; align-items: center; justify-content: center;">
-                    <span
-                        style="color: #ffeb3b; margin-right: 4px; text-shadow: 0 0 8px rgba(255,235,59,0.6);">③</span>プレイヤーIDを用いて変換
+                <button id="convert-rsid-btn" class="menu-button">
+                    <span class="step-number">③</span>プレイヤーIDを用いて変換
                 </button>
                 <div id="spinner" class="loading-spinner" style="display: none; align-self: center;"></div>
 
                 <!-- 右側の入力・セレクトエリア -->
-                <div
-                    style="display: flex; flex-direction: column; gap: 10px; margin-left: 150px; justify-content: center; flex-grow: 1;">
-                    <div class="player-id-row"
-                        style="margin: 0; display: flex; gap: 10px; align-items: center; width: 100%;">
-                        <label for="player-id-input"
-                            style="white-space: nowrap; width: auto; min-width: 100px; flex-shrink: 0;">プレイヤーID:</label>
-                        <select class="player-id-select" id="player-id-select"
-                            style="width: 200px; min-width: 200px; flex-shrink: 0;">
+                <div class="conversion-fields">
+                    <div class="player-id-row">
+                        <label for="player-id-input">プレイヤーID:</label>
+                        <select class="player-id-select" id="player-id-select">
                             <option value="">-- 手動入力 --</option>
                         </select>
-                        <input type="text" id="player-id-input" placeholder="例: cc0db7" maxlength="6"
-                            style="flex-grow: 1; min-width: 100px;">
+                        <input type="text" id="player-id-input" placeholder="例: cc0db7" maxlength="6">
                     </div>
 
                     <!-- プルダウンの下に配置する登録ボタンとフォーム -->
-                    <div style="display: flex; gap: 15px; align-items: center; margin-left: 110px;">
-                        <div style="display: flex; gap: 8px; width: 200px; flex-shrink: 0;">
-                            <button id="show-register-btn"
-                                style="background: rgba(127, 90, 240, 0.2); border: 1px solid rgba(127, 90, 240, 0.5); color: var(--text-color); padding: 6px 0; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: bold; transition: background 0.2s; flex: 1; text-align: center;">
+                    <div class="registration-layout">
+                        <div class="registration-actions">
+                            <button id="show-register-btn" class="menu-button menu-button-small">
                                 ＋ ID登録
                             </button>
-                            <button id="pid-del-btn"
-                                style="background: rgba(220, 53, 69, 0.15); border: 1px solid rgba(220, 53, 69, 0.4); color: #ff6b6b; padding: 6px 0; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: bold; transition: background 0.2s; display: none; flex: 1; text-align: center;">削除</button>
+                            <button id="pid-del-btn" class="menu-button menu-button-small menu-button-danger" style="display: none;">削除</button>
                         </div>
 
-                        <div class="player-id-manage-row" id="player-id-manage-row" style="display: none; margin: 0;">
-                            <input type="text" id="pid-name-input" placeholder="名前 (例: 自分)" style="width: 120px;">
-                            <input type="text" id="pid-id-input" placeholder="ID (例: cc0db7)" maxlength="6"
-                                style="width: 100px;">
-                            <button class="pid-add-btn" id="pid-add-btn">登録を確定</button>
+                        <div class="player-id-manage-row" id="player-id-manage-row" style="display: none;">
+                            <input type="text" id="pid-name-input" placeholder="名前 (例: 自分)">
+                            <input type="text" id="pid-id-input" placeholder="ID (例: cc0db7)" maxlength="6">
+                            <button class="pid-add-btn menu-button menu-button-small" id="pid-add-btn">登録を確定</button>
                         </div>
                     </div>
                 </div>
@@ -103,14 +91,14 @@
                 <div class="webhook-settings">
                     <label for="webhook-url-input">Webhook URL:</label>
                     <input type="url" id="webhook-url-input" placeholder="https://discord.com/api/webhooks/...">
-                    <button id="webhook-save-btn">保存</button>
+                    <button id="webhook-save-btn" class="menu-button menu-button-small">保存</button>
                     <span id="webhook-status"></span>
                 </div>
                 <div class="button-group">
-                    <button id="save-btn">画像として保存</button>
-                    <button id="webhook-share-btn">Webhookで共有</button>
-                    <button id="history-export-btn">jsonでエクスポート</button>
-                    <button id="history-import-btn">jsonでインポート</button>
+                    <button id="save-btn" class="menu-button">画像として保存</button>
+                    <button id="webhook-share-btn" class="menu-button">Webhookで共有</button>
+                    <button id="history-export-btn" class="menu-button">jsonでエクスポート</button>
+                    <button id="history-import-btn" class="menu-button">jsonでインポート</button>
                 </div>
             </div>
         </details>
@@ -135,8 +123,8 @@
     <div id="global-history-tooltip" class="history-tooltip"></div>
 
     <script src="./face-renderer.js?v=20260908-1"></script>
-    <script src="./hyperion-core.js?v=20260908-1"></script>
-    <script src="./hyperion-transfer.js?v=20260909-1"></script>
+    <script src="./hyperion-core.js?v=20260911-1"></script>
+    <script src="./hyperion-transfer.js?v=20260911-1"></script>
     <script>
         // --- 色と柄の定数マッピング ---
         const COLOR_MAP = {
@@ -343,6 +331,25 @@
             }
         }
 
+        function displayConvertedRsid(result) {
+            const payload = HyperionCore.qrPayload(result.newId);
+            const node = nodesMap.get(result.uniqueId);
+            const card = document.getElementById(result.uniqueId);
+            if (!payload || !node || !card) return;
+
+            // The pair marker belongs to the original individual, not the converted QR.
+            const originalId = node.originalId || node.id;
+            const displayId = payload + (originalId?.endsWith('_') ? '_' : '');
+            const label = card.querySelector('.rsid-text');
+            if (label) label.textContent = displayId;
+            const qr = card.querySelector('.qr-code');
+            if (qr) {
+                qr.innerHTML = '';
+                qr.dataset.id = displayId;
+                new QRCode(qr, { text: payload, width: 150, height: 150 });
+            }
+        }
+
         function restoreConversionState(playerIdHex) {
             const errorEl = document.getElementById('error-message');
             const progressContainer = document.getElementById('progress-container');
@@ -376,7 +383,7 @@
             const convertedResults = [];
             for (const round of currentRoundsData) {
                 for (const node of round) {
-                    if (!node.participants || node.participants.length === 0) {
+                    if (HyperionCore.normalRsid(node.originalId || node.id)) {
                         const rsidForConversion = node.originalId || node.id;
                         if (!rsidForConversion) continue;
 
@@ -391,26 +398,7 @@
             if (convertedResults.length > 0) {
                 // 結果を反映
                 for (const result of convertedResults) {
-                    if (result.newId) {
-                        const cardEl = document.getElementById(result.uniqueId);
-                        if (cardEl) {
-                            const rsidTextEl = cardEl.querySelector('.rsid-text');
-                            if (rsidTextEl) {
-                                rsidTextEl.textContent = result.newId;
-                            }
-                            const qrEl = cardEl.querySelector('.qr-code');
-                            if (qrEl) {
-                                qrEl.innerHTML = '';
-                                qrEl.dataset.id = result.newId;
-                                const alphanumericOnlyId = result.newId.replace(/[^a-zA-Z0-9]/g, '');
-                                new QRCode(qrEl, {
-                                    text: alphanumericOnlyId,
-                                    width: 150,
-                                    height: 150
-                                });
-                            }
-                        }
-                    }
+                    displayConvertedRsid(result);
                 }
 
                 // UI表示を完了状態にする
@@ -438,7 +426,8 @@
             if (entry.hyperion) {
                 try {
                     binary = { binaryId: entry.hyperion.binaryId, parsed: await HyperionTransfer.model(entry.hyperion.binaryId) };
-                    if (entry.data.trim() !== binary.parsed.treeText.trim()) throw new Error('履歴の文字列とバイナリが一致しません。');
+                    if (!HyperionCore.matchesHistoryText(entry.data, binary.parsed)) throw new Error('履歴の文字列とバイナリが一致しません。');
+                    entry.data = binary.parsed.treeText;
                 } catch (error) { HyperionTransfer.status(error.message, true); return; }
             }
             if (navigation !== hyperionNavigationVersion) return;
@@ -852,7 +841,9 @@
             if (split === -1) throw new Error("'+' 区切りが見つかりません。");
             const left = inside.substring(0, split).trim();
             const right = inside.substring(split + 1).trim();
-            return { name: winner, participants: [parseNode(left), parseNode(right)], id: null };
+            const winnerParts = winner.split(/\s+/);
+            const winnerId = HyperionCore.normalRsid(winnerParts[0]) ? winnerParts.shift() : null;
+            return { name: winnerId ? winnerParts.join(' ') || winnerId : winner, participants: [parseNode(left), parseNode(right)], id: winnerId };
         }
 
         function clearLines() {
@@ -1416,8 +1407,8 @@
                     if (!roundsData[depth]) roundsData[depth] = [];
                     node.uniqueId = `d${depth}_${roundsData[depth].length}`;
                     node.parentId = parentId;
-                    // リーフノードの場合、元のRSIDを保持する
-                    if (!node.participants || node.participants.length === 0) {
+                    // 親の有無にかかわらず、QRを持つ個体の元の識別子を保持する。
+                    if (HyperionCore.normalRsid(node.id)) {
                         node.originalId = node.id;
                     }
                     roundsData[depth].push(node);
@@ -1491,7 +1482,7 @@
                         const birthCount = appearanceRecords.get(node.sourceIndex)?.data[25];
                         const birthCountHtml = Number.isInteger(birthCount) && birthCount >= 1
                             ? `<div class="birth-count-label">出生回数${birthCount}回</div>` : '';
-                        const qrHtml = isLeafNode && HyperionCore.normalRsid(node.id) ? `<div class="qr-code" data-id="${node.id}"></div><div class="rsid-text">${node.id}</div>` : '';
+                        const qrHtml = HyperionCore.normalRsid(node.id) ? `<div class="qr-code" data-id="${node.id}"></div><div class="rsid-text">${node.id}</div>` : '';
                         let ancestorFaceHtml = '';
                         if (!isChampionRound && binary) {
                             const record = appearanceRecords.get(node.sourceIndex);
@@ -1531,7 +1522,7 @@
                 const prepared = document.createElement('div');
                 prepared.innerHTML = '<svg id="bracket-lines"></svg>' + html;
                 prepared.querySelectorAll('.qr-code').forEach(el => {
-                    new QRCode(el, { text: el.dataset.id, width: 150, height: 150 });
+                    new QRCode(el, { text: HyperionCore.qrPayload(el.dataset.id), width: 150, height: 150 });
                 });
                 resetConversionUI();
                 currentRoundsData = reversedRounds;
@@ -1750,36 +1741,16 @@
 
             function applyConvertedResults(results) {
                 for (const result of results) {
-                    if (result.newId) {
-                        // 注意: node.id（元のRSID）は書き換えない。表示のみ更新する。
-                        const cardEl = document.getElementById(result.uniqueId);
-                        if (cardEl) {
-                            const rsidTextEl = cardEl.querySelector('.rsid-text');
-                            if (rsidTextEl) {
-                                rsidTextEl.textContent = result.newId;
-                            }
-                            const qrEl = cardEl.querySelector('.qr-code');
-                            if (qrEl) {
-                                qrEl.innerHTML = '';
-                                qrEl.dataset.id = result.newId;
-                                const alphanumericOnlyId = result.newId.replace(/[^a-zA-Z0-9]/g, '');
-                                new QRCode(qrEl, {
-                                    text: alphanumericOnlyId,
-                                    width: 150,
-                                    height: 150
-                                });
-                            }
-                        }
-                    }
+                    displayConvertedRsid(result);
                 }
             }
 
-            // リーフノードを収集（常に originalId を使って変換する）
+            // 親の有無にかかわらず、QRを持つ個体を元のRSIDから変換する。
             const leafNodesToConvert = [];
             const cachedResults = [];
             for (const round of currentRoundsData) {
                 for (const node of round) {
-                    if (!node.participants || node.participants.length === 0) {
+                    if (HyperionCore.normalRsid(node.originalId || node.id)) {
                         // originalId を使用（元のRSIDを基に変換）
                         const rsidForConversion = node.originalId || node.id;
                         if (!rsidForConversion) continue;
