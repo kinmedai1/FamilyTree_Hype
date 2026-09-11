@@ -515,12 +515,12 @@ button:hover {
 }
 
 .player-card.pair-first {
-    border-color: #b77980 !important;
+    border-color: #ed626c !important;
     /* ペアの先 (赤) */
 }
 
 .player-card.pair-second {
-    border-color: #688dae !important;
+    border-color: #469ee8 !important;
     /* ペアの後 (青) */
 }
 
@@ -1597,16 +1597,16 @@ button:hover {
     --menu-edge: #58b4d0;
     --panel-edge: rgba(160, 230, 244, .4);
     --field-bg: rgba(15, 38, 54, .78);
-    --control-panel-bg: rgba(46, 100, 121, .24);
-    --main-surface-bg: rgba(21, 43, 59, .76);
-    --sidebar-surface-bg: rgba(22, 51, 66, .88);
+    --control-panel-bg: rgba(46, 100, 121, .18);
+    --main-surface-bg: rgba(21, 43, 59, .60);
+    --sidebar-surface-bg: rgba(22, 51, 66, .76);
 }
 [data-theme="light"] {
     --panel-edge: rgba(68, 158, 189, .5);
     --field-bg: rgba(248, 255, 255, .88);
-    --control-panel-bg: rgba(191, 240, 245, .48);
-    --main-surface-bg: rgba(227, 251, 252, .86);
-    --sidebar-surface-bg: rgba(222, 249, 252, .92);
+    --control-panel-bg: rgba(191, 240, 245, .34);
+    --main-surface-bg: rgba(227, 251, 252, .72);
+    --sidebar-surface-bg: rgba(222, 249, 252, .82);
 }
 .container, .history-sidebar {
     border-color: var(--panel-edge);
