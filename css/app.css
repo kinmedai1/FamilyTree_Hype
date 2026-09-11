@@ -805,13 +805,11 @@ button:hover {
 }
 
 #modal-content {
-    position: relative;
-    display: flex;
-    align-items: center;
-    gap: 24px;
+    display: contents;
 }
 
 .modal-qr-code {
+    grid-area: qr;
     background: #fff;
     padding: 15px;
     border-radius: 8px;
@@ -827,6 +825,7 @@ button:hover {
 }
 
 .face-preview-container.modal-face-preview {
+    grid-area: face;
     width: 160px;
     height: 160px;
     min-height: 0;
@@ -846,10 +845,15 @@ button:hover {
 }
 
 #modal-inner-wrapper {
-    display: flex;
-    flex-direction: column;
+    display: grid;
+    grid-template-columns: 160px auto;
+    grid-template-areas:
+        ". name"
+        "face qr"
+        ". counter";
     align-items: center;
-    gap: 12px;
+    justify-items: center;
+    gap: 12px 24px;
     max-width: calc(100vw - 120px);
     max-height: calc(100dvh - 64px);
     overflow-y: auto;
@@ -859,6 +863,8 @@ button:hover {
 
 /* --- モーダル内の個体名表示 --- */
 .modal-name {
+    grid-area: name;
+    min-width: 0;
     color: #fff;
     font-size: 22px;
     font-weight: 700;
@@ -870,6 +876,7 @@ button:hover {
 
 /* --- モーダル内のカウンター表示 --- */
 .modal-counter {
+    grid-area: counter;
     color: var(--text-muted);
     font-size: 14px;
     text-align: center;
@@ -926,12 +933,10 @@ button:hover {
 }
 
 @media (max-width: 800px) {
-    #modal-content {
-        flex-direction: column;
-        gap: 12px;
-    }
-
     #modal-inner-wrapper {
+        grid-template-columns: minmax(0, 1fr);
+        grid-template-areas: "face" "name" "qr" "counter";
+        gap: 12px;
         max-width: calc(100vw - 96px);
     }
 
