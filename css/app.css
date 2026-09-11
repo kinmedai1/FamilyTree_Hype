@@ -1369,6 +1369,17 @@ button:hover {
     transition: filter 0.3s ease;
 }
 
+/* --- 元データに記録された出生回数 --- */
+.birth-count-label {
+    margin-bottom: 10px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid rgba(127, 90, 240, 0.25);
+    color: var(--text-color);
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 1.4;
+}
+
 /* --- 出生完了ラベル --- */
 .player-card[data-collapsed="true"] {
     background-image: linear-gradient(rgba(232, 82, 229, 0.09), rgba(232, 82, 229, 0.09));

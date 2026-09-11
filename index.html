@@ -8,7 +8,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="./css/app.css?v=20260911-3">
+    <link rel="stylesheet" href="./css/app.css?v=20260911-4">
 </head>
 
 <body>
@@ -1487,6 +1487,10 @@
                         let cardStyle = ``;
                         const isLeafNode = !node.participants.length;
                         const collapsibleClass = !isLeafNode ? ' collapsible' : '';
+                        // Notebook's birth_count is the original record's data[25], not the tree depth.
+                        const birthCount = appearanceRecords.get(node.sourceIndex)?.data[25];
+                        const birthCountHtml = Number.isInteger(birthCount) && birthCount >= 1
+                            ? `<div class="birth-count-label">出生回数${birthCount}回</div>` : '';
                         const qrHtml = isLeafNode && HyperionCore.normalRsid(node.id) ? `<div class="qr-code" data-id="${node.id}"></div><div class="rsid-text">${node.id}</div>` : '';
                         let ancestorFaceHtml = '';
                         if (!isChampionRound && binary) {
@@ -1500,6 +1504,7 @@
 
                         const cardHtml = isChampionRound ?
                             `<div class="player-card champion-card${collapsibleClass}${pairClass}" id="${node.uniqueId}" style="${cardStyle}">
+                            ${birthCountHtml}
                             <div class="face-preview-container"><canvas class="face-preview-canvas" width="1024" height="1024" aria-label="最終個体の顔プレビュー"></canvas></div>
                             <div class="color-info-container"> <div class="color-info-item">髪色<div class="color-preview-box hair-color-box"></div></div> <div class="color-info-item">肌色<div class="color-preview-box skin-color-box"></div></div> </div>
                             <div class="custom-color-palette"></div>
@@ -1510,6 +1515,7 @@
                         </div>`
                             :
                             `<div class="player-card${collapsibleClass}${pairClass}" id="${node.uniqueId}" style="${cardStyle}">
+                            ${birthCountHtml}
                             ${ancestorFaceHtml}
                             <div class="name">${escapeHtml(node.name)}${nameSuffix}</div>
                             ${relationHtml}
