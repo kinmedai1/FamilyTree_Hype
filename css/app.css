@@ -474,6 +474,48 @@ button:hover {
     color: var(--text-color);
 }
 
+/* Extend only the final card; the original column keeps its measured width. */
+.player-card.champion-card.has-additional-effects {
+    display: flex;
+    align-items: flex-start;
+    gap: 20px;
+    width: max-content;
+    max-width: none;
+}
+.champion-existing { flex: none; min-width: 0; }
+.round:has(> .champion-card.has-additional-effects) { min-width: max-content; align-self: flex-start; }
+.additional-effects-panel {
+    flex: 0 0 270px;
+    width: 270px;
+    box-sizing: border-box;
+    align-self: stretch;
+    border-left: 1px solid rgba(211, 233, 211, .3);
+    padding: 4px 4px 4px 18px;
+    text-align: left;
+    color: var(--text-color);
+    font-size: 13px;
+    line-height: 1.65;
+    cursor: auto;
+}
+.additional-effects-title { margin: 0 0 14px; font-size: 16px; }
+.additional-effects-section + .additional-effects-section {
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid rgba(211, 233, 211, .18);
+}
+.additional-effects-heading { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px; margin: 0 0 5px; font-size: 13px; }
+.additional-effects-category { font-weight: 400; font-size: 11px; opacity: .8; }
+.additional-effects-list { list-style: none; padding: 0; margin: 0; }
+.additional-effects-list li + li { margin-top: 2px; }
+.additional-effects-note, .additional-effects-footnote { margin: 4px 0 0; font-size: 11px; opacity: .78; }
+.additional-effects-footnote { margin-top: 16px; }
+.additional-effects-ap, .additional-effects-janken { margin: 4px 0; }
+.additional-effects-body { display: grid; grid-template-columns: 1fr auto; gap: 2px 12px; margin: 0; }
+.additional-effects-body dd { margin: 0; font-variant-numeric: tabular-nums; }
+.additional-effects-retry { margin-top: 8px; padding: 6px 12px; font-size: 12px; color: #133c59; background: #a1ecf4; }
+[data-theme="light"] .additional-effects-panel { border-left-color: rgba(34, 71, 49, .3); }
+[data-theme="light"] .additional-effects-section + .additional-effects-section { border-top-color: rgba(34, 71, 49, .18); }
+
 .relation-info {
     font-size: 0.9em;
     color: #fff;

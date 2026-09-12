@@ -1,0 +1,4346 @@
+{
+  "schemaVersion": 1,
+  "source": {
+    "title": "頭図鑑・出生ルート | NDF DB",
+    "fileName": "頭図鑑・出生ルート _ NDF DB.html",
+    "sha256": "da1c938a18da066351670f13538b356314a7fbb26635ae0ce2a68736e65bfb02",
+    "url": "https://ndfdb.com/head-catalog.html",
+    "extractedOn": "2026-09-12",
+    "savedRendererFile": "head-catalog.js.ダウンロード",
+    "savedRendererSha256": "af63956a73d960482723bce9757b6ed20fa01b5e45b1877c83d1467cf900826a",
+    "internalIdTable": "hyperion-tables.json",
+    "internalIdTableSha256": "06032deb0ced47fee15f9ce6022b3fc479343a5f5a25a3c95a678b9730ac3546",
+    "unavailableProgressionSource": {
+      "url": "https://ndfdb.com/data/head-catalog.json?v=22211c750348",
+      "httpStatus": 403
+    }
+  },
+  "coverage": {
+    "availableCounts": {
+      "antennas": 110,
+      "heads": 60,
+      "bodies": 30,
+      "patterns": 24,
+      "bodyColors": 36
+    },
+    "antennaStagesAdvertisedByPage": 1983,
+    "antennaStagesExtracted": 110,
+    "missingEntries": [
+      {
+        "category": "antennas",
+        "name": "アンテナのねっこ",
+        "hyperionId": 0
+      },
+      {
+        "category": "bodyColors",
+        "name": "SP",
+        "hyperionId": 2147483676
+      }
+    ],
+    "unmappedInternalIds": [
+      {
+        "category": "patterns",
+        "name": "3色"
+      }
+    ],
+    "notes": [
+      "アンテナは保存HTMLの代表段階のみ。apLevelRange外のAPは未取得であり、この値を全レベルへ流用しない。",
+      "ページは未使用データを含むと明記している。各項目がゲーム内で取得可能かは、この表では判定しない。",
+      "effects=[]は資料に固有効果の掲載なし。effects=null/ap=nullは資料に項目自体がなく未確認。",
+      "効果の数値・%表記は原文どおり。source_unspecifiedは原文に%などの単位がないことを表す。",
+      "体格の省略された倍率100%は、保存されたhead-catalog.jsのpercentText関数の表示規則から復元した。",
+      "複数体色の効果合成・丸め・上限や、状態異常耐性の適用先一覧はこの資料では確定していない。"
+    ]
+  },
+  "antennas": {
+    "アンテナなし": {
+      "hyperionId": 2147483944,
+      "sourceStatus": "available",
+      "ap": 0,
+      "apLevelRange": {
+        "min": 1,
+        "max": null
+      },
+      "coverage": "all_levels",
+      "sourceLevelText": "全レベル",
+      "sourceProgressionText": "アンテナなし"
+    },
+    "しびれとる": {
+      "hyperionId": 2147483649,
+      "sourceStatus": "available",
+      "ap": 5,
+      "apLevelRange": {
+        "min": 1,
+        "max": 10
+      },
+      "coverage": "saved_html_stage_only",
+      "sourceLevelText": "Lv.1〜10",
+      "sourceProgressionText": "しびれとる → みんなしびれとる"
+    },
+    "わざはねかえす1": {
+      "hyperionId": 2147483652,
+      "sourceStatus": "available",
+      "ap": 4,
+      "apLevelRange": {
+        "min": 1,
+        "max": 10
+      },
+      "coverage": "saved_html_stage_only",
+      "sourceLevelText": "Lv.1〜10",
+      "sourceProgressionText": "わざはねかえす1 → わざはねかえす3"
+    },
+    "たかなみ": {
+      "hyperionId": 2147483653,
+      "sourceStatus": "available",
+      "ap": 7,
+      "apLevelRange": {
+        "min": 1,
+        "max": 10
+      },
+      "coverage": "saved_html_stage_only",
+      "sourceLevelText": "Lv.1〜10",
+      "sourceProgressionText": "たかなみ → くろしお+9"
+    },
+    "いしつぶて": {
+      "hyperionId": 2147483655,
+      "sourceStatus": "available",
+      "ap": 7,
+      "apLevelRange": {
+        "min": 1,
+        "max": 10
+      },
+      "coverage": "saved_html_stage_only",
+      "sourceLevelText": "Lv.1〜10",
+      "sourceProgressionText": "いしつぶて → シューティングスター+9"
+    },
+    "すこしかわしやすい": {
+      "hyperionId": 2147483657,
+      "sourceStatus": "available",
+      "ap": 3,
+      "apLevelRange": {
+        "min": 1,
+        "max": 10
+      },
+      "coverage": "saved_html_stage_only",
+      "sourceLevelText": "Lv.1〜10",
+      "sourceProgressionText": "すこしかわしやすい → ゲキレツかわしやすい"
+    },
+    "つちけむり": {
+      "hyperionId": 2147483662,
+      "sourceStatus": "available",
+      "ap": 5,
+      "apLevelRange": {
+        "min": 51,
+        "max": 60
+      },
+      "coverage": "saved_html_stage_only",
+      "sourceLevelText": "Lv.51〜60",
+      "sourceProgressionText": "つちけむり → マッドトルネード+9"
+    },
+    "げどく": {
+      "hyperionId": 2147483667,
+      "sourceStatus": "available",
+      "ap": 5,
+      "apLevelRange": {
+        "min": 1,
+        "max": 10
+      },
+      "coverage": "saved_html_stage_only",
+      "sourceLevelText": "Lv.1〜10",
+      "sourceProgressionText": "げどく → みんなげどく"
+    },
+    "でんきあらし": {
+      "hyperionId": 2147483671,
+      "sourceStatus": "available",
+      "ap": 5,
+      "apLevelRange": {
+        "min": 51,
+        "max": 60
+      },
+      "coverage": "saved_html_stage_only",
+      "sourceLevelText": "Lv.51〜60",
+      "sourceProgressionText": "でんきあらし → トルネードサンダー+9"
+    },
+    "ダークボール": {
+      "hyperionId": 2147483675,
+      "sourceStatus": "available",
+      "ap": 7,
+      "apLevelRange": {
+        "min": 1,
+        "max": 10
+      },
+      "coverage": "saved_html_stage_only",
+      "sourceLevelText": "Lv.1〜10",
+      "sourceProgressionText": "ダークボール → ワームホール+9"
+    },
+    "でんこう": {
+      "hyperionId": 2147483680,
+      "sourceStatus": "available",
+      "ap": 5,
+      "apLevelRange": {
+        "min": 51,
+        "max": 60
+      },
+      "coverage": "saved_html_stage_only",
+      "sourceLevelText": "Lv.51〜60",
+      "sourceProgressionText": "でんこう → サンダーノヴァ+9"
+    },
+    "みんなすこしあやつる": {
+      "hyperionId": 2147483681,
+      "sourceStatus": "available",
+      "ap": 3,
+      "apLevelRange": {
+        "min": 51,
+        "max": 100
+      },
+      "coverage": "saved_html_stage_only",
+      "sourceLevelText": "Lv.51〜100",
+      "sourceProgressionText": "みんなすこしあやつる → みんなもっとあやつる"
+    },
+    "かみなりふぶき": {
+      "hyperionId": 2147483684,
+      "sourceStatus": "available",
+      "ap": 5,
+      "apLevelRange": {
+        "min": 51,
+        "max": 60
+      },
+      "coverage": "saved_html_stage_only",
+      "sourceLevelText": "Lv.51〜60",
+      "sourceProgressionText": "かみなりふぶき → プラズマブリザード+9"
+    },
+    "みんなすこしねむらせる": {
+      "hyperionId": 2147483685,
+      "sourceStatus": "available",
+      "ap": 3,
+      "apLevelRange": {
+        "min": 21,
+        "max": 30
+      },
+      "coverage": "saved_html_stage_only",
+      "sourceLevelText": "Lv.21〜30",
+      "sourceProgressionText": "みんなすこしねむらせる → みんなふかくねむらせる"
+    },
+    "バケツのみず": {
+      "hyperionId": 2147483687,
+      "sourceStatus": "available",
+      "ap": 7,
+      "apLevelRange": {
+        "min": 1,
+        "max": 10
+      },
+      "coverage": "saved_html_stage_only",
+      "sourceLevelText": "Lv.1〜10",
+      "sourceProgressionText": "バケツのみず → ナイアガラ+9"
+    },
+    "みんなちいさくトゲトゲ": {
+      "hyperionId": 2147483688,
+      "sourceStatus": "available",
+      "ap": 4,
+      "apLevelRange": {
+        "min": 21,
+        "max": 30
+      },
+      "coverage": "saved_html_stage_only",
+      "sourceLevelText": "Lv.21〜30",
+      "sourceProgressionText": "みんなちいさくトゲトゲ → みんなするどくトゲトゲ"
+    },
+    "だいふんか": {
+      "hyperionId": 2147483695,
+      "sourceStatus": "available",
+      "ap": 5,
+      "apLevelRange": {
+        "min": 51,
+        "max": 60
+      },
+      "coverage": "saved_html_stage_only",
+      "sourceLevelText": "Lv.51〜60",
+      "sourceProgressionText": "だいふんか → バーニングメテオ+9"
+    },
+    "すこしやわくなれ": {
+      "hyperionId": 2147483696,
+      "sourceStatus": "available",
+      "ap": 5,
+      "apLevelRange": {
+        "min": 1,
+        "max": 10
+      },
+      "coverage": "saved_html_stage_only",
+      "sourceLevelText": "Lv.1〜10",
+      "sourceProgressionText": "すこしやわくなれ → すごくやわくなれ"
+    },
+    "あられ": {
+      "hyperionId": 2147483699,
+      "sourceStatus": "available",
+      "ap": 7,
+      "apLevelRange": {
+        "min": 1,
+        "max": 10
+      },
+      "coverage": "saved_html_stage_only",
+      "sourceLevelText": "Lv.1〜10",
+      "sourceProgressionText": "あられ → ぜったいれいど+9"
+    },
+    "みんなおそめになれ": {
+      "hyperionId": 2147483700,
+      "sourceStatus": "available",
+      "ap": 5,
+      "apLevelRange": {
+        "min": 21,
+        "max": 30
+      },
+      "coverage": "saved_html_stage_only",
+      "sourceLevelText": "Lv.21〜30",
+      "sourceProgressionText": "みんなおそめになれ → みんなのろのろ"
+    },
+    "みんなすこししびれさせる": {
+      "hyperionId": 2147483701,
+      "sourceStatus": "available",
+      "ap": 3,
+      "apLevelRange": {
+        "min": 21,
+        "max": 30
+      },
+      "coverage": "saved_html_stage_only",
+      "sourceLevelText": "Lv.21〜30",
+      "sourceProgressionText": "みんなすこししびれさせる → みんなすごくしびれさせる"
+    },
+    "ぼうふうう": {
+      "hyperionId": 2147483702,
+      "sourceStatus": "available",
+      "ap": 5,
+      "apLevelRange": {
+        "min": 51,
+        "max": 60
+      },
+      "coverage": "saved_html_stage_only",
+      "sourceLevelText": "Lv.51〜60",
+      "sourceProgressionText": "ぼうふうう → ハイドロトルネード+9"
+    },
+    "みんなすこしアンテナふうじ": {
+      "hyperionId": 2147483707,
+      "sourceStatus": "available",
+      "ap": 3,
+      "apLevelRange": {
+        "min": 21,
+        "max": 30
+      },
+      "coverage": "saved_html_stage_only",
+      "sourceLevelText": "Lv.21〜30",
+      "sourceProgressionText": "みんなすこしアンテナふうじ → みんなもっとアンテナふうじ"
+    },
+    "こおりいんせき": {
+      "hyperionId": 2147483708,
+      "sourceStatus": "available",
+      "ap": 5,
+      "apLevelRange": {
+        "min": 51,
+        "max": 60
+      },
+      "coverage": "saved_html_stage_only",
+      "sourceLevelText": "Lv.51〜60",
+      "sourceProgressionText": "こおりいんせき → メテオブリザード+9"
+    },
+    "ひゃくボルト": {
+      "hyperionId": 2147483714,
+      "sourceStatus": "available",
+      "ap": 7,
+      "apLevelRange": {
+        "min": 1,
+        "max": 10
+      },
+      "coverage": "saved_html_stage_only",
+      "sourceLevelText": "Lv.1〜10",
+      "sourceProgressionText": "ひゃくボルト → ひゃくおくボルト+9"
+    },
+    "みんなすこしブレスふうじ": {
+      "hyperionId": 2147483715,
+      "sourceStatus": "available",
+      "ap": 3,
+      "apLevelRange": {
+        "min": 21,
+        "max": 30
+      },
+      "coverage": "saved_html_stage_only",
+      "sourceLevelText": "Lv.21〜30",
+      "sourceProgressionText": "みんなすこしブレスふうじ → みんなつよくブレスふうじ"
+    },
+    "すこししびれさせる": {
+      "hyperionId": 2147483717,
+      "sourceStatus": "available",
+      "ap": 3,
+      "apLevelRange": {
+        "min": 1,
+        "max": 10
+      },
+      "coverage": "saved_html_stage_only",
+      "sourceLevelText": "Lv.1〜10",
+      "sourceProgressionText": "すこししびれさせる → すごくしびれさせる"
+    },
+    "ひかりのあめ": {
+      "hyperionId": 2147483721,
+      "sourceStatus": "available",
+      "ap": 5,
+      "apLevelRange": {
+        "min": 51,
+        "max": 60
+      },
+      "coverage": "saved_html_stage_only",
+      "sourceLevelText": "Lv.51〜60",
+      "sourceProgressionText": "ひかりのあめ → フォトンレイン+9"
+    },
+    "すこしおそくなれ": {
+      "hyperionId": 2147483724,
+      "sourceStatus": "available",
+      "ap": 5,
+      "apLevelRange": {
+        "min": 1,
+        "max": 10
+      },
+      "coverage": "saved_html_stage_only",
+      "sourceLevelText": "Lv.1〜10",
+      "sourceProgressionText": "すこしおそくなれ → すごくおそくなれ"
+    },
+    "ならくのたいよう": {
+      "hyperionId": 2147483738,
+      "sourceStatus": "available",
+      "ap": 5,
+      "apLevelRange": {
+        "min": 51,
+        "max": 60
+      },
+      "coverage": "saved_html_stage_only",
+      "sourceLevelText": "Lv.51〜60",
+      "sourceProgressionText": "ならくのたいよう → ブラックコロナ+9"
+    },
+    "ふゆのひざし": {
+      "hyperionId": 2147483741,
+      "sourceStatus": "available",
+      "ap": 7,
+      "apLevelRange": {
+        "min": 1,
+        "max": 10
+      },
+      "coverage": "saved_html_stage_only",
+      "sourceLevelText": "Lv.1〜10",
+      "sourceProgressionText": "ふゆのひざし → コロナ+9"
+    },
+    "ひのたま": {
+      "hyperionId": 2147483742,
+      "sourceStatus": "available",
+      "ap": 7,
+      "apLevelRange": {
+        "min": 1,
+        "max": 10
+      },
+      "coverage": "saved_html_stage_only",
+      "sourceLevelText": "Lv.1〜10",
+      "sourceProgressionText": "ひのたま → いっせんど+9"
+    },
+    "みんなすこしめかくし": {
+      "hyperionId": 2147483743,
+      "sourceStatus": "available",
+      "ap": 3,
+      "apLevelRange": {
+        "min": 21,
+        "max": 30
+      },
+      "coverage": "saved_html_stage_only",
+      "sourceLevelText": "Lv.21〜30",
+      "sourceProgressionText": "みんなすこしめかくし → みんなながくめかくし"
+    },
+    "らくらいかさい": {
+      "hyperionId": 2147483751,
+      "sourceStatus": "available",
+      "ap": 5,
+      "apLevelRange": {
+        "min": 51,
+        "max": 60
+      },
+      "coverage": "saved_html_stage_only",
+      "sourceLevelText": "Lv.51〜60",
+      "sourceProgressionText": "らくらいかさい → ブレイズサンダー+9"
+    },
+    "みんなノックダウン": {
+      "hyperionId": 2147483752,
+      "sourceStatus": "available",
+      "ap": 5,
+      "apLevelRange": {
+        "min": 21,
+        "max": 30
+      },
+      "coverage": "saved_html_stage_only",
+      "sourceLevelText": "Lv.21〜30",
+      "sourceProgressionText": "みんなノックダウン → みんなきゅうしょづき"
+    },
+    "みんなすこしよけにくい": {
+      "hyperionId": 2147483758,
+      "sourceStatus": "available",
+      "ap": 5,
+      "apLevelRange": {
+        "min": 21,
+        "max": 30
+      },
+      "coverage": "saved_html_stage_only",
+      "sourceLevelText": "Lv.21〜30",
+      "sourceProgressionText": "みんなすこしよけにくい → みんなすごくよけにくい"
+    },
+    "じゃあくなじわれ": {
+      "hyperionId": 2147483759,
+      "sourceStatus": "available",
+      "ap": 5,
+      "apLevelRange": {
+        "min": 51,
+        "max": 60
+      },
+      "coverage": "saved_html_stage_only",
+      "sourceLevelText": "Lv.51〜60",
+      "sourceProgressionText": "じゃあくなじわれ → イービルクエイク+9"
+    },
+    "やまかじ": {
+      "hyperionId": 2147483764,
+      "sourceStatus": "available",
+      "ap": 7,
+      "apLevelRange": {
+        "min": 1,
+        "max": 10
+      },
+      "coverage": "saved_html_stage_only",
+      "sourceLevelText": "Lv.1〜10",
+      "sourceProgressionText": "やまかじ → ヘルファイア+9"
+    },
+    "ひさめ": {
+      "hyperionId": 2147483765,
+      "sourceStatus": "available",
+      "ap": 5,
+      "apLevelRange": {
+        "min": 51,
+        "max": 60
+      },
+      "coverage": "saved_html_stage_only",
+      "sourceLevelText": "Lv.51〜60",
+      "sourceProgressionText": "ひさめ → アイスストーム+9"
+    },
+    "めざめる": {
+      "hyperionId": 2147483767,
+      "sourceStatus": "available",
+      "ap": 5,
+      "apLevelRange": {
+        "min": 1,
+        "max": 10
+      },
+      "coverage": "saved_html_stage_only",
+      "sourceLevelText": "Lv.1〜10",
+      "sourceProgressionText": "めざめる → みんなめざめる"
+    },
+    "じゃあくなほのお": {
+      "hyperionId": 2147483769,
+      "sourceStatus": "available",
+      "ap": 5,
+      "apLevelRange": {
+        "min": 51,
+        "max": 60
+      },
+      "coverage": "saved_html_stage_only",
+      "sourceLevelText": "Lv.51〜60",
+      "sourceProgressionText": "じゃあくなほのお → ダークブレイザー+9"
+    },
+    "みんなよわめになれ": {
+      "hyperionId": 2147483771,
+      "sourceStatus": "available",
+      "ap": 5,
+      "apLevelRange": {
+        "min": 21,
+        "max": 30
+      },
+      "coverage": "saved_html_stage_only",
+      "sourceLevelText": "Lv.21〜30",
+      "sourceProgressionText": "みんなよわめになれ → みんなげきよわ"
+    },
+    "せいでんき": {
+      "hyperionId": 2147483774,
+      "sourceStatus": "available",
+      "ap": 7,
+      "apLevelRange": {
+        "min": 1,
+        "max": 10
+      },
+      "coverage": "saved_html_stage_only",
+      "sourceLevelText": "Lv.1〜10",
+      "sourceProgressionText": "せいでんき → こうあつだま+9"
+    },
+    "ちょっとあしもとガード": {
+      "hyperionId": 2147483782,
+      "sourceStatus": "available",
+      "ap": 3,
+      "apLevelRange": {
+        "min": 21,
+        "max": 30
+      },
+      "coverage": "saved_html_stage_only",
+      "sourceLevelText": "Lv.21〜30",
+      "sourceProgressionText": "ちょっとあしもとガード → しばらくあしもとガード"
+    },
+    "つむじかぜ": {
+      "hyperionId": 2147483783,
+      "sourceStatus": "available",
+      "ap": 7,
+      "apLevelRange": {
+        "min": 1,
+        "max": 10
+      },
+      "coverage": "saved_html_stage_only",
+      "sourceLevelText": "Lv.1〜10",
+      "sourceProgressionText": "つむじかぜ → たつまき+9"
+    },
+    "どせきりゅう": {
+      "hyperionId": 2147483784,
+      "sourceStatus": "available",
+      "ap": 5,
+      "apLevelRange": {
+        "min": 51,
+        "max": 60
+      },
+      "coverage": "saved_html_stage_only",
+      "sourceLevelText": "Lv.51〜60",
+      "sourceProgressionText": "どせきりゅう → クエイクウェーブ+9"
+    },
+    "あんこくのれいき": {
+      "hyperionId": 2147483789,
+      "sourceStatus": "available",
+      "ap": 5,
+      "apLevelRange": {
+        "min": 51,
+        "max": 60
+      },
+      "coverage": "saved_html_stage_only",
+      "sourceLevelText": "Lv.51〜60",
+      "sourceProgressionText": "あんこくのれいき → イービルアイスバーグ+9"
+    },
+    "マグニチュード3": {
+      "hyperionId": 2147483790,
+      "sourceStatus": "available",
+      "ap": 7,
+      "apLevelRange": {
+        "min": 1,
+        "max": 10
+      },
+      "coverage": "saved_html_stage_only",
+      "sourceLevelText": "Lv.1〜10",
+      "sourceProgressionText": "マグニチュード3 → マグニチュード48+9"
+    },
+    "みんなやわらかめ": {
+      "hyperionId": 2147483791,
+      "sourceStatus": "available",
+      "ap": 5,
+      "apLevelRange": {
+        "min": 21,
+        "max": 30
+      },
+      "coverage": "saved_html_stage_only",
+      "sourceLevelText": "Lv.21〜30",
+      "sourceProgressionText": "みんなやわらかめ → みんなやわやわ"
+    },
+    "ビルかぜ": {
+      "hyperionId": 2147483792,
+      "sourceStatus": "available",
+      "ap": 7,
+      "apLevelRange": {
+        "min": 1,
+        "max": 10
+      },
+      "coverage": "saved_html_stage_only",
+      "sourceLevelText": "Lv.1〜10",
+      "sourceProgressionText": "ビルかぜ → ビッグトルネード+9"
+    },
+    "どくになれ": {
+      "hyperionId": 2147483794,
+      "sourceStatus": "available",
+      "ap": 3,
+      "apLevelRange": {
+        "min": 1,
+        "max": 10
+      },
+      "coverage": "saved_html_stage_only",
+      "sourceLevelText": "Lv.1〜10",
+      "sourceProgressionText": "どくになれ → もうどくになれ"
+    },
+    "くろいきり": {
+      "hyperionId": 2147483796,
+      "sourceStatus": "available",
+      "ap": 7,
+      "apLevelRange": {
+        "min": 1,
+        "max": 10
+      },
+      "coverage": "saved_html_stage_only",
+      "sourceLevelText": "Lv.1〜10",
+      "sourceProgressionText": "くろいきり → あんこくのそこ+9"
+    },
+    "かみなりがんせき": {
+      "hyperionId": 2147483800,
+      "sourceStatus": "available",
+      "ap": 5,
+      "apLevelRange": {
+        "min": 51,
+        "max": 60
+      },
+      "coverage": "saved_html_stage_only",
+      "sourceLevelText": "Lv.51〜60",
+      "sourceProgressionText": "かみなりがんせき → サンダークエイク+9"
+    },
+    "ばくはつ": {
+      "hyperionId": 2147483803,
+      "sourceStatus": "available",
+      "ap": 7,
+      "apLevelRange": {
+        "min": 1,
+        "max": 10
+      },
+      "coverage": "saved_html_stage_only",
+      "sourceLevelText": "Lv.1〜10",
+      "sourceProgressionText": "ばくはつ → ビックバンX+9"
+    },
+    "かまいたち": {
+      "hyperionId": 2147483805,
+      "sourceStatus": "available",
+      "ap": 7,
+      "apLevelRange": {
+        "min": 1,
+        "max": 10
+      },
+      "coverage": "saved_html_stage_only",
+      "sourceLevelText": "Lv.1〜10",
+      "sourceProgressionText": "かまいたち → ラストテンペスト+9"
+    },
+    "いなづま": {
+      "hyperionId": 2147483806,
+      "sourceStatus": "available",
+      "ap": 7,
+      "apLevelRange": {
+        "min": 1,
+        "max": 10
+      },
+      "coverage": "saved_html_stage_only",
+      "sourceLevelText": "Lv.1〜10",
+      "sourceProgressionText": "いなづま → てんのいかり+9"
+    },
+    "みずでっぽう": {
+      "hyperionId": 2147483807,
+      "sourceStatus": "available",
+      "ap": 7,
+      "apLevelRange": {
+        "min": 1,
+        "max": 10
+      },
+      "coverage": "saved_html_stage_only",
+      "sourceLevelText": "Lv.1〜10",
+      "sourceProgressionText": "みずでっぽう → こうずい+9"
+    },
+    "すこしかたくなれ": {
+      "hyperionId": 2147483809,
+      "sourceStatus": "available",
+      "ap": 3,
+      "apLevelRange": {
+        "min": 1,
+        "max": 10
+      },
+      "coverage": "saved_html_stage_only",
+      "sourceLevelText": "Lv.1〜10",
+      "sourceProgressionText": "すこしかたくなれ → ゲキレツかたくなれ"
+    },
+    "すこしめかくし": {
+      "hyperionId": 2147483811,
+      "sourceStatus": "available",
+      "ap": 3,
+      "apLevelRange": {
+        "min": 1,
+        "max": 10
+      },
+      "coverage": "saved_html_stage_only",
+      "sourceLevelText": "Lv.1〜10",
+      "sourceProgressionText": "すこしめかくし → ながくめかくし"
+    },
+    "すこしアンテナふうじ": {
+      "hyperionId": 2147483812,
+      "sourceStatus": "available",
+      "ap": 3,
+      "apLevelRange": {
+        "min": 1,
+        "max": 10
+      },
+      "coverage": "saved_html_stage_only",
+      "sourceLevelText": "Lv.1〜10",
+      "sourceProgressionText": "すこしアンテナふうじ → もっとアンテナふうじ"
+    },
+    "ちょっとふっかつ": {
+      "hyperionId": 2147483817,
+      "sourceStatus": "available",
+      "ap": 6,
+      "apLevelRange": {
+        "min": 1,
+        "max": 10
+      },
+      "coverage": "saved_html_stage_only",
+      "sourceLevelText": "Lv.1〜10",
+      "sourceProgressionText": "ちょっとふっかつ → かんぜんふっかつ"
+    },
+    "みんなかためになれ": {
+      "hyperionId": 2147483819,
+      "sourceStatus": "available",
+      "ap": 3,
+      "apLevelRange": {
+        "min": 21,
+        "max": 30
+      },
+      "coverage": "saved_html_stage_only",
+      "sourceLevelText": "Lv.21〜30",
+      "sourceProgressionText": "みんなかためになれ → みんなダイヤモンド"
+    },
+    "すこしよけにくい": {
+      "hyperionId": 2147483820,
+      "sourceStatus": "available",
+      "ap": 5,
+      "apLevelRange": {
+        "min": 1,
+        "max": 10
+      },
+      "coverage": "saved_html_stage_only",
+      "sourceLevelText": "Lv.1〜10",
+      "sourceProgressionText": "すこしよけにくい → すごくよけにくい"
+    },
+    "おどかす": {
+      "hyperionId": 2147483822,
+      "sourceStatus": "available",
+      "ap": 7,
+      "apLevelRange": {
+        "min": 1,
+        "max": 10
+      },
+      "coverage": "saved_html_stage_only",
+      "sourceLevelText": "Lv.1〜10",
+      "sourceProgressionText": "おどかす → やみのおう+9"
+    },
+    "みんなわざはねかえす1": {
+      "hyperionId": 2147483823,
+      "sourceStatus": "available",
+      "ap": 4,
+      "apLevelRange": {
+        "min": 21,
+        "max": 30
+      },
+      "coverage": "saved_html_stage_only",
+      "sourceLevelText": "Lv.21〜30",
+      "sourceProgressionText": "みんなわざはねかえす1 → みんなわざはねかえす3"
+    },
+    "ちょっとかいふく": {
+      "hyperionId": 2147483828,
+      "sourceStatus": "available",
+      "ap": 6,
+      "apLevelRange": {
+        "min": 1,
+        "max": 10
+      },
+      "coverage": "saved_html_stage_only",
+      "sourceLevelText": "Lv.1〜10",
+      "sourceProgressionText": "ちょっとかいふく → ぜんぶかいふく"
+    },
+    "ロックアイス": {
+      "hyperionId": 2147483829,
+      "sourceStatus": "available",
+      "ap": 7,
+      "apLevelRange": {
+        "min": 1,
+        "max": 10
+      },
+      "coverage": "saved_html_stage_only",
+      "sourceLevelText": "Lv.1〜10",
+      "sourceProgressionText": "ロックアイス → アイスクライム+9"
+    },
+    "かいほうする": {
+      "hyperionId": 2147483831,
+      "sourceStatus": "available",
+      "ap": 3,
+      "apLevelRange": {
+        "min": 21,
+        "max": 30
+      },
+      "coverage": "saved_html_stage_only",
+      "sourceLevelText": "Lv.21〜30",
+      "sourceProgressionText": "かいほうする → みんなかいほう"
+    },
+    "ちいさくトゲトゲ": {
+      "hyperionId": 2147483833,
+      "sourceStatus": "available",
+      "ap": 4,
+      "apLevelRange": {
+        "min": 1,
+        "max": 10
+      },
+      "coverage": "saved_html_stage_only",
+      "sourceLevelText": "Lv.1〜10",
+      "sourceProgressionText": "ちいさくトゲトゲ → するどくトゲトゲ"
+    },
+    "ひかりたつまき": {
+      "hyperionId": 2147483834,
+      "sourceStatus": "available",
+      "ap": 5,
+      "apLevelRange": {
+        "min": 51,
+        "max": 60
+      },
+      "coverage": "saved_html_stage_only",
+      "sourceLevelText": "Lv.51〜60",
+      "sourceProgressionText": "ひかりたつまき → シャイントルネード+9"
+    },
+    "むてきかいじょ": {
+      "hyperionId": 2147483837,
+      "sourceStatus": "available",
+      "ap": 1,
+      "apLevelRange": {
+        "min": 1,
+        "max": 10
+      },
+      "coverage": "saved_html_stage_only",
+      "sourceLevelText": "Lv.1〜10",
+      "sourceProgressionText": "むてきかいじょ → むてきかいじょ+"
+    },
+    "らくせき": {
+      "hyperionId": 2147483839,
+      "sourceStatus": "available",
+      "ap": 7,
+      "apLevelRange": {
+        "min": 1,
+        "max": 10
+      },
+      "coverage": "saved_html_stage_only",
+      "sourceLevelText": "Lv.1〜10",
+      "sourceProgressionText": "らくせき → てんぺんちい+9"
+    },
+    "みんなあてられにくい": {
+      "hyperionId": 2147483840,
+      "sourceStatus": "available",
+      "ap": 3,
+      "apLevelRange": {
+        "min": 21,
+        "max": 30
+      },
+      "coverage": "saved_html_stage_only",
+      "sourceLevelText": "Lv.21〜30",
+      "sourceProgressionText": "みんなあてられにくい → みんなよけまくり"
+    },
+    "すこしねむらせる": {
+      "hyperionId": 2147483843,
+      "sourceStatus": "available",
+      "ap": 3,
+      "apLevelRange": {
+        "min": 1,
+        "max": 10
+      },
+      "coverage": "saved_html_stage_only",
+      "sourceLevelText": "Lv.1〜10",
+      "sourceProgressionText": "すこしねむらせる → ふかくねむらせる"
+    },
+    "すこしはやくなれ": {
+      "hyperionId": 2147483845,
+      "sourceStatus": "available",
+      "ap": 3,
+      "apLevelRange": {
+        "min": 1,
+        "max": 10
+      },
+      "coverage": "saved_html_stage_only",
+      "sourceLevelText": "Lv.1〜10",
+      "sourceProgressionText": "すこしはやくなれ → ゲキレツはやくなれ"
+    },
+    "スポットライト": {
+      "hyperionId": 2147483847,
+      "sourceStatus": "available",
+      "ap": 7,
+      "apLevelRange": {
+        "min": 1,
+        "max": 10
+      },
+      "coverage": "saved_html_stage_only",
+      "sourceLevelText": "Lv.1〜10",
+      "sourceProgressionText": "スポットライト → スーパーフォトン+9"
+    },
+    "みんなどくになれ": {
+      "hyperionId": 2147483849,
+      "sourceStatus": "available",
+      "ap": 3,
+      "apLevelRange": {
+        "min": 21,
+        "max": 30
+      },
+      "coverage": "saved_html_stage_only",
+      "sourceLevelText": "Lv.21〜30",
+      "sourceProgressionText": "みんなどくになれ → みんなもうどくになれ"
+    },
+    "もえるひかりのや": {
+      "hyperionId": 2147483853,
+      "sourceStatus": "available",
+      "ap": 5,
+      "apLevelRange": {
+        "min": 51,
+        "max": 60
+      },
+      "coverage": "saved_html_stage_only",
+      "sourceLevelText": "Lv.51〜60",
+      "sourceProgressionText": "もえるひかりのや → フォトンブレイザー+9"
+    },
+    "かがやくれいき": {
+      "hyperionId": 2147483855,
+      "sourceStatus": "available",
+      "ap": 5,
+      "apLevelRange": {
+        "min": 51,
+        "max": 60
+      },
+      "coverage": "saved_html_stage_only",
+      "sourceLevelText": "Lv.51〜60",
+      "sourceProgressionText": "かがやくれいき → シャインブリザード+9"
+    },
+    "みんなすこしひっちゅう": {
+      "hyperionId": 2147483858,
+      "sourceStatus": "available",
+      "ap": 4,
+      "apLevelRange": {
+        "min": 21,
+        "max": 30
+      },
+      "coverage": "saved_html_stage_only",
+      "sourceLevelText": "Lv.21〜30",
+      "sourceProgressionText": "みんなすこしひっちゅう → みんなながくひっちゅう"
+    },
+    "みんなちょっとふっかつ": {
+      "hyperionId": 2147483860,
+      "sourceStatus": "available",
+      "ap": 6,
+      "apLevelRange": {
+        "min": 1,
+        "max": 10
+      },
+      "coverage": "saved_html_stage_only",
+      "sourceLevelText": "Lv.1〜10",
+      "sourceProgressionText": "みんなちょっとふっかつ → みんなかんぜんふっかつ"
+    },
+    "みんなちょっとかいふく": {
+      "hyperionId": 2147483861,
+      "sourceStatus": "available",
+      "ap": 6,
+      "apLevelRange": {
+        "min": 1,
+        "max": 10
+      },
+      "coverage": "saved_html_stage_only",
+      "sourceLevelText": "Lv.1〜10",
+      "sourceProgressionText": "みんなちょっとかいふく → みんなぜんぶかいふく"
+    },
+    "すこしよわくなれ": {
+      "hyperionId": 2147483862,
+      "sourceStatus": "available",
+      "ap": 5,
+      "apLevelRange": {
+        "min": 1,
+        "max": 10
+      },
+      "coverage": "saved_html_stage_only",
+      "sourceLevelText": "Lv.1〜10",
+      "sourceProgressionText": "すこしよわくなれ → すごくよわくなれ"
+    },
+    "よわいこうせん": {
+      "hyperionId": 2147483863,
+      "sourceStatus": "available",
+      "ap": 7,
+      "apLevelRange": {
+        "min": 1,
+        "max": 10
+      },
+      "coverage": "saved_html_stage_only",
+      "sourceLevelText": "Lv.1〜10",
+      "sourceProgressionText": "よわいこうせん → レーザーガン+9"
+    },
+    "ぞくせいなおす": {
+      "hyperionId": 2147483865,
+      "sourceStatus": "available",
+      "ap": 5,
+      "apLevelRange": {
+        "min": 1,
+        "max": 10
+      },
+      "coverage": "saved_html_stage_only",
+      "sourceLevelText": "Lv.1〜10",
+      "sourceProgressionText": "ぞくせいなおす → みんなぞくせいなおす"
+    },
+    "ぜんぶなおす": {
+      "hyperionId": 2147483869,
+      "sourceStatus": "available",
+      "ap": 5,
+      "apLevelRange": {
+        "min": 21,
+        "max": 30
+      },
+      "coverage": "saved_html_stage_only",
+      "sourceLevelText": "Lv.21〜30",
+      "sourceProgressionText": "ぜんぶなおす → みんなぜんぶなおす"
+    },
+    "やみのいかづち": {
+      "hyperionId": 2147483870,
+      "sourceStatus": "available",
+      "ap": 5,
+      "apLevelRange": {
+        "min": 51,
+        "max": 60
+      },
+      "coverage": "saved_html_stage_only",
+      "sourceLevelText": "Lv.51〜60",
+      "sourceProgressionText": "やみのいかづち → イービルサンダー+9"
+    },
+    "ほのおのうみ": {
+      "hyperionId": 2147483871,
+      "sourceStatus": "available",
+      "ap": 5,
+      "apLevelRange": {
+        "min": 51,
+        "max": 60
+      },
+      "coverage": "saved_html_stage_only",
+      "sourceLevelText": "Lv.51〜60",
+      "sourceProgressionText": "ほのおのうみ → ハイドロブレイズ+9"
+    },
+    "すこしあやつる": {
+      "hyperionId": 2147483872,
+      "sourceStatus": "available",
+      "ap": 3,
+      "apLevelRange": {
+        "min": 31,
+        "max": 50
+      },
+      "coverage": "saved_html_stage_only",
+      "sourceLevelText": "Lv.31〜50",
+      "sourceProgressionText": "すこしあやつる → もっとあやつる"
+    },
+    "すこしつよくなれ": {
+      "hyperionId": 2147483873,
+      "sourceStatus": "available",
+      "ap": 3,
+      "apLevelRange": {
+        "min": 1,
+        "max": 10
+      },
+      "coverage": "saved_html_stage_only",
+      "sourceLevelText": "Lv.1〜10",
+      "sourceProgressionText": "すこしつよくなれ → ゲキレツつよくなれ"
+    },
+    "みんなすこしこうふん": {
+      "hyperionId": 2147483878,
+      "sourceStatus": "available",
+      "ap": 4,
+      "apLevelRange": {
+        "min": 21,
+        "max": 30
+      },
+      "coverage": "saved_html_stage_only",
+      "sourceLevelText": "Lv.21〜30",
+      "sourceProgressionText": "みんなすこしこうふん → みんなながくこうふん"
+    },
+    "らいう": {
+      "hyperionId": 2147483882,
+      "sourceStatus": "available",
+      "ap": 5,
+      "apLevelRange": {
+        "min": 51,
+        "max": 60
+      },
+      "coverage": "saved_html_stage_only",
+      "sourceLevelText": "Lv.51〜60",
+      "sourceProgressionText": "らいう → サンダーストーム+9"
+    },
+    "すこしこうふん": {
+      "hyperionId": 2147483887,
+      "sourceStatus": "available",
+      "ap": 4,
+      "apLevelRange": {
+        "min": 1,
+        "max": 10
+      },
+      "coverage": "saved_html_stage_only",
+      "sourceLevelText": "Lv.1〜10",
+      "sourceProgressionText": "すこしこうふん → ながくこうふん"
+    },
+    "みんなむてきかいじょ": {
+      "hyperionId": 2147483888,
+      "sourceStatus": "available",
+      "ap": 1,
+      "apLevelRange": {
+        "min": 1,
+        "max": 20
+      },
+      "coverage": "saved_html_stage_only",
+      "sourceLevelText": "Lv.1〜20",
+      "sourceProgressionText": "みんなむてきかいじょ → みんなむてきかいじょ+"
+    },
+    "こおりあらし": {
+      "hyperionId": 2147483899,
+      "sourceStatus": "available",
+      "ap": 5,
+      "apLevelRange": {
+        "min": 51,
+        "max": 60
+      },
+      "coverage": "saved_html_stage_only",
+      "sourceLevelText": "Lv.51〜60",
+      "sourceProgressionText": "こおりあらし → アイストルネード+9"
+    },
+    "みんなすこしむてき": {
+      "hyperionId": 2147483902,
+      "sourceStatus": "available",
+      "ap": 3,
+      "apLevelRange": {
+        "min": 21,
+        "max": 30
+      },
+      "coverage": "saved_html_stage_only",
+      "sourceLevelText": "Lv.21〜30",
+      "sourceProgressionText": "みんなすこしむてき → みんなながくむてき"
+    },
+    "ちょっとステルス": {
+      "hyperionId": 2147483906,
+      "sourceStatus": "available",
+      "ap": 3,
+      "apLevelRange": {
+        "min": 21,
+        "max": 30
+      },
+      "coverage": "saved_html_stage_only",
+      "sourceLevelText": "Lv.21〜30",
+      "sourceProgressionText": "ちょっとステルス → しばらくステルス"
+    },
+    "もえさかるこおり": {
+      "hyperionId": 2147483907,
+      "sourceStatus": "available",
+      "ap": 5,
+      "apLevelRange": {
+        "min": 51,
+        "max": 60
+      },
+      "coverage": "saved_html_stage_only",
+      "sourceLevelText": "Lv.51〜60",
+      "sourceProgressionText": "もえさかるこおり → ブレイズアイス+9"
+    },
+    "すこしひっちゅう": {
+      "hyperionId": 2147483908,
+      "sourceStatus": "available",
+      "ap": 4,
+      "apLevelRange": {
+        "min": 1,
+        "max": 10
+      },
+      "coverage": "saved_html_stage_only",
+      "sourceLevelText": "Lv.1〜10",
+      "sourceProgressionText": "すこしひっちゅう → ながくひっちゅう"
+    },
+    "すこしブレスふうじ": {
+      "hyperionId": 2147483909,
+      "sourceStatus": "available",
+      "ap": 3,
+      "apLevelRange": {
+        "min": 1,
+        "max": 10
+      },
+      "coverage": "saved_html_stage_only",
+      "sourceLevelText": "Lv.1〜10",
+      "sourceProgressionText": "すこしブレスふうじ → つよくブレスふうじ"
+    },
+    "ノックダウン": {
+      "hyperionId": 2147483917,
+      "sourceStatus": "available",
+      "ap": 6,
+      "apLevelRange": {
+        "min": 1,
+        "max": 10
+      },
+      "coverage": "saved_html_stage_only",
+      "sourceLevelText": "Lv.1〜10",
+      "sourceProgressionText": "ノックダウン → きゅうしょづき"
+    },
+    "ダークシャワー": {
+      "hyperionId": 2147483918,
+      "sourceStatus": "available",
+      "ap": 5,
+      "apLevelRange": {
+        "min": 51,
+        "max": 60
+      },
+      "coverage": "saved_html_stage_only",
+      "sourceLevelText": "Lv.51〜60",
+      "sourceProgressionText": "ダークシャワー → イービルウェーブ+9"
+    },
+    "とがったこおり": {
+      "hyperionId": 2147483926,
+      "sourceStatus": "available",
+      "ap": 7,
+      "apLevelRange": {
+        "min": 1,
+        "max": 10
+      },
+      "coverage": "saved_html_stage_only",
+      "sourceLevelText": "Lv.1〜10",
+      "sourceProgressionText": "とがったこおり → ひょうざんおとし+9"
+    },
+    "みんなつよめになれ": {
+      "hyperionId": 2147483929,
+      "sourceStatus": "available",
+      "ap": 3,
+      "apLevelRange": {
+        "min": 21,
+        "max": 30
+      },
+      "coverage": "saved_html_stage_only",
+      "sourceLevelText": "Lv.21〜30",
+      "sourceProgressionText": "みんなつよめになれ → みんなタイタン"
+    },
+    "だいちのひかり": {
+      "hyperionId": 2147483930,
+      "sourceStatus": "available",
+      "ap": 5,
+      "apLevelRange": {
+        "min": 51,
+        "max": 60
+      },
+      "coverage": "saved_html_stage_only",
+      "sourceLevelText": "Lv.51〜60",
+      "sourceProgressionText": "だいちのひかり → フォトンクエイク+9"
+    },
+    "たくわえる": {
+      "hyperionId": 2147483934,
+      "sourceStatus": "available",
+      "ap": 4,
+      "apLevelRange": {
+        "min": 1,
+        "max": 10
+      },
+      "coverage": "saved_html_stage_only",
+      "sourceLevelText": "Lv.1〜10",
+      "sourceProgressionText": "たくわえる"
+    },
+    "かさいせんぷう": {
+      "hyperionId": 2147483935,
+      "sourceStatus": "available",
+      "ap": 5,
+      "apLevelRange": {
+        "min": 51,
+        "max": 60
+      },
+      "coverage": "saved_html_stage_only",
+      "sourceLevelText": "Lv.51〜60",
+      "sourceProgressionText": "かさいせんぷう → ブレイズストーム+9"
+    },
+    "すこしむてき": {
+      "hyperionId": 2147483939,
+      "sourceStatus": "available",
+      "ap": 4,
+      "apLevelRange": {
+        "min": 1,
+        "max": 10
+      },
+      "coverage": "saved_html_stage_only",
+      "sourceLevelText": "Lv.1〜10",
+      "sourceProgressionText": "すこしむてき → ながくむてき"
+    },
+    "じゃあくなかぜ": {
+      "hyperionId": 2147483940,
+      "sourceStatus": "available",
+      "ap": 5,
+      "apLevelRange": {
+        "min": 51,
+        "max": 60
+      },
+      "coverage": "saved_html_stage_only",
+      "sourceLevelText": "Lv.51〜60",
+      "sourceProgressionText": "じゃあくなかぜ → ダークトルネード+9"
+    },
+    "みんなはやめになれ": {
+      "hyperionId": 2147483943,
+      "sourceStatus": "available",
+      "ap": 3,
+      "apLevelRange": {
+        "min": 21,
+        "max": 30
+      },
+      "coverage": "saved_html_stage_only",
+      "sourceLevelText": "Lv.21〜30",
+      "sourceProgressionText": "みんなはやめになれ → みんなながれぼし"
+    },
+    "アンテナのねっこ": {
+      "hyperionId": 0,
+      "sourceStatus": "not_in_saved_html",
+      "ap": null
+    }
+  },
+  "heads": {
+    "まる": {
+      "hyperionId": 2147483725,
+      "sourceStatus": "available",
+      "janken": "無",
+      "effects": []
+    },
+    "よこまる": {
+      "hyperionId": 2147483671,
+      "sourceStatus": "available",
+      "janken": "無",
+      "effects": []
+    },
+    "たてまる": {
+      "hyperionId": 2147483702,
+      "sourceStatus": "available",
+      "janken": "無",
+      "effects": []
+    },
+    "さんかく": {
+      "hyperionId": 2147483650,
+      "sourceStatus": "available",
+      "janken": "無",
+      "effects": []
+    },
+    "おにぎり": {
+      "hyperionId": 2147483655,
+      "sourceStatus": "available",
+      "janken": "無",
+      "effects": []
+    },
+    "しかく": {
+      "hyperionId": 2147483720,
+      "sourceStatus": "available",
+      "janken": "無",
+      "effects": []
+    },
+    "かどまる": {
+      "hyperionId": 2147483679,
+      "sourceStatus": "available",
+      "janken": "無",
+      "effects": []
+    },
+    "しずく": {
+      "hyperionId": 2147483719,
+      "sourceStatus": "available",
+      "janken": "無",
+      "effects": []
+    },
+    "つぼ": {
+      "hyperionId": 2147483709,
+      "sourceStatus": "available",
+      "janken": "パー",
+      "effects": [
+        {
+          "stat": "max_ap",
+          "operation": "add",
+          "value": 1,
+          "unit": "source_unspecified",
+          "sourceText": "さいだいＡＰ +1"
+        }
+      ]
+    },
+    "こぐま": {
+      "hyperionId": 2147483657,
+      "sourceStatus": "available",
+      "janken": "無",
+      "effects": []
+    },
+    "あまつゆ": {
+      "hyperionId": 2147483660,
+      "sourceStatus": "available",
+      "janken": "無",
+      "effects": []
+    },
+    "チューリップ": {
+      "hyperionId": 2147483659,
+      "sourceStatus": "available",
+      "janken": "グー",
+      "effects": [
+        {
+          "stat": "defense",
+          "operation": "add",
+          "value": 50,
+          "unit": "source_unspecified",
+          "sourceText": "ぼうぎょりょく +50"
+        }
+      ]
+    },
+    "ロボ": {
+      "hyperionId": 2147483714,
+      "sourceStatus": "available",
+      "janken": "無",
+      "effects": []
+    },
+    "イカ": {
+      "hyperionId": 2147483672,
+      "sourceStatus": "available",
+      "janken": "無",
+      "effects": [
+        {
+          "stat": "attack",
+          "operation": "add",
+          "value": 10,
+          "unit": "source_unspecified",
+          "sourceText": "こうげきりょく +10"
+        }
+      ]
+    },
+    "ロケット": {
+      "hyperionId": 2147483680,
+      "sourceStatus": "available",
+      "janken": "パー",
+      "effects": []
+    },
+    "スター": {
+      "hyperionId": 2147483706,
+      "sourceStatus": "available",
+      "janken": "パー",
+      "effects": [
+        {
+          "stat": "attack",
+          "operation": "add",
+          "value": 70,
+          "unit": "source_unspecified",
+          "sourceText": "こうげきりょく +70"
+        },
+        {
+          "stat": "evasion",
+          "operation": "add",
+          "value": 15,
+          "unit": "source_unspecified",
+          "sourceText": "かいひりつ +15"
+        },
+        {
+          "stat": "defense",
+          "operation": "add",
+          "value": 50,
+          "unit": "source_unspecified",
+          "sourceText": "ぼうぎょりょく +50"
+        }
+      ]
+    },
+    "くま": {
+      "hyperionId": 2147483651,
+      "sourceStatus": "available",
+      "janken": "パー",
+      "effects": [
+        {
+          "stat": "paralysis_resistance",
+          "operation": "add",
+          "value": 1,
+          "unit": "source_unspecified",
+          "sourceText": "マヒたいせい +1"
+        }
+      ]
+    },
+    "ハート": {
+      "hyperionId": 2147483653,
+      "sourceStatus": "available",
+      "janken": "パー",
+      "effects": [
+        {
+          "stat": "charm",
+          "operation": "add",
+          "value": 20,
+          "unit": "percent_points",
+          "sourceText": "ゆうわく +20%"
+        },
+        {
+          "stat": "defense",
+          "operation": "add",
+          "value": 100,
+          "unit": "source_unspecified",
+          "sourceText": "ぼうぎょりょく +100"
+        },
+        {
+          "stat": "max_ap",
+          "operation": "add",
+          "value": 1,
+          "unit": "source_unspecified",
+          "sourceText": "さいだいＡＰ +1"
+        }
+      ]
+    },
+    "ねこみみ": {
+      "hyperionId": 2147483717,
+      "sourceStatus": "available",
+      "janken": "チョキ",
+      "effects": [
+        {
+          "stat": "attack",
+          "operation": "add",
+          "value": 10,
+          "unit": "source_unspecified",
+          "sourceText": "こうげきりょく +10"
+        }
+      ]
+    },
+    "デビル": {
+      "hyperionId": 2147483652,
+      "sourceStatus": "available",
+      "janken": "チョキ",
+      "effects": [
+        {
+          "stat": "poison_resistance",
+          "operation": "add",
+          "value": 3,
+          "unit": "source_unspecified",
+          "sourceText": "どくたいせい +3"
+        },
+        {
+          "stat": "attack",
+          "operation": "add",
+          "value": 50,
+          "unit": "source_unspecified",
+          "sourceText": "こうげきりょく +50"
+        },
+        {
+          "stat": "fear_resistance",
+          "operation": "add",
+          "value": 3,
+          "unit": "source_unspecified",
+          "sourceText": "きょうふたいせい +3"
+        }
+      ]
+    },
+    "みかづき": {
+      "hyperionId": 2147483704,
+      "sourceStatus": "available",
+      "janken": "チョキ",
+      "effects": [
+        {
+          "stat": "max_hp",
+          "operation": "add",
+          "value": 100,
+          "unit": "source_unspecified",
+          "sourceText": "さいだいＨＰ +100"
+        },
+        {
+          "stat": "attack",
+          "operation": "add",
+          "value": 50,
+          "unit": "source_unspecified",
+          "sourceText": "こうげきりょく +50"
+        },
+        {
+          "stat": "element_resistance",
+          "operation": "add",
+          "value": 1,
+          "unit": "source_unspecified",
+          "sourceText": "ぞくせいたいせい +1"
+        }
+      ]
+    },
+    "とんがり": {
+      "hyperionId": 2147483656,
+      "sourceStatus": "available",
+      "janken": "無",
+      "effects": []
+    },
+    "でんち": {
+      "hyperionId": 2147483700,
+      "sourceStatus": "available",
+      "janken": "無",
+      "effects": []
+    },
+    "トゲトゲ": {
+      "hyperionId": 2147483681,
+      "sourceStatus": "available",
+      "janken": "チョキ",
+      "effects": [
+        {
+          "stat": "attack",
+          "operation": "add",
+          "value": 15,
+          "unit": "source_unspecified",
+          "sourceText": "こうげきりょく +15"
+        }
+      ]
+    },
+    "たまご": {
+      "hyperionId": 2147483658,
+      "sourceStatus": "available",
+      "janken": "無",
+      "effects": []
+    },
+    "タワー": {
+      "hyperionId": 2147483710,
+      "sourceStatus": "available",
+      "janken": "グー",
+      "effects": [
+        {
+          "stat": "charm_resistance",
+          "operation": "add",
+          "value": 1,
+          "unit": "source_unspecified",
+          "sourceText": "ゆうわくたいせい +1"
+        }
+      ]
+    },
+    "いぬみみ": {
+      "hyperionId": 2147483678,
+      "sourceStatus": "available",
+      "janken": "パー",
+      "effects": [
+        {
+          "stat": "poison_resistance",
+          "operation": "add",
+          "value": 1,
+          "unit": "source_unspecified",
+          "sourceText": "どくたいせい +1"
+        }
+      ]
+    },
+    "メラメラ": {
+      "hyperionId": 2147483699,
+      "sourceStatus": "available",
+      "janken": "チョキ",
+      "effects": [
+        {
+          "stat": "attack",
+          "operation": "add",
+          "value": 5,
+          "unit": "source_unspecified",
+          "sourceText": "こうげきりょく +5"
+        }
+      ]
+    },
+    "クワガタ": {
+      "hyperionId": 2147483682,
+      "sourceStatus": "available",
+      "janken": "チョキ",
+      "effects": [
+        {
+          "stat": "attack",
+          "operation": "add",
+          "value": 50,
+          "unit": "source_unspecified",
+          "sourceText": "こうげきりょく +50"
+        }
+      ]
+    },
+    "ダイヤ": {
+      "hyperionId": 2147483668,
+      "sourceStatus": "available",
+      "janken": "チョキ",
+      "effects": [
+        {
+          "stat": "attack",
+          "operation": "add",
+          "value": 10,
+          "unit": "source_unspecified",
+          "sourceText": "こうげきりょく +10"
+        }
+      ]
+    },
+    "ルビー": {
+      "hyperionId": 2147483692,
+      "sourceStatus": "available",
+      "janken": "無",
+      "effects": [
+        {
+          "stat": "attack",
+          "operation": "add",
+          "value": 5,
+          "unit": "source_unspecified",
+          "sourceText": "こうげきりょく +5"
+        }
+      ]
+    },
+    "たいよう": {
+      "hyperionId": 2147483661,
+      "sourceStatus": "available",
+      "janken": "パー",
+      "effects": [
+        {
+          "stat": "status_resistance",
+          "operation": "add",
+          "value": 3,
+          "unit": "source_unspecified",
+          "sourceText": "いじょうたいせい +3"
+        },
+        {
+          "stat": "attack",
+          "operation": "add",
+          "value": 50,
+          "unit": "source_unspecified",
+          "sourceText": "こうげきりょく +50"
+        },
+        {
+          "stat": "defense",
+          "operation": "add",
+          "value": 100,
+          "unit": "source_unspecified",
+          "sourceText": "ぼうぎょりょく +100"
+        }
+      ]
+    },
+    "うさみみ": {
+      "hyperionId": 2147483662,
+      "sourceStatus": "available",
+      "janken": "チョキ",
+      "effects": [
+        {
+          "stat": "charm",
+          "operation": "add",
+          "value": 10,
+          "unit": "percent_points",
+          "sourceText": "ゆうわく +10%"
+        },
+        {
+          "stat": "speed",
+          "operation": "add",
+          "value": 20,
+          "unit": "source_unspecified",
+          "sourceText": "すばやさ +20"
+        }
+      ]
+    },
+    "まきがい": {
+      "hyperionId": 2147483724,
+      "sourceStatus": "available",
+      "janken": "パー",
+      "effects": []
+    },
+    "キャッスル": {
+      "hyperionId": 2147483693,
+      "sourceStatus": "available",
+      "janken": "グー",
+      "effects": [
+        {
+          "stat": "gold",
+          "operation": "add",
+          "value": 3,
+          "unit": "percent_points",
+          "sourceText": "ゴールド +3%"
+        },
+        {
+          "stat": "defense",
+          "operation": "add",
+          "value": 50,
+          "unit": "source_unspecified",
+          "sourceText": "ぼうぎょりょく +50"
+        }
+      ]
+    },
+    "ブロック": {
+      "hyperionId": 2147483665,
+      "sourceStatus": "available",
+      "janken": "グー",
+      "effects": [
+        {
+          "stat": "charm_resistance",
+          "operation": "add",
+          "value": 1,
+          "unit": "source_unspecified",
+          "sourceText": "ゆうわくたいせい +1"
+        }
+      ]
+    },
+    "たまねぎ": {
+      "hyperionId": 2147483727,
+      "sourceStatus": "available",
+      "janken": "無",
+      "effects": []
+    },
+    "わっか": {
+      "hyperionId": 2147483687,
+      "sourceStatus": "available",
+      "janken": "パー",
+      "effects": [
+        {
+          "stat": "max_ap",
+          "operation": "add",
+          "value": 2,
+          "unit": "source_unspecified",
+          "sourceText": "さいだいＡＰ +2"
+        },
+        {
+          "stat": "charm_resistance",
+          "operation": "add",
+          "value": 3,
+          "unit": "source_unspecified",
+          "sourceText": "ゆうわくたいせい +3"
+        },
+        {
+          "stat": "defense",
+          "operation": "add",
+          "value": 100,
+          "unit": "source_unspecified",
+          "sourceText": "ぼうぎょりょく +100"
+        }
+      ]
+    },
+    "コック": {
+      "hyperionId": 2147483683,
+      "sourceStatus": "available",
+      "janken": "パー",
+      "effects": [
+        {
+          "stat": "speed",
+          "operation": "add",
+          "value": 10,
+          "unit": "source_unspecified",
+          "sourceText": "すばやさ +10"
+        },
+        {
+          "stat": "defense",
+          "operation": "add",
+          "value": 50,
+          "unit": "source_unspecified",
+          "sourceText": "ぼうぎょりょく +50"
+        }
+      ]
+    },
+    "おさかな": {
+      "hyperionId": 2147483684,
+      "sourceStatus": "available",
+      "janken": "グー",
+      "effects": [
+        {
+          "stat": "max_ap",
+          "operation": "add",
+          "value": 1,
+          "unit": "source_unspecified",
+          "sourceText": "さいだいＡＰ +1"
+        },
+        {
+          "stat": "charm_resistance",
+          "operation": "add",
+          "value": 2,
+          "unit": "source_unspecified",
+          "sourceText": "ゆうわくたいせい +2"
+        },
+        {
+          "stat": "evasion",
+          "operation": "add",
+          "value": 15,
+          "unit": "source_unspecified",
+          "sourceText": "かいひりつ +15"
+        }
+      ]
+    },
+    "スポーティ": {
+      "hyperionId": 2147483649,
+      "sourceStatus": "available",
+      "janken": "無",
+      "effects": [
+        {
+          "stat": "attack",
+          "operation": "add",
+          "value": 10,
+          "unit": "source_unspecified",
+          "sourceText": "こうげきりょく +10"
+        }
+      ]
+    },
+    "キャンディ": {
+      "hyperionId": 2147483721,
+      "sourceStatus": "available",
+      "janken": "無",
+      "effects": [
+        {
+          "stat": "evasion",
+          "operation": "add",
+          "value": 5,
+          "unit": "source_unspecified",
+          "sourceText": "かいひりつ +5"
+        }
+      ]
+    },
+    "でこ": {
+      "hyperionId": 2147483654,
+      "sourceStatus": "available",
+      "janken": "グー",
+      "effects": [
+        {
+          "stat": "attack",
+          "operation": "add",
+          "value": 10,
+          "unit": "source_unspecified",
+          "sourceText": "こうげきりょく +10"
+        }
+      ]
+    },
+    "ピエロ": {
+      "hyperionId": 2147483694,
+      "sourceStatus": "available",
+      "janken": "無",
+      "effects": [
+        {
+          "stat": "poison_resistance",
+          "operation": "add",
+          "value": 1,
+          "unit": "source_unspecified",
+          "sourceText": "どくたいせい +1"
+        },
+        {
+          "stat": "charm_resistance",
+          "operation": "add",
+          "value": 1,
+          "unit": "source_unspecified",
+          "sourceText": "ゆうわくたいせい +1"
+        }
+      ]
+    },
+    "おだんご": {
+      "hyperionId": 2147483695,
+      "sourceStatus": "available",
+      "janken": "チョキ",
+      "effects": [
+        {
+          "stat": "status_resistance",
+          "operation": "add",
+          "value": 1,
+          "unit": "source_unspecified",
+          "sourceText": "いじょうたいせい +1"
+        },
+        {
+          "stat": "element_resistance",
+          "operation": "add",
+          "value": 1,
+          "unit": "source_unspecified",
+          "sourceText": "ぞくせいたいせい +1"
+        }
+      ]
+    },
+    "おんがくか": {
+      "hyperionId": 2147483670,
+      "sourceStatus": "available",
+      "janken": "パー",
+      "effects": [
+        {
+          "stat": "charm",
+          "operation": "add",
+          "value": 10,
+          "unit": "percent_points",
+          "sourceText": "ゆうわく +10%"
+        },
+        {
+          "stat": "charm_resistance",
+          "operation": "add",
+          "value": 1,
+          "unit": "source_unspecified",
+          "sourceText": "ゆうわくたいせい +1"
+        }
+      ]
+    },
+    "りゅうせい": {
+      "hyperionId": 2147483685,
+      "sourceStatus": "available",
+      "janken": "チョキ",
+      "effects": [
+        {
+          "stat": "evasion",
+          "operation": "add",
+          "value": 5,
+          "unit": "source_unspecified",
+          "sourceText": "かいひりつ +5"
+        }
+      ]
+    },
+    "まめ": {
+      "hyperionId": 2147483686,
+      "sourceStatus": "available",
+      "janken": "無",
+      "effects": [
+        {
+          "stat": "charm_resistance",
+          "operation": "add",
+          "value": 1,
+          "unit": "source_unspecified",
+          "sourceText": "ゆうわくたいせい +1"
+        }
+      ]
+    },
+    "ぼこ": {
+      "hyperionId": 2147483697,
+      "sourceStatus": "available",
+      "janken": "グー",
+      "effects": [
+        {
+          "stat": "defense",
+          "operation": "add",
+          "value": 20,
+          "unit": "source_unspecified",
+          "sourceText": "ぼうぎょりょく +20"
+        }
+      ]
+    },
+    "ひつじ": {
+      "hyperionId": 2147483701,
+      "sourceStatus": "available",
+      "janken": "無",
+      "effects": [
+        {
+          "stat": "sleep_resistance",
+          "operation": "add",
+          "value": 1,
+          "unit": "source_unspecified",
+          "sourceText": "ねむりたいせい +1"
+        }
+      ]
+    },
+    "ヒレ": {
+      "hyperionId": 2147483712,
+      "sourceStatus": "available",
+      "janken": "チョキ",
+      "effects": [
+        {
+          "stat": "element_resistance",
+          "operation": "add",
+          "value": 2,
+          "unit": "source_unspecified",
+          "sourceText": "ぞくせいたいせい +2"
+        },
+        {
+          "stat": "attack",
+          "operation": "add",
+          "value": 100,
+          "unit": "source_unspecified",
+          "sourceText": "こうげきりょく +100"
+        },
+        {
+          "stat": "defense",
+          "operation": "add",
+          "value": 50,
+          "unit": "source_unspecified",
+          "sourceText": "ぼうぎょりょく +50"
+        }
+      ]
+    },
+    "シルクハット": {
+      "hyperionId": 2147483663,
+      "sourceStatus": "available",
+      "janken": "グー",
+      "effects": [
+        {
+          "stat": "jack_resistance",
+          "operation": "add",
+          "value": 1,
+          "unit": "source_unspecified",
+          "sourceText": "ジャックたいせい +1"
+        },
+        {
+          "stat": "status_resistance",
+          "operation": "add",
+          "value": 2,
+          "unit": "source_unspecified",
+          "sourceText": "いじょうたいせい +2"
+        },
+        {
+          "stat": "element_resistance",
+          "operation": "add",
+          "value": 1,
+          "unit": "source_unspecified",
+          "sourceText": "ぞくせいたいせい +1"
+        }
+      ]
+    },
+    "おかっぱ": {
+      "hyperionId": 2147483675,
+      "sourceStatus": "available",
+      "janken": "グー",
+      "effects": [
+        {
+          "stat": "jack_resistance",
+          "operation": "add",
+          "value": 1,
+          "unit": "source_unspecified",
+          "sourceText": "ジャックたいせい +1"
+        },
+        {
+          "stat": "element_resistance",
+          "operation": "add",
+          "value": 1,
+          "unit": "source_unspecified",
+          "sourceText": "ぞくせいたいせい +1"
+        }
+      ]
+    },
+    "かえる": {
+      "hyperionId": 2147483713,
+      "sourceStatus": "available",
+      "janken": "パー",
+      "effects": [
+        {
+          "stat": "jack_resistance",
+          "operation": "add",
+          "value": 1,
+          "unit": "source_unspecified",
+          "sourceText": "ジャックたいせい +1"
+        },
+        {
+          "stat": "status_resistance",
+          "operation": "add",
+          "value": 1,
+          "unit": "source_unspecified",
+          "sourceText": "いじょうたいせい +1"
+        }
+      ]
+    },
+    "しょくパン": {
+      "hyperionId": 2147483669,
+      "sourceStatus": "available",
+      "janken": "グー",
+      "effects": [
+        {
+          "stat": "attack",
+          "operation": "add",
+          "value": 100,
+          "unit": "source_unspecified",
+          "sourceText": "こうげきりょく +100"
+        },
+        {
+          "stat": "fear",
+          "operation": "add",
+          "value": 10,
+          "unit": "source_unspecified",
+          "sourceText": "きょうふ +10"
+        },
+        {
+          "stat": "fear_resistance",
+          "operation": "add",
+          "value": 2,
+          "unit": "source_unspecified",
+          "sourceText": "きょうふたいせい +2"
+        }
+      ]
+    },
+    "てんしゅ": {
+      "hyperionId": 2147483688,
+      "sourceStatus": "available",
+      "janken": "グー",
+      "effects": [
+        {
+          "stat": "jack_resistance",
+          "operation": "add",
+          "value": 2,
+          "unit": "source_unspecified",
+          "sourceText": "ジャックたいせい +2"
+        },
+        {
+          "stat": "attack",
+          "operation": "add",
+          "value": 100,
+          "unit": "source_unspecified",
+          "sourceText": "こうげきりょく +100"
+        },
+        {
+          "stat": "defense",
+          "operation": "add",
+          "value": 100,
+          "unit": "source_unspecified",
+          "sourceText": "ぼうぎょりょく +100"
+        }
+      ]
+    },
+    "はね": {
+      "hyperionId": 2147483664,
+      "sourceStatus": "available",
+      "janken": "チョキ",
+      "effects": [
+        {
+          "stat": "charm",
+          "operation": "add",
+          "value": 20,
+          "unit": "percent_points",
+          "sourceText": "ゆうわく +20%"
+        },
+        {
+          "stat": "speed",
+          "operation": "add",
+          "value": 20,
+          "unit": "source_unspecified",
+          "sourceText": "すばやさ +20"
+        },
+        {
+          "stat": "evasion",
+          "operation": "add",
+          "value": 15,
+          "unit": "source_unspecified",
+          "sourceText": "かいひりつ +15"
+        }
+      ]
+    },
+    "だいてんしゅ": {
+      "hyperionId": 2147483689,
+      "sourceStatus": "available",
+      "janken": "グー",
+      "effects": [
+        {
+          "stat": "jack_resistance",
+          "operation": "add",
+          "value": 3,
+          "unit": "source_unspecified",
+          "sourceText": "ジャックたいせい +3"
+        },
+        {
+          "stat": "attack",
+          "operation": "add",
+          "value": 120,
+          "unit": "source_unspecified",
+          "sourceText": "こうげきりょく +120"
+        },
+        {
+          "stat": "defense",
+          "operation": "add",
+          "value": 150,
+          "unit": "source_unspecified",
+          "sourceText": "ぼうぎょりょく +150"
+        }
+      ]
+    },
+    "おおはね": {
+      "hyperionId": 2147483690,
+      "sourceStatus": "available",
+      "janken": "チョキ",
+      "effects": [
+        {
+          "stat": "charm",
+          "operation": "add",
+          "value": 15,
+          "unit": "percent_points",
+          "sourceText": "ゆうわく +15%"
+        },
+        {
+          "stat": "speed",
+          "operation": "add",
+          "value": 30,
+          "unit": "source_unspecified",
+          "sourceText": "すばやさ +30"
+        },
+        {
+          "stat": "evasion",
+          "operation": "add",
+          "value": 15,
+          "unit": "source_unspecified",
+          "sourceText": "かいひりつ +15"
+        }
+      ]
+    },
+    "ひかり": {
+      "hyperionId": 2147483715,
+      "sourceStatus": "available",
+      "janken": "パー",
+      "effects": [
+        {
+          "stat": "status_resistance",
+          "operation": "add",
+          "value": 2,
+          "unit": "source_unspecified",
+          "sourceText": "いじょうたいせい +2"
+        },
+        {
+          "stat": "attack",
+          "operation": "add",
+          "value": 70,
+          "unit": "source_unspecified",
+          "sourceText": "こうげきりょく +70"
+        },
+        {
+          "stat": "element_resistance",
+          "operation": "add",
+          "value": 2,
+          "unit": "source_unspecified",
+          "sourceText": "ぞくせいたいせい +2"
+        }
+      ]
+    }
+  },
+  "bodies": {
+    "1A(0最速)": {
+      "hyperionId": 2147483659,
+      "sourceStatus": "available",
+      "evasionPercent": 0,
+      "multipliersPercent": {
+        "hp": 110,
+        "attack": 110,
+        "defense": 105,
+        "speed": 110
+      },
+      "neutralMultipliersOmittedInHtml": [],
+      "sourceText": "回避 0%・HP 110%・攻 110%・防 105%・速 110%"
+    },
+    "1B(0準速)": {
+      "hyperionId": 2147483660,
+      "sourceStatus": "available",
+      "evasionPercent": 0,
+      "multipliersPercent": {
+        "hp": 120,
+        "attack": 120,
+        "defense": 105,
+        "speed": 105
+      },
+      "neutralMultipliersOmittedInHtml": [],
+      "sourceText": "回避 0%・HP 120%・攻 120%・防 105%・速 105%"
+    },
+    "1C(0中間)": {
+      "hyperionId": 2147483671,
+      "sourceStatus": "available",
+      "evasionPercent": 0,
+      "multipliersPercent": {
+        "hp": 130,
+        "attack": 120,
+        "defense": 110,
+        "speed": 100
+      },
+      "neutralMultipliersOmittedInHtml": [
+        "speed"
+      ],
+      "sourceText": "回避 0%・HP 130%・攻 120%・防 110%"
+    },
+    "1D(0準大)": {
+      "hyperionId": 2147483676,
+      "sourceStatus": "available",
+      "evasionPercent": 0,
+      "multipliersPercent": {
+        "hp": 140,
+        "attack": 120,
+        "defense": 120,
+        "speed": 95
+      },
+      "neutralMultipliersOmittedInHtml": [],
+      "sourceText": "回避 0%・HP 140%・攻 120%・防 120%・速 95%"
+    },
+    "1E(0最大)": {
+      "hyperionId": 2147483652,
+      "sourceStatus": "available",
+      "evasionPercent": 0,
+      "multipliersPercent": {
+        "hp": 150,
+        "attack": 130,
+        "defense": 130,
+        "speed": 90
+      },
+      "neutralMultipliersOmittedInHtml": [],
+      "sourceText": "回避 0%・HP 150%・攻 130%・防 130%・速 90%"
+    },
+    "2A(3+最速)": {
+      "hyperionId": 2147483657,
+      "sourceStatus": "available",
+      "evasionPercent": 3,
+      "multipliersPercent": {
+        "hp": 100,
+        "attack": 105,
+        "defense": 100,
+        "speed": 110
+      },
+      "neutralMultipliersOmittedInHtml": [
+        "hp",
+        "defense"
+      ],
+      "sourceText": "回避 3%・攻 105%・速 110%"
+    },
+    "2B(3+準速)": {
+      "hyperionId": 2147483661,
+      "sourceStatus": "available",
+      "evasionPercent": 3,
+      "multipliersPercent": {
+        "hp": 110,
+        "attack": 105,
+        "defense": 100,
+        "speed": 105
+      },
+      "neutralMultipliersOmittedInHtml": [
+        "defense"
+      ],
+      "sourceText": "回避 3%・HP 110%・攻 105%・速 105%"
+    },
+    "2C(3+中間)": {
+      "hyperionId": 2147483667,
+      "sourceStatus": "available",
+      "evasionPercent": 3,
+      "multipliersPercent": {
+        "hp": 120,
+        "attack": 105,
+        "defense": 105,
+        "speed": 100
+      },
+      "neutralMultipliersOmittedInHtml": [
+        "speed"
+      ],
+      "sourceText": "回避 3%・HP 120%・攻 105%・防 105%"
+    },
+    "2D(3+準大)": {
+      "hyperionId": 2147483662,
+      "sourceStatus": "available",
+      "evasionPercent": 3,
+      "multipliersPercent": {
+        "hp": 130,
+        "attack": 110,
+        "defense": 110,
+        "speed": 95
+      },
+      "neutralMultipliersOmittedInHtml": [],
+      "sourceText": "回避 3%・HP 130%・攻 110%・防 110%・速 95%"
+    },
+    "2E(3+最大)": {
+      "hyperionId": 2147483677,
+      "sourceStatus": "available",
+      "evasionPercent": 3,
+      "multipliersPercent": {
+        "hp": 140,
+        "attack": 110,
+        "defense": 120,
+        "speed": 90
+      },
+      "neutralMultipliersOmittedInHtml": [],
+      "sourceText": "回避 3%・HP 140%・攻 110%・防 120%・速 90%"
+    },
+    "3A(3-最速)": {
+      "hyperionId": 2147483668,
+      "sourceStatus": "available",
+      "evasionPercent": 3,
+      "multipliersPercent": {
+        "hp": 90,
+        "attack": 100,
+        "defense": 95,
+        "speed": 110
+      },
+      "neutralMultipliersOmittedInHtml": [
+        "attack"
+      ],
+      "sourceText": "回避 3%・HP 90%・防 95%・速 110%"
+    },
+    "3B(3-準速)": {
+      "hyperionId": 2147483663,
+      "sourceStatus": "available",
+      "evasionPercent": 3,
+      "multipliersPercent": {
+        "hp": 100,
+        "attack": 100,
+        "defense": 100,
+        "speed": 105
+      },
+      "neutralMultipliersOmittedInHtml": [
+        "hp",
+        "attack",
+        "defense"
+      ],
+      "sourceText": "回避 3%・速 105%"
+    },
+    "3C(3-中間)": {
+      "hyperionId": 2147483673,
+      "sourceStatus": "available",
+      "evasionPercent": 3,
+      "multipliersPercent": {
+        "hp": 110,
+        "attack": 100,
+        "defense": 100,
+        "speed": 100
+      },
+      "neutralMultipliersOmittedInHtml": [
+        "attack",
+        "defense",
+        "speed"
+      ],
+      "sourceText": "回避 3%・HP 110%"
+    },
+    "3D(3-準大)": {
+      "hyperionId": 2147483678,
+      "sourceStatus": "available",
+      "evasionPercent": 3,
+      "multipliersPercent": {
+        "hp": 120,
+        "attack": 100,
+        "defense": 105,
+        "speed": 100
+      },
+      "neutralMultipliersOmittedInHtml": [
+        "attack",
+        "speed"
+      ],
+      "sourceText": "回避 3%・HP 120%・防 105%"
+    },
+    "3E(3-最大)": {
+      "hyperionId": 2147483669,
+      "sourceStatus": "available",
+      "evasionPercent": 3,
+      "multipliersPercent": {
+        "hp": 130,
+        "attack": 100,
+        "defense": 120,
+        "speed": 100
+      },
+      "neutralMultipliersOmittedInHtml": [
+        "attack",
+        "speed"
+      ],
+      "sourceText": "回避 3%・HP 130%・防 120%"
+    },
+    "4A(6+最速)": {
+      "hyperionId": 2147483654,
+      "sourceStatus": "available",
+      "evasionPercent": 6,
+      "multipliersPercent": {
+        "hp": 100,
+        "attack": 95,
+        "defense": 90,
+        "speed": 110
+      },
+      "neutralMultipliersOmittedInHtml": [
+        "hp"
+      ],
+      "sourceText": "回避 6%・攻 95%・防 90%・速 110%"
+    },
+    "4B(6+準速)": {
+      "hyperionId": 2147483664,
+      "sourceStatus": "available",
+      "evasionPercent": 6,
+      "multipliersPercent": {
+        "hp": 100,
+        "attack": 95,
+        "defense": 95,
+        "speed": 105
+      },
+      "neutralMultipliersOmittedInHtml": [
+        "hp"
+      ],
+      "sourceText": "回避 6%・攻 95%・防 95%・速 105%"
+    },
+    "4C(6+中間)": {
+      "hyperionId": 2147483656,
+      "sourceStatus": "available",
+      "evasionPercent": 6,
+      "multipliersPercent": {
+        "hp": 100,
+        "attack": 100,
+        "defense": 100,
+        "speed": 100
+      },
+      "neutralMultipliersOmittedInHtml": [
+        "hp",
+        "attack",
+        "defense",
+        "speed"
+      ],
+      "sourceText": "回避 6%"
+    },
+    "4D(6+準大)": {
+      "hyperionId": 2147483675,
+      "sourceStatus": "available",
+      "evasionPercent": 6,
+      "multipliersPercent": {
+        "hp": 110,
+        "attack": 100,
+        "defense": 100,
+        "speed": 95
+      },
+      "neutralMultipliersOmittedInHtml": [
+        "attack",
+        "defense"
+      ],
+      "sourceText": "回避 6%・HP 110%・速 95%"
+    },
+    "4E(6+最大)": {
+      "hyperionId": 2147483666,
+      "sourceStatus": "available",
+      "evasionPercent": 6,
+      "multipliersPercent": {
+        "hp": 120,
+        "attack": 100,
+        "defense": 110,
+        "speed": 90
+      },
+      "neutralMultipliersOmittedInHtml": [
+        "attack"
+      ],
+      "sourceText": "回避 6%・HP 120%・防 110%・速 90%"
+    },
+    "5A(10最速)": {
+      "hyperionId": 2147483665,
+      "sourceStatus": "available",
+      "evasionPercent": 10,
+      "multipliersPercent": {
+        "hp": 70,
+        "attack": 90,
+        "defense": 85,
+        "speed": 110
+      },
+      "neutralMultipliersOmittedInHtml": [],
+      "sourceText": "回避 10%・HP 70%・攻 90%・防 85%・速 110%"
+    },
+    "5B(6-準速)": {
+      "hyperionId": 2147483670,
+      "sourceStatus": "available",
+      "evasionPercent": 6,
+      "multipliersPercent": {
+        "hp": 80,
+        "attack": 90,
+        "defense": 90,
+        "speed": 105
+      },
+      "neutralMultipliersOmittedInHtml": [],
+      "sourceText": "回避 6%・HP 80%・攻 90%・防 90%・速 105%"
+    },
+    "5C(6-中間)": {
+      "hyperionId": 2147483651,
+      "sourceStatus": "available",
+      "evasionPercent": 6,
+      "multipliersPercent": {
+        "hp": 90,
+        "attack": 90,
+        "defense": 95,
+        "speed": 100
+      },
+      "neutralMultipliersOmittedInHtml": [
+        "speed"
+      ],
+      "sourceText": "回避 6%・HP 90%・攻 90%・防 95%"
+    },
+    "5D(6-準大)": {
+      "hyperionId": 2147483655,
+      "sourceStatus": "available",
+      "evasionPercent": 6,
+      "multipliersPercent": {
+        "hp": 100,
+        "attack": 90,
+        "defense": 100,
+        "speed": 95
+      },
+      "neutralMultipliersOmittedInHtml": [
+        "hp",
+        "defense"
+      ],
+      "sourceText": "回避 6%・攻 90%・速 95%"
+    },
+    "5E(6-最大)": {
+      "hyperionId": 2147483658,
+      "sourceStatus": "available",
+      "evasionPercent": 6,
+      "multipliersPercent": {
+        "hp": 110,
+        "attack": 95,
+        "defense": 100,
+        "speed": 90
+      },
+      "neutralMultipliersOmittedInHtml": [
+        "defense"
+      ],
+      "sourceText": "回避 6%・HP 110%・攻 95%・速 90%"
+    },
+    "6A(15最速)": {
+      "hyperionId": 2147483679,
+      "sourceStatus": "available",
+      "evasionPercent": 15,
+      "multipliersPercent": {
+        "hp": 60,
+        "attack": 80,
+        "defense": 80,
+        "speed": 110
+      },
+      "neutralMultipliersOmittedInHtml": [],
+      "sourceText": "回避 15%・HP 60%・攻 80%・防 80%・速 110%"
+    },
+    "6B(15準速)": {
+      "hyperionId": 2147483649,
+      "sourceStatus": "available",
+      "evasionPercent": 15,
+      "multipliersPercent": {
+        "hp": 70,
+        "attack": 85,
+        "defense": 85,
+        "speed": 105
+      },
+      "neutralMultipliersOmittedInHtml": [],
+      "sourceText": "回避 15%・HP 70%・攻 85%・防 85%・速 105%"
+    },
+    "6C(15中間)": {
+      "hyperionId": 2147483674,
+      "sourceStatus": "available",
+      "evasionPercent": 15,
+      "multipliersPercent": {
+        "hp": 80,
+        "attack": 85,
+        "defense": 90,
+        "speed": 100
+      },
+      "neutralMultipliersOmittedInHtml": [
+        "speed"
+      ],
+      "sourceText": "回避 15%・HP 80%・攻 85%・防 90%"
+    },
+    "6D(10準大)": {
+      "hyperionId": 2147483672,
+      "sourceStatus": "available",
+      "evasionPercent": 10,
+      "multipliersPercent": {
+        "hp": 90,
+        "attack": 90,
+        "defense": 95,
+        "speed": 100
+      },
+      "neutralMultipliersOmittedInHtml": [
+        "speed"
+      ],
+      "sourceText": "回避 10%・HP 90%・攻 90%・防 95%"
+    },
+    "6E(10最大)": {
+      "hyperionId": 2147483650,
+      "sourceStatus": "available",
+      "evasionPercent": 10,
+      "multipliersPercent": {
+        "hp": 100,
+        "attack": 90,
+        "defense": 95,
+        "speed": 100
+      },
+      "neutralMultipliersOmittedInHtml": [
+        "hp",
+        "speed"
+      ],
+      "sourceText": "回避 10%・攻 90%・防 95%"
+    }
+  },
+  "patterns": {
+    "なし": {
+      "hyperionId": 2147483662,
+      "sourceStatus": "available",
+      "colorCount": 1,
+      "effects": []
+    },
+    "ツートン": {
+      "hyperionId": 2147483669,
+      "sourceStatus": "available",
+      "colorCount": 2,
+      "effects": []
+    },
+    "ボーダー": {
+      "hyperionId": 2147483670,
+      "sourceStatus": "available",
+      "colorCount": 2,
+      "effects": []
+    },
+    "ストライプ": {
+      "hyperionId": 2147483654,
+      "sourceStatus": "available",
+      "colorCount": 2,
+      "effects": []
+    },
+    "水玉": {
+      "hyperionId": 2147483678,
+      "sourceStatus": "available",
+      "colorCount": 2,
+      "effects": []
+    },
+    "アニマル": {
+      "hyperionId": 2147483692,
+      "sourceStatus": "available",
+      "colorCount": 2,
+      "effects": []
+    },
+    "斜めボーダー": {
+      "hyperionId": 2147483671,
+      "sourceStatus": "available",
+      "colorCount": 2,
+      "effects": []
+    },
+    "ピンドット": {
+      "hyperionId": 2147483660,
+      "sourceStatus": "available",
+      "colorCount": 2,
+      "effects": [
+        {
+          "stat": "evasion",
+          "operation": "add",
+          "value": 5,
+          "unit": "percent_points",
+          "sourceText": "回避率 +5%"
+        }
+      ]
+    },
+    "ギンガムチェック": {
+      "hyperionId": 2147483651,
+      "sourceStatus": "available",
+      "colorCount": 2,
+      "effects": []
+    },
+    "ダイヤ": {
+      "hyperionId": 2147483686,
+      "sourceStatus": "available",
+      "colorCount": 2,
+      "effects": []
+    },
+    "レンガ": {
+      "hyperionId": 2147483693,
+      "sourceStatus": "available",
+      "colorCount": 2,
+      "effects": [
+        {
+          "stat": "evasion",
+          "operation": "add",
+          "value": 5,
+          "unit": "percent_points",
+          "sourceText": "回避率 +5%"
+        }
+      ]
+    },
+    "スプラッシュ": {
+      "hyperionId": 2147483652,
+      "sourceStatus": "available",
+      "colorCount": 2,
+      "effects": [
+        {
+          "stat": "evasion",
+          "operation": "add",
+          "value": 5,
+          "unit": "percent_points",
+          "sourceText": "回避率 +5%"
+        }
+      ]
+    },
+    "マーブル": {
+      "hyperionId": 2147483685,
+      "sourceStatus": "available",
+      "colorCount": 2,
+      "effects": [
+        {
+          "stat": "evasion",
+          "operation": "add",
+          "value": 5,
+          "unit": "percent_points",
+          "sourceText": "回避率 +5%"
+        }
+      ]
+    },
+    "鱗文": {
+      "hyperionId": 2147483694,
+      "sourceStatus": "available",
+      "colorCount": 2,
+      "effects": []
+    },
+    "ヘビ": {
+      "hyperionId": 2147483656,
+      "sourceStatus": "available",
+      "colorCount": 2,
+      "effects": [
+        {
+          "stat": "evasion",
+          "operation": "add",
+          "value": 5,
+          "unit": "percent_points",
+          "sourceText": "回避率 +5%"
+        }
+      ]
+    },
+    "シェブロン": {
+      "hyperionId": 2147483663,
+      "sourceStatus": "available",
+      "colorCount": 2,
+      "effects": []
+    },
+    "トラ": {
+      "hyperionId": 2147483650,
+      "sourceStatus": "available",
+      "colorCount": 2,
+      "effects": [
+        {
+          "stat": "attack",
+          "operation": "scale_percent",
+          "value": 102,
+          "unit": "percent",
+          "sourceText": "攻撃力 102%"
+        },
+        {
+          "stat": "evasion",
+          "operation": "add",
+          "value": 5,
+          "unit": "percent_points",
+          "sourceText": "回避率 +5%"
+        }
+      ]
+    },
+    "しずく": {
+      "hyperionId": 2147483687,
+      "sourceStatus": "available",
+      "colorCount": 2,
+      "effects": [
+        {
+          "stat": "evasion",
+          "operation": "add",
+          "value": 5,
+          "unit": "percent_points",
+          "sourceText": "回避率 +5%"
+        }
+      ]
+    },
+    "うろこ": {
+      "hyperionId": 2147483661,
+      "sourceStatus": "available",
+      "colorCount": 2,
+      "effects": [
+        {
+          "stat": "evasion",
+          "operation": "add",
+          "value": 5,
+          "unit": "percent_points",
+          "sourceText": "回避率 +5%"
+        }
+      ]
+    },
+    "バブルドット": {
+      "hyperionId": 2147483695,
+      "sourceStatus": "available",
+      "colorCount": 2,
+      "effects": []
+    },
+    "花": {
+      "hyperionId": 2147483653,
+      "sourceStatus": "available",
+      "colorCount": 2,
+      "effects": [
+        {
+          "stat": "status_resistance",
+          "operation": "add",
+          "value": 1,
+          "unit": "source_unspecified",
+          "sourceText": "状態異常耐性 +1"
+        },
+        {
+          "stat": "evasion",
+          "operation": "add",
+          "value": 5,
+          "unit": "percent_points",
+          "sourceText": "回避率 +5%"
+        }
+      ]
+    },
+    "スペード": {
+      "hyperionId": 2147483655,
+      "sourceStatus": "available",
+      "colorCount": 2,
+      "effects": []
+    },
+    "星": {
+      "hyperionId": 2147483667,
+      "sourceStatus": "available",
+      "colorCount": 2,
+      "effects": [
+        {
+          "stat": "element_resistance",
+          "operation": "add",
+          "value": 1,
+          "unit": "source_unspecified",
+          "sourceText": "プラスの属性耐性 +1",
+          "condition": "positive_element_resistances_only"
+        }
+      ]
+    },
+    "3色": {
+      "hyperionId": null,
+      "sourceStatus": "available",
+      "colorCount": 3,
+      "effects": []
+    }
+  },
+  "bodyColors": {
+    "黒": {
+      "hyperionId": 2147483691,
+      "sourceStatus": "available",
+      "rgb": [
+        38,
+        38,
+        38
+      ],
+      "effects": [
+        {
+          "stat": "sleep_resistance",
+          "operation": "add",
+          "value": 1,
+          "unit": "source_unspecified",
+          "sourceText": "ねむりたいせい +1"
+        }
+      ]
+    },
+    "濃黒": {
+      "hyperionId": 2147483668,
+      "sourceStatus": "available",
+      "rgb": [
+        25,
+        25,
+        25
+      ],
+      "effects": [
+        {
+          "stat": "sleep_resistance",
+          "operation": "add",
+          "value": 1,
+          "unit": "source_unspecified",
+          "sourceText": "ねむりたいせい +1"
+        }
+      ]
+    },
+    "薄黒": {
+      "hyperionId": 2147483679,
+      "sourceStatus": "available",
+      "rgb": [
+        60,
+        60,
+        60
+      ],
+      "effects": [
+        {
+          "stat": "sleep_resistance",
+          "operation": "add",
+          "value": 1,
+          "unit": "source_unspecified",
+          "sourceText": "ねむりたいせい +1"
+        }
+      ]
+    },
+    "赤": {
+      "hyperionId": 2147483652,
+      "sourceStatus": "available",
+      "rgb": [
+        230,
+        19,
+        11
+      ],
+      "effects": [
+        {
+          "stat": "fire_resistance",
+          "operation": "add",
+          "value": 2,
+          "unit": "source_unspecified",
+          "sourceText": "火耐性 +2"
+        },
+        {
+          "stat": "water_resistance",
+          "operation": "add",
+          "value": -2,
+          "unit": "source_unspecified",
+          "sourceText": "水耐性 -2"
+        },
+        {
+          "stat": "burn_resistance",
+          "operation": "add",
+          "value": 1,
+          "unit": "source_unspecified",
+          "sourceText": "やけどたいせい +1"
+        }
+      ]
+    },
+    "濃赤": {
+      "hyperionId": 2147483684,
+      "sourceStatus": "available",
+      "rgb": [
+        181,
+        13,
+        13
+      ],
+      "effects": [
+        {
+          "stat": "fire_resistance",
+          "operation": "add",
+          "value": 2,
+          "unit": "source_unspecified",
+          "sourceText": "火耐性 +2"
+        },
+        {
+          "stat": "water_resistance",
+          "operation": "add",
+          "value": -2,
+          "unit": "source_unspecified",
+          "sourceText": "水耐性 -2"
+        },
+        {
+          "stat": "burn_resistance",
+          "operation": "add",
+          "value": 1,
+          "unit": "source_unspecified",
+          "sourceText": "やけどたいせい +1"
+        }
+      ]
+    },
+    "薄赤": {
+      "hyperionId": 2147483687,
+      "sourceStatus": "available",
+      "rgb": [
+        244,
+        50,
+        70
+      ],
+      "effects": [
+        {
+          "stat": "fire_resistance",
+          "operation": "add",
+          "value": 2,
+          "unit": "source_unspecified",
+          "sourceText": "火耐性 +2"
+        },
+        {
+          "stat": "water_resistance",
+          "operation": "add",
+          "value": -2,
+          "unit": "source_unspecified",
+          "sourceText": "水耐性 -2"
+        },
+        {
+          "stat": "burn_resistance",
+          "operation": "add",
+          "value": 1,
+          "unit": "source_unspecified",
+          "sourceText": "やけどたいせい +1"
+        }
+      ]
+    },
+    "水色": {
+      "hyperionId": 2147483685,
+      "sourceStatus": "available",
+      "rgb": [
+        35,
+        191,
+        233
+      ],
+      "effects": [
+        {
+          "stat": "fire_resistance",
+          "operation": "add",
+          "value": -2,
+          "unit": "source_unspecified",
+          "sourceText": "火耐性 -2"
+        },
+        {
+          "stat": "ice_resistance",
+          "operation": "add",
+          "value": 2,
+          "unit": "source_unspecified",
+          "sourceText": "氷耐性 +2"
+        },
+        {
+          "stat": "frostbite_resistance",
+          "operation": "add",
+          "value": 1,
+          "unit": "source_unspecified",
+          "sourceText": "しもやけたいせい +1"
+        }
+      ]
+    },
+    "濃水色": {
+      "hyperionId": 2147483674,
+      "sourceStatus": "available",
+      "rgb": [
+        17,
+        128,
+        167
+      ],
+      "effects": [
+        {
+          "stat": "fire_resistance",
+          "operation": "add",
+          "value": -2,
+          "unit": "source_unspecified",
+          "sourceText": "火耐性 -2"
+        },
+        {
+          "stat": "ice_resistance",
+          "operation": "add",
+          "value": 2,
+          "unit": "source_unspecified",
+          "sourceText": "氷耐性 +2"
+        },
+        {
+          "stat": "frostbite_resistance",
+          "operation": "add",
+          "value": 1,
+          "unit": "source_unspecified",
+          "sourceText": "しもやけたいせい +1"
+        }
+      ]
+    },
+    "薄水色": {
+      "hyperionId": 2147483664,
+      "sourceStatus": "available",
+      "rgb": [
+        128,
+        229,
+        238
+      ],
+      "effects": [
+        {
+          "stat": "fire_resistance",
+          "operation": "add",
+          "value": -2,
+          "unit": "source_unspecified",
+          "sourceText": "火耐性 -2"
+        },
+        {
+          "stat": "ice_resistance",
+          "operation": "add",
+          "value": 2,
+          "unit": "source_unspecified",
+          "sourceText": "氷耐性 +2"
+        },
+        {
+          "stat": "frostbite_resistance",
+          "operation": "add",
+          "value": 1,
+          "unit": "source_unspecified",
+          "sourceText": "しもやけたいせい +1"
+        }
+      ]
+    },
+    "緑": {
+      "hyperionId": 2147483686,
+      "sourceStatus": "available",
+      "rgb": [
+        31,
+        196,
+        72
+      ],
+      "effects": [
+        {
+          "stat": "ice_resistance",
+          "operation": "add",
+          "value": -2,
+          "unit": "source_unspecified",
+          "sourceText": "氷耐性 -2"
+        },
+        {
+          "stat": "wind_resistance",
+          "operation": "add",
+          "value": 2,
+          "unit": "source_unspecified",
+          "sourceText": "風耐性 +2"
+        },
+        {
+          "stat": "cold_resistance",
+          "operation": "add",
+          "value": 1,
+          "unit": "source_unspecified",
+          "sourceText": "かぜっぴきたいせい +1"
+        }
+      ]
+    },
+    "濃緑": {
+      "hyperionId": 2147483667,
+      "sourceStatus": "available",
+      "rgb": [
+        48,
+        122,
+        42
+      ],
+      "effects": [
+        {
+          "stat": "ice_resistance",
+          "operation": "add",
+          "value": -2,
+          "unit": "source_unspecified",
+          "sourceText": "氷耐性 -2"
+        },
+        {
+          "stat": "wind_resistance",
+          "operation": "add",
+          "value": 2,
+          "unit": "source_unspecified",
+          "sourceText": "風耐性 +2"
+        },
+        {
+          "stat": "cold_resistance",
+          "operation": "add",
+          "value": 1,
+          "unit": "source_unspecified",
+          "sourceText": "かぜっぴきたいせい +1"
+        }
+      ]
+    },
+    "薄緑": {
+      "hyperionId": 2147483689,
+      "sourceStatus": "available",
+      "rgb": [
+        115,
+        228,
+        109
+      ],
+      "effects": [
+        {
+          "stat": "ice_resistance",
+          "operation": "add",
+          "value": -2,
+          "unit": "source_unspecified",
+          "sourceText": "氷耐性 -2"
+        },
+        {
+          "stat": "wind_resistance",
+          "operation": "add",
+          "value": 2,
+          "unit": "source_unspecified",
+          "sourceText": "風耐性 +2"
+        },
+        {
+          "stat": "cold_resistance",
+          "operation": "add",
+          "value": 1,
+          "unit": "source_unspecified",
+          "sourceText": "かぜっぴきたいせい +1"
+        }
+      ]
+    },
+    "橙": {
+      "hyperionId": 2147483657,
+      "sourceStatus": "available",
+      "rgb": [
+        253,
+        113,
+        31
+      ],
+      "effects": [
+        {
+          "stat": "wind_resistance",
+          "operation": "add",
+          "value": -2,
+          "unit": "source_unspecified",
+          "sourceText": "風耐性 -2"
+        },
+        {
+          "stat": "earth_resistance",
+          "operation": "add",
+          "value": 2,
+          "unit": "source_unspecified",
+          "sourceText": "土耐性 +2"
+        },
+        {
+          "stat": "mud_resistance",
+          "operation": "add",
+          "value": 1,
+          "unit": "source_unspecified",
+          "sourceText": "どろだらけたいせい +1"
+        }
+      ]
+    },
+    "濃橙": {
+      "hyperionId": 2147483697,
+      "sourceStatus": "available",
+      "rgb": [
+        209,
+        95,
+        11
+      ],
+      "effects": [
+        {
+          "stat": "wind_resistance",
+          "operation": "add",
+          "value": -2,
+          "unit": "source_unspecified",
+          "sourceText": "風耐性 -2"
+        },
+        {
+          "stat": "earth_resistance",
+          "operation": "add",
+          "value": 2,
+          "unit": "source_unspecified",
+          "sourceText": "土耐性 +2"
+        },
+        {
+          "stat": "mud_resistance",
+          "operation": "add",
+          "value": 1,
+          "unit": "source_unspecified",
+          "sourceText": "どろだらけたいせい +1"
+        }
+      ]
+    },
+    "薄橙": {
+      "hyperionId": 2147483688,
+      "sourceStatus": "available",
+      "rgb": [
+        245,
+        167,
+        44
+      ],
+      "effects": [
+        {
+          "stat": "wind_resistance",
+          "operation": "add",
+          "value": -2,
+          "unit": "source_unspecified",
+          "sourceText": "風耐性 -2"
+        },
+        {
+          "stat": "earth_resistance",
+          "operation": "add",
+          "value": 2,
+          "unit": "source_unspecified",
+          "sourceText": "土耐性 +2"
+        },
+        {
+          "stat": "mud_resistance",
+          "operation": "add",
+          "value": 1,
+          "unit": "source_unspecified",
+          "sourceText": "どろだらけたいせい +1"
+        }
+      ]
+    },
+    "黄色": {
+      "hyperionId": 2147483669,
+      "sourceStatus": "available",
+      "rgb": [
+        239,
+        231,
+        10
+      ],
+      "effects": [
+        {
+          "stat": "earth_resistance",
+          "operation": "add",
+          "value": -2,
+          "unit": "source_unspecified",
+          "sourceText": "土耐性 -2"
+        },
+        {
+          "stat": "electric_resistance",
+          "operation": "add",
+          "value": 2,
+          "unit": "source_unspecified",
+          "sourceText": "雷耐性 +2"
+        },
+        {
+          "stat": "shock_resistance",
+          "operation": "add",
+          "value": 1,
+          "unit": "source_unspecified",
+          "sourceText": "かんでんたいせい +1"
+        }
+      ]
+    },
+    "濃黄色": {
+      "hyperionId": 2147483666,
+      "sourceStatus": "available",
+      "rgb": [
+        232,
+        190,
+        20
+      ],
+      "effects": [
+        {
+          "stat": "earth_resistance",
+          "operation": "add",
+          "value": -2,
+          "unit": "source_unspecified",
+          "sourceText": "土耐性 -2"
+        },
+        {
+          "stat": "electric_resistance",
+          "operation": "add",
+          "value": 2,
+          "unit": "source_unspecified",
+          "sourceText": "雷耐性 +2"
+        },
+        {
+          "stat": "shock_resistance",
+          "operation": "add",
+          "value": 1,
+          "unit": "source_unspecified",
+          "sourceText": "かんでんたいせい +1"
+        }
+      ]
+    },
+    "薄黄色": {
+      "hyperionId": 2147483692,
+      "sourceStatus": "available",
+      "rgb": [
+        240,
+        239,
+        110
+      ],
+      "effects": [
+        {
+          "stat": "earth_resistance",
+          "operation": "add",
+          "value": -2,
+          "unit": "source_unspecified",
+          "sourceText": "土耐性 -2"
+        },
+        {
+          "stat": "electric_resistance",
+          "operation": "add",
+          "value": 2,
+          "unit": "source_unspecified",
+          "sourceText": "雷耐性 +2"
+        },
+        {
+          "stat": "shock_resistance",
+          "operation": "add",
+          "value": 1,
+          "unit": "source_unspecified",
+          "sourceText": "かんでんたいせい +1"
+        }
+      ]
+    },
+    "青": {
+      "hyperionId": 2147483675,
+      "sourceStatus": "available",
+      "rgb": [
+        15,
+        46,
+        236
+      ],
+      "effects": [
+        {
+          "stat": "electric_resistance",
+          "operation": "add",
+          "value": -2,
+          "unit": "source_unspecified",
+          "sourceText": "雷耐性 -2"
+        },
+        {
+          "stat": "water_resistance",
+          "operation": "add",
+          "value": 2,
+          "unit": "source_unspecified",
+          "sourceText": "水耐性 +2"
+        },
+        {
+          "stat": "wet_resistance",
+          "operation": "add",
+          "value": 1,
+          "unit": "source_unspecified",
+          "sourceText": "みずびたしたいせい +1"
+        }
+      ]
+    },
+    "濃青": {
+      "hyperionId": 2147483651,
+      "sourceStatus": "available",
+      "rgb": [
+        20,
+        37,
+        145
+      ],
+      "effects": [
+        {
+          "stat": "electric_resistance",
+          "operation": "add",
+          "value": -2,
+          "unit": "source_unspecified",
+          "sourceText": "雷耐性 -2"
+        },
+        {
+          "stat": "water_resistance",
+          "operation": "add",
+          "value": 2,
+          "unit": "source_unspecified",
+          "sourceText": "水耐性 +2"
+        },
+        {
+          "stat": "wet_resistance",
+          "operation": "add",
+          "value": 1,
+          "unit": "source_unspecified",
+          "sourceText": "みずびたしたいせい +1"
+        }
+      ]
+    },
+    "薄青": {
+      "hyperionId": 2147483670,
+      "sourceStatus": "available",
+      "rgb": [
+        83,
+        130,
+        251
+      ],
+      "effects": [
+        {
+          "stat": "electric_resistance",
+          "operation": "add",
+          "value": -2,
+          "unit": "source_unspecified",
+          "sourceText": "雷耐性 -2"
+        },
+        {
+          "stat": "water_resistance",
+          "operation": "add",
+          "value": 2,
+          "unit": "source_unspecified",
+          "sourceText": "水耐性 +2"
+        },
+        {
+          "stat": "wet_resistance",
+          "operation": "add",
+          "value": 1,
+          "unit": "source_unspecified",
+          "sourceText": "みずびたしたいせい +1"
+        }
+      ]
+    },
+    "白": {
+      "hyperionId": 2147483681,
+      "sourceStatus": "available",
+      "rgb": [
+        216,
+        208,
+        200
+      ],
+      "effects": [
+        {
+          "stat": "light_resistance",
+          "operation": "add",
+          "value": 2,
+          "unit": "source_unspecified",
+          "sourceText": "光耐性 +2"
+        },
+        {
+          "stat": "dark_resistance",
+          "operation": "add",
+          "value": -2,
+          "unit": "source_unspecified",
+          "sourceText": "闇耐性 -2"
+        },
+        {
+          "stat": "blind_resistance",
+          "operation": "add",
+          "value": 1,
+          "unit": "source_unspecified",
+          "sourceText": "ブラインドたいせい +1"
+        }
+      ]
+    },
+    "濃白": {
+      "hyperionId": 2147483655,
+      "sourceStatus": "available",
+      "rgb": [
+        190,
+        180,
+        170
+      ],
+      "effects": [
+        {
+          "stat": "light_resistance",
+          "operation": "add",
+          "value": 2,
+          "unit": "source_unspecified",
+          "sourceText": "光耐性 +2"
+        },
+        {
+          "stat": "dark_resistance",
+          "operation": "add",
+          "value": -2,
+          "unit": "source_unspecified",
+          "sourceText": "闇耐性 -2"
+        },
+        {
+          "stat": "blind_resistance",
+          "operation": "add",
+          "value": 1,
+          "unit": "source_unspecified",
+          "sourceText": "ブラインドたいせい +1"
+        }
+      ]
+    },
+    "薄白": {
+      "hyperionId": 2147483690,
+      "sourceStatus": "available",
+      "rgb": [
+        245,
+        245,
+        200
+      ],
+      "effects": [
+        {
+          "stat": "light_resistance",
+          "operation": "add",
+          "value": 2,
+          "unit": "source_unspecified",
+          "sourceText": "光耐性 +2"
+        },
+        {
+          "stat": "dark_resistance",
+          "operation": "add",
+          "value": -2,
+          "unit": "source_unspecified",
+          "sourceText": "闇耐性 -2"
+        },
+        {
+          "stat": "blind_resistance",
+          "operation": "add",
+          "value": 1,
+          "unit": "source_unspecified",
+          "sourceText": "ブラインドたいせい +1"
+        }
+      ]
+    },
+    "紫": {
+      "hyperionId": 2147483693,
+      "sourceStatus": "available",
+      "rgb": [
+        120,
+        23,
+        246
+      ],
+      "effects": [
+        {
+          "stat": "light_resistance",
+          "operation": "add",
+          "value": -2,
+          "unit": "source_unspecified",
+          "sourceText": "光耐性 -2"
+        },
+        {
+          "stat": "dark_resistance",
+          "operation": "add",
+          "value": 2,
+          "unit": "source_unspecified",
+          "sourceText": "闇耐性 +2"
+        },
+        {
+          "stat": "curse_resistance",
+          "operation": "add",
+          "value": 1,
+          "unit": "source_unspecified",
+          "sourceText": "のろいたいせい +1"
+        }
+      ]
+    },
+    "濃紫": {
+      "hyperionId": 2147483694,
+      "sourceStatus": "available",
+      "rgb": [
+        50,
+        2,
+        150
+      ],
+      "effects": [
+        {
+          "stat": "light_resistance",
+          "operation": "add",
+          "value": -2,
+          "unit": "source_unspecified",
+          "sourceText": "光耐性 -2"
+        },
+        {
+          "stat": "dark_resistance",
+          "operation": "add",
+          "value": 2,
+          "unit": "source_unspecified",
+          "sourceText": "闇耐性 +2"
+        },
+        {
+          "stat": "curse_resistance",
+          "operation": "add",
+          "value": 1,
+          "unit": "source_unspecified",
+          "sourceText": "のろいたいせい +1"
+        }
+      ]
+    },
+    "薄紫": {
+      "hyperionId": 2147483695,
+      "sourceStatus": "available",
+      "rgb": [
+        180,
+        94,
+        248
+      ],
+      "effects": [
+        {
+          "stat": "light_resistance",
+          "operation": "add",
+          "value": -2,
+          "unit": "source_unspecified",
+          "sourceText": "光耐性 -2"
+        },
+        {
+          "stat": "dark_resistance",
+          "operation": "add",
+          "value": 2,
+          "unit": "source_unspecified",
+          "sourceText": "闇耐性 +2"
+        },
+        {
+          "stat": "curse_resistance",
+          "operation": "add",
+          "value": 1,
+          "unit": "source_unspecified",
+          "sourceText": "のろいたいせい +1"
+        }
+      ]
+    },
+    "桃": {
+      "hyperionId": 2147483649,
+      "sourceStatus": "available",
+      "rgb": [
+        250,
+        71,
+        137
+      ],
+      "effects": [
+        {
+          "stat": "fire_resistance",
+          "operation": "add",
+          "value": -3,
+          "unit": "source_unspecified",
+          "sourceText": "火耐性 -3"
+        },
+        {
+          "stat": "ice_resistance",
+          "operation": "add",
+          "value": -3,
+          "unit": "source_unspecified",
+          "sourceText": "氷耐性 -3"
+        },
+        {
+          "stat": "wind_resistance",
+          "operation": "add",
+          "value": -3,
+          "unit": "source_unspecified",
+          "sourceText": "風耐性 -3"
+        },
+        {
+          "stat": "earth_resistance",
+          "operation": "add",
+          "value": -3,
+          "unit": "source_unspecified",
+          "sourceText": "土耐性 -3"
+        },
+        {
+          "stat": "electric_resistance",
+          "operation": "add",
+          "value": -3,
+          "unit": "source_unspecified",
+          "sourceText": "雷耐性 -3"
+        },
+        {
+          "stat": "water_resistance",
+          "operation": "add",
+          "value": -3,
+          "unit": "source_unspecified",
+          "sourceText": "水耐性 -3"
+        },
+        {
+          "stat": "light_resistance",
+          "operation": "add",
+          "value": -3,
+          "unit": "source_unspecified",
+          "sourceText": "光耐性 -3"
+        },
+        {
+          "stat": "dark_resistance",
+          "operation": "add",
+          "value": -3,
+          "unit": "source_unspecified",
+          "sourceText": "闇耐性 -3"
+        },
+        {
+          "stat": "charm_resistance",
+          "operation": "add",
+          "value": 1,
+          "unit": "source_unspecified",
+          "sourceText": "ゆうわくたいせい +1"
+        },
+        {
+          "stat": "charm",
+          "operation": "add",
+          "value": 4,
+          "unit": "percent_points",
+          "sourceText": "ゆうわく +4%"
+        }
+      ]
+    },
+    "濃桃": {
+      "hyperionId": 2147483671,
+      "sourceStatus": "available",
+      "rgb": [
+        190,
+        38,
+        85
+      ],
+      "effects": [
+        {
+          "stat": "fire_resistance",
+          "operation": "add",
+          "value": -3,
+          "unit": "source_unspecified",
+          "sourceText": "火耐性 -3"
+        },
+        {
+          "stat": "ice_resistance",
+          "operation": "add",
+          "value": -3,
+          "unit": "source_unspecified",
+          "sourceText": "氷耐性 -3"
+        },
+        {
+          "stat": "wind_resistance",
+          "operation": "add",
+          "value": -3,
+          "unit": "source_unspecified",
+          "sourceText": "風耐性 -3"
+        },
+        {
+          "stat": "earth_resistance",
+          "operation": "add",
+          "value": -3,
+          "unit": "source_unspecified",
+          "sourceText": "土耐性 -3"
+        },
+        {
+          "stat": "electric_resistance",
+          "operation": "add",
+          "value": -3,
+          "unit": "source_unspecified",
+          "sourceText": "雷耐性 -3"
+        },
+        {
+          "stat": "water_resistance",
+          "operation": "add",
+          "value": -3,
+          "unit": "source_unspecified",
+          "sourceText": "水耐性 -3"
+        },
+        {
+          "stat": "light_resistance",
+          "operation": "add",
+          "value": -3,
+          "unit": "source_unspecified",
+          "sourceText": "光耐性 -3"
+        },
+        {
+          "stat": "dark_resistance",
+          "operation": "add",
+          "value": -3,
+          "unit": "source_unspecified",
+          "sourceText": "闇耐性 -3"
+        },
+        {
+          "stat": "charm_resistance",
+          "operation": "add",
+          "value": 1,
+          "unit": "source_unspecified",
+          "sourceText": "ゆうわくたいせい +1"
+        },
+        {
+          "stat": "charm",
+          "operation": "add",
+          "value": 4,
+          "unit": "percent_points",
+          "sourceText": "ゆうわく +4%"
+        }
+      ]
+    },
+    "薄桃": {
+      "hyperionId": 2147483696,
+      "sourceStatus": "available",
+      "rgb": [
+        254,
+        160,
+        207
+      ],
+      "effects": [
+        {
+          "stat": "fire_resistance",
+          "operation": "add",
+          "value": -3,
+          "unit": "source_unspecified",
+          "sourceText": "火耐性 -3"
+        },
+        {
+          "stat": "ice_resistance",
+          "operation": "add",
+          "value": -3,
+          "unit": "source_unspecified",
+          "sourceText": "氷耐性 -3"
+        },
+        {
+          "stat": "wind_resistance",
+          "operation": "add",
+          "value": -3,
+          "unit": "source_unspecified",
+          "sourceText": "風耐性 -3"
+        },
+        {
+          "stat": "earth_resistance",
+          "operation": "add",
+          "value": -3,
+          "unit": "source_unspecified",
+          "sourceText": "土耐性 -3"
+        },
+        {
+          "stat": "electric_resistance",
+          "operation": "add",
+          "value": -3,
+          "unit": "source_unspecified",
+          "sourceText": "雷耐性 -3"
+        },
+        {
+          "stat": "water_resistance",
+          "operation": "add",
+          "value": -3,
+          "unit": "source_unspecified",
+          "sourceText": "水耐性 -3"
+        },
+        {
+          "stat": "light_resistance",
+          "operation": "add",
+          "value": -3,
+          "unit": "source_unspecified",
+          "sourceText": "光耐性 -3"
+        },
+        {
+          "stat": "dark_resistance",
+          "operation": "add",
+          "value": -3,
+          "unit": "source_unspecified",
+          "sourceText": "闇耐性 -3"
+        },
+        {
+          "stat": "charm_resistance",
+          "operation": "add",
+          "value": 1,
+          "unit": "source_unspecified",
+          "sourceText": "ゆうわくたいせい +1"
+        },
+        {
+          "stat": "charm",
+          "operation": "add",
+          "value": 4,
+          "unit": "percent_points",
+          "sourceText": "ゆうわく +4%"
+        }
+      ]
+    },
+    "金": {
+      "hyperionId": 2147483661,
+      "sourceStatus": "available",
+      "rgb": [
+        163,
+        121,
+        0
+      ],
+      "effects": [
+        {
+          "stat": "fire_resistance",
+          "operation": "add",
+          "value": -2,
+          "unit": "source_unspecified",
+          "sourceText": "火耐性 -2"
+        },
+        {
+          "stat": "dark_resistance",
+          "operation": "add",
+          "value": -2,
+          "unit": "source_unspecified",
+          "sourceText": "闇耐性 -2"
+        },
+        {
+          "stat": "paralysis_resistance",
+          "operation": "add",
+          "value": 1,
+          "unit": "source_unspecified",
+          "sourceText": "マヒたいせい +1"
+        },
+        {
+          "stat": "gold",
+          "operation": "add",
+          "value": 10,
+          "unit": "percent_points",
+          "sourceText": "ゴールド +10%"
+        }
+      ]
+    },
+    "濃金": {
+      "hyperionId": 2147483665,
+      "sourceStatus": "available",
+      "rgb": [
+        105,
+        105,
+        0
+      ],
+      "effects": [
+        {
+          "stat": "fire_resistance",
+          "operation": "add",
+          "value": -2,
+          "unit": "source_unspecified",
+          "sourceText": "火耐性 -2"
+        },
+        {
+          "stat": "dark_resistance",
+          "operation": "add",
+          "value": -2,
+          "unit": "source_unspecified",
+          "sourceText": "闇耐性 -2"
+        },
+        {
+          "stat": "paralysis_resistance",
+          "operation": "add",
+          "value": 1,
+          "unit": "source_unspecified",
+          "sourceText": "マヒたいせい +1"
+        },
+        {
+          "stat": "gold",
+          "operation": "add",
+          "value": 10,
+          "unit": "percent_points",
+          "sourceText": "ゴールド +10%"
+        }
+      ]
+    },
+    "薄金": {
+      "hyperionId": 2147483672,
+      "sourceStatus": "available",
+      "rgb": [
+        180,
+        180,
+        40
+      ],
+      "effects": [
+        {
+          "stat": "fire_resistance",
+          "operation": "add",
+          "value": -2,
+          "unit": "source_unspecified",
+          "sourceText": "火耐性 -2"
+        },
+        {
+          "stat": "dark_resistance",
+          "operation": "add",
+          "value": -2,
+          "unit": "source_unspecified",
+          "sourceText": "闇耐性 -2"
+        },
+        {
+          "stat": "paralysis_resistance",
+          "operation": "add",
+          "value": 1,
+          "unit": "source_unspecified",
+          "sourceText": "マヒたいせい +1"
+        },
+        {
+          "stat": "gold",
+          "operation": "add",
+          "value": 10,
+          "unit": "percent_points",
+          "sourceText": "ゴールド +10%"
+        }
+      ]
+    },
+    "銀": {
+      "hyperionId": 2147483650,
+      "sourceStatus": "available",
+      "rgb": [
+        110,
+        127,
+        127
+      ],
+      "effects": [
+        {
+          "stat": "electric_resistance",
+          "operation": "add",
+          "value": -2,
+          "unit": "source_unspecified",
+          "sourceText": "雷耐性 -2"
+        },
+        {
+          "stat": "water_resistance",
+          "operation": "add",
+          "value": -2,
+          "unit": "source_unspecified",
+          "sourceText": "水耐性 -2"
+        },
+        {
+          "stat": "poison_resistance",
+          "operation": "add",
+          "value": 1,
+          "unit": "source_unspecified",
+          "sourceText": "どくたいせい +1"
+        },
+        {
+          "stat": "defense",
+          "operation": "add",
+          "value": 50,
+          "unit": "source_unspecified",
+          "sourceText": "ぼうぎょりょく +50"
+        }
+      ]
+    },
+    "濃銀": {
+      "hyperionId": 2147483673,
+      "sourceStatus": "available",
+      "rgb": [
+        86,
+        98,
+        98
+      ],
+      "effects": [
+        {
+          "stat": "electric_resistance",
+          "operation": "add",
+          "value": -2,
+          "unit": "source_unspecified",
+          "sourceText": "雷耐性 -2"
+        },
+        {
+          "stat": "water_resistance",
+          "operation": "add",
+          "value": -2,
+          "unit": "source_unspecified",
+          "sourceText": "水耐性 -2"
+        },
+        {
+          "stat": "poison_resistance",
+          "operation": "add",
+          "value": 1,
+          "unit": "source_unspecified",
+          "sourceText": "どくたいせい +1"
+        },
+        {
+          "stat": "defense",
+          "operation": "add",
+          "value": 50,
+          "unit": "source_unspecified",
+          "sourceText": "ぼうぎょりょく +50"
+        }
+      ]
+    },
+    "薄銀": {
+      "hyperionId": 2147483677,
+      "sourceStatus": "available",
+      "rgb": [
+        150,
+        180,
+        198
+      ],
+      "effects": [
+        {
+          "stat": "electric_resistance",
+          "operation": "add",
+          "value": -2,
+          "unit": "source_unspecified",
+          "sourceText": "雷耐性 -2"
+        },
+        {
+          "stat": "water_resistance",
+          "operation": "add",
+          "value": -2,
+          "unit": "source_unspecified",
+          "sourceText": "水耐性 -2"
+        },
+        {
+          "stat": "poison_resistance",
+          "operation": "add",
+          "value": 1,
+          "unit": "source_unspecified",
+          "sourceText": "どくたいせい +1"
+        },
+        {
+          "stat": "defense",
+          "operation": "add",
+          "value": 50,
+          "unit": "source_unspecified",
+          "sourceText": "ぼうぎょりょく +50"
+        }
+      ]
+    },
+    "SP": {
+      "hyperionId": 2147483676,
+      "sourceStatus": "not_in_saved_html",
+      "effects": null
+    }
+  }
+}

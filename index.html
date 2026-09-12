@@ -8,7 +8,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="./css/app.css?v=20260911-13">
+    <link rel="stylesheet" href="./css/app.css?v=20260912-1">
 </head>
 
 <body>
@@ -124,6 +124,7 @@
 
     <script src="./face-renderer.js?v=20260908-1"></script>
     <script src="./hyperion-core.js?v=20260911-1"></script>
+    <script src="./status-effects-panel.js?v=20260912-1"></script>
     <script src="./hyperion-transfer.js?v=20260911-1"></script>
     <script>
         // --- 色と柄の定数マッピング ---
@@ -1056,6 +1057,7 @@
                 if (task.preview.isConnected && !task.preview.closest('.player-card').classList.contains('collapsed')) queueAncestorFace(task);
             }
             await currentFaceRenderPromise;
+            await StatusEffectsPanel.ready(document.getElementById('bracket-container'));
         }
         function applyAppearanceInfo(championCardId, statusText) { const championEl = document.getElementById(championCardId); const paletteContainer = championEl.querySelector('.custom-color-palette'); if (!paletteContainer) return; paletteContainer.innerHTML = ''; if (!statusText) return; const colorMatch = statusText.match(/色:([\s\S]*?)(柄:|髪:|髪色:|肌色:|眉:|目:|鼻:|頬:|口:|$)/); if (colorMatch && colorMatch[1]) { const colorNames = colorMatch[1].trim().split(/\s+/); colorNames.forEach(name => { if (COLOR_MAP[name]) { const item = document.createElement('div'); item.className = 'palette-item'; const box = document.createElement('div'); box.className = 'palette-color-box'; box.style.backgroundColor = COLOR_MAP[name]; const text = document.createTextNode(name); item.appendChild(box); item.appendChild(text); paletteContainer.appendChild(item); } }); } const patternMatch = statusText.match(/柄:([\s\S]*?)(髪:|髪色:|肌色:|眉:|目:|鼻:|頬:|口:|$)/); if (patternMatch && patternMatch[1]) { const patternName = patternMatch[1].trim(); const rank = PATTERN_RANK_MAP[patternName]; if (rank) { const item = document.createElement('div'); item.className = 'palette-item pattern-rank'; item.textContent = `柄ランク:${rank}`; let borderColor = 'var(--primary-accent)'; if (rank === 'D(単色)') { borderColor = '#FFFFFF'; } else if (rank === 'C') { borderColor = '#90EE90'; } else if (rank === 'B') { borderColor = '#ADD8E6'; } else if (rank === 'A') { borderColor = '#F08080'; } item.style.borderColor = borderColor; paletteContainer.appendChild(item); } } }
         // --- 折り畳み状態の保存ヘルパー ---
@@ -1572,6 +1574,13 @@
                     }
                 }
                 setupAncestorFaces(ancestorFaces);
+
+                if (championNode) {
+                    StatusEffectsPanel.attach(document.getElementById(championNode.uniqueId), {
+                        statusText: statusString,
+                        record: appearanceRecords.get(championNode.sourceIndex) || null
+                    }, () => drawLines(currentRoundsData));
+                }
 
                 requestAnimationFrame(() => {
                     // アニメーションなしで即座に線を描画
