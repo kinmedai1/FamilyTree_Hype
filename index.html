@@ -123,9 +123,9 @@
     <div id="global-history-tooltip" class="history-tooltip"></div>
 
     <script src="./face-renderer.js?v=20260908-1"></script>
-    <script src="./hyperion-core.js?v=20260911-1"></script>
-    <script src="./status-effects-panel.js?v=20260912-1"></script>
-    <script src="./hyperion-transfer.js?v=20260911-1"></script>
+    <script src="./hyperion-core.js?v=20260912-1"></script>
+    <script src="./status-effects-panel.js?v=20260912-3"></script>
+    <script src="./hyperion-transfer.js?v=20260912-1"></script>
     <script>
         // --- 色と柄の定数マッピング ---
         const COLOR_MAP = {
@@ -1406,8 +1406,10 @@
                     statusString = binary.parsed.statusText;
                     binary.parsed.appearanceComplete &&= window.DenpamenFaceRenderer.hasCompleteAppearance(statusString);
                 }
+                const correction = StatusEffectsPanel.correction(statusString,
+                    binary?.parsed.records.find(record => record.sourceIndex === binary.parsed.meta.selectedIndex));
                 if (statusString) {
-                    let tempStatus = statusString;
+                    let tempStatus = correction.remaining.replace(/(?:^|\s)(?:アンテナ|頭|体格)[:：][\s\S]*?(?=\s+[^\s:：]+[:：]|$)/g, ' ');
                     tempStatus = tempStatus.replace(
                         /(色:)([\s\S]*?)(?=(?:柄:|髪:|髪色:|肌色:|眉:|目:|鼻:|頬:|口:)|$)/,
                         (match, colorKeyword, colorText) => {

@@ -69,6 +69,7 @@
             record.appearanceComplete = display.filter(([k]) => k !== '体格').every(([, v]) => v !== null && v !== '指定なし');
             record.appearanceComplete &&= [[2, 94], [5, 67], [6, 70], [7, 41], [8, 38], [9, 13]].every(([i, max]) => data[i] <= max);
             const ability = lookup('Ability', record.ability1);
+            record.correctionName = ability === null ? null : ability || 'なし';
             if (ability) record.statusText += ' ' + ability;
             records.set(sourceIndex, record);
         });

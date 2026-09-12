@@ -29,7 +29,7 @@
     async function parse(buffer, sha256) {
         checkTransfer(buffer, sha256);
         return new Promise((resolve, reject) => {
-            const worker = new Worker('./hyperion-worker.js?v=20260911-1');
+            const worker = new Worker('./hyperion-worker.js?v=20260912-1');
             const timer = setTimeout(() => { worker.terminate(); reject(new Error('バイナリ解析がタイムアウトしました。')); }, 20000);
             const finish = () => { clearTimeout(timer); worker.terminate(); };
             worker.onmessage = ({ data }) => { finish(); data.ok ? resolve(data.parsed) : reject(new Error(data.error)); };

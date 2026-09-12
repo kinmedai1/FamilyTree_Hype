@@ -37,6 +37,23 @@
         return name.replace(/^([濃薄]?)(黄|水)$/, '$1$2色');
     }
 
+    function correction(statusText, record = null) {
+        let remaining = String(statusText || '');
+        let name = '';
+        const labeled = /(?:^|\s)補正[:：]([^\r\n]*?)(?=\s+[^\s:：]+[:：]|$)/;
+        const bare = /(?:^|\s)(補正なし|補正無し|アビリティなし|[^\s:：]+(?:\s*\/\s*[^\s:：]+)*補正)(?=\s|$)/;
+        const match = remaining.match(labeled) || remaining.match(bare);
+        if (match) {
+            name = match[1].trim();
+            remaining = (remaining.slice(0, match.index) + ' ' + remaining.slice(match.index + match[0].length)).trim();
+        }
+        if (record) {
+            name = record.ability1 === 0 ? 'なし' : record.correctionName || '未確認';
+        }
+        if (!name || ['無し', '補正なし', '補正無し', 'アビリティなし'].includes(name)) name = 'なし';
+        return { name, remaining };
+    }
+
     function resolve(tables, { statusText = '', record = null } = {}) {
         const fields = textFields(statusText);
         function find(category, label, field, dataIndex, overrideName) {
@@ -75,9 +92,15 @@
         return node;
     }
 
-    function render(panel, rows) {
+    function correctionSection(name) {
+        const section = element('section', 'additional-effects-section additional-effects-correction');
+        section.append(element('h4', 'additional-effects-heading', '補正'), element('p', 'additional-effects-ap', name));
+        return section;
+    }
+
+    function render(panel, rows, correctionName) {
         const fragment = document.createDocumentFragment();
-        fragment.append(element('h3', 'additional-effects-title', '追加効果'));
+        fragment.append(element('h3', 'additional-effects-title', 'ステータス'));
         for (const { category, label, name, entry } of rows) {
             const section = element('section', 'additional-effects-section');
             const heading = element('h4', 'additional-effects-heading');
@@ -114,12 +137,14 @@
             }
             fragment.append(section);
         }
+        fragment.append(correctionSection(correctionName));
         fragment.append(element('p', 'additional-effects-footnote', '各部位の効果を個別に表示しています。'));
         panel.replaceChildren(fragment);
         panel.dataset.state = 'ready';
     }
 
     function attach(card, input, onLayout = () => {}) {
+        const correctionName = correction(input.statusText, input.record).name;
         const style = getComputedStyle(card);
         const width = card.clientWidth - parseFloat(style.paddingLeft) - parseFloat(style.paddingRight);
         const original = element('div', 'champion-existing');
@@ -127,23 +152,23 @@
         // Move the actual elements, retaining their contents, canvases and listeners.
         original.append(...card.childNodes);
         const panel = element('aside', 'additional-effects-panel');
-        panel.setAttribute('aria-label', '追加効果ステータス');
+        panel.setAttribute('aria-label', 'ステータス');
         panel.addEventListener('click', event => event.stopPropagation());
         card.append(original, panel);
         card.classList.add('has-additional-effects');
 
         function refresh() {
             panel.dataset.state = 'loading';
-            panel.replaceChildren(element('h3', 'additional-effects-title', '追加効果'), element('p', 'additional-effects-note', '読み込み中…'));
+            panel.replaceChildren(element('h3', 'additional-effects-title', 'ステータス'), element('p', 'additional-effects-note', '読み込み中…'), correctionSection(correctionName));
             const task = loadTables().then(tables => {
-                if (panel.isConnected) render(panel, resolve(tables, input));
+                if (panel.isConnected) render(panel, resolve(tables, input), correctionName);
             }).catch(() => {
                 if (!panel.isConnected) return;
                 panel.dataset.state = 'error';
                 const retry = element('button', 'additional-effects-retry', '再読み込み');
                 retry.type = 'button';
                 retry.addEventListener('click', refresh);
-                panel.replaceChildren(element('h3', 'additional-effects-title', '追加効果'), element('p', 'additional-effects-note', '対応表を読み込めませんでした。'), retry);
+                panel.replaceChildren(element('h3', 'additional-effects-title', 'ステータス'), element('p', 'additional-effects-note', '対応表を読み込めませんでした。'), retry, correctionSection(correctionName));
             }).finally(() => { if (panel.isConnected) onLayout(); });
             pending.set(panel, task);
             return task;
@@ -154,7 +179,7 @@
     async function ready(container) {
         await Promise.all([...container.querySelectorAll('.additional-effects-panel')].map(panel => pending.get(panel)));
     }
-    const api = { resolve, attach, ready };
+    const api = { resolve, attach, ready, correction };
     root.StatusEffectsPanel = api;
     if (typeof module !== 'undefined' && module.exports) module.exports = api;
 })(globalThis);
