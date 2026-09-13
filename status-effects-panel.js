@@ -11,7 +11,7 @@
                 const controller = new AbortController();
                 const timer = setTimeout(() => controller.abort(), 10000);
                 try {
-                    const response = await fetch('./status-effects.json?v=20260912-1', { signal: controller.signal });
+                    const response = await fetch('./status-effects.json?v=20260914-1', { signal: controller.signal });
                     if (!response.ok) throw new Error('追加効果の対応表を取得できませんでした。');
                     const tables = await response.json();
                     if (tables.schemaVersion !== 1 || CATEGORIES.some(key => !tables[key] || typeof tables[key] !== 'object')) {
@@ -34,7 +34,15 @@
 
     function colorName(name) {
         name = name.replace(/^通常/, '');
+        const aliases = { あか: '赤', みずいろ: '水色', みどり: '緑', だいだい: '橙', きいろ: '黄色', あお: '青', しろ: '白', むらさき: '紫', ぎん: '銀', きん: '金', もも: '桃', くろ: '黒' };
+        name = aliases[name] || name;
         return name.replace(/^([濃薄]?)(黄|水)$/, '$1$2色');
+    }
+
+    function resolveColorCombination(tables, colors) {
+        if (!Array.isArray(colors) || colors.length !== 2 || colors.some(name => typeof name !== 'string')) return null;
+        const key = colors.map(colorName).join('|');
+        return tables.bodyColorCombinations?.[key] || null;
     }
 
     function correction(statusText, record = null) {
@@ -79,8 +87,22 @@
         const colors = (fields['体色'] || fields['色'] || '').split(/[\s&＆]+/).filter(Boolean);
         const singleColor = rows[3].entry?.colorCount === 1;
         const count = singleColor ? 1 : record ? 2 : Math.max(1, Math.min(colors.length, 3));
+        const colorRows = [];
         for (let i = 0; i < count; i++) {
-            rows.push(find('bodyColors', count === 1 ? '体色' : `体色${i + 1}`, '色', 11 + i, colors[i] || ''));
+            colorRows.push(find('bodyColors', count === 1 ? '体色' : `体色${i + 1}`, '色', 11 + i, colors[i] || ''));
+        }
+        if (count > 1) {
+            // IDs have already been resolved above. Never use text as a fallback for an unknown ID,
+            // collapse shades to base colors, or treat two stored colors as a complete three-color pattern.
+            const entry = count === 2 && rows[3].entry?.colorCount !== 3
+                && (!record || rows[3].entry?.colorCount === 2)
+                && colorRows.every(row => row.entry?.sourceStatus === 'available')
+                ? resolveColorCombination(tables, colorRows.map(row => row.name)) : null;
+            rows.push({ category: 'bodyColorCombinations', label: '体色の組み合わせ',
+                name: colorRows.map(row => row.name).join(' × '), entry });
+            if (!entry) rows.push(...colorRows);
+        } else {
+            rows.push(...colorRows);
         }
         return rows;
     }
@@ -107,7 +129,10 @@
             heading.append(element('span', 'additional-effects-category', label), element('span', '', name));
             section.append(heading);
             if (!entry || entry.sourceStatus !== 'available') {
-                section.append(element('p', 'additional-effects-note', name === '情報なし' ? '情報なし' : '対応表にデータがありません'));
+                const note = category === 'bodyColorCombinations'
+                    ? '組み合わせの効果は未確認です。以下の個別効果は参考値です。'
+                    : name === '情報なし' ? '情報なし' : '対応表にデータがありません';
+                section.append(element('p', 'additional-effects-note', note));
             } else if (category === 'antennas') {
                 if (entry.ap == null || !entry.apLevelRange) {
                     section.append(element('p', 'additional-effects-note', 'AP未確認'));
@@ -138,7 +163,7 @@
             fragment.append(section);
         }
         fragment.append(correctionSection(correctionName));
-        fragment.append(element('p', 'additional-effects-footnote', '各部位の効果を個別に表示しています。'));
+        fragment.append(element('p', 'additional-effects-footnote', '各欄の効果を表示しています。体色の組み合わせには頭・柄・装備の補正を含みません。'));
         panel.replaceChildren(fragment);
         panel.dataset.state = 'ready';
     }
@@ -179,7 +204,7 @@
     async function ready(container) {
         await Promise.all([...container.querySelectorAll('.additional-effects-panel')].map(panel => pending.get(panel)));
     }
-    const api = { resolve, attach, ready, correction };
+    const api = { resolve, resolveColorCombination, attach, ready, correction };
     root.StatusEffectsPanel = api;
     if (typeof module !== 'undefined' && module.exports) module.exports = api;
 })(globalThis);

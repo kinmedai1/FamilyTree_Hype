@@ -1,7 +1,7 @@
 "use strict";
 
 const CANVAS_SIZE = 1024;
-const FACE_ASSET_ROOT = "face-assets";
+const FACE_ASSET_ROOT = "assets";
 
 const HEADS = [
   "あまつゆ", "イカ", "いぬみみ", "うさみみ", "おおはね", "おかっぱ", "おさかな", "おだんご", "おにぎり", "おんがくか",
