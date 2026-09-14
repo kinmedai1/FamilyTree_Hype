@@ -516,13 +516,14 @@ button:hover {
 .champion-existing { flex: 0 0 420px; width: 420px; min-width: 0; }
 .champion-portrait-header { display: grid; grid-template-columns: 200px minmax(0, 1fr); gap: 8px; align-items: center; }
 .champion-identity { min-width: 0; }
-.champion-identity .face-preview-container { margin-bottom: 0; }
-.champion-identity > .name { margin-bottom: 4px; overflow-wrap: anywhere; }
+.champion-identity .face-preview-container { margin-top: -8px; margin-bottom: 0; }
+.champion-identity > .name { margin-bottom: 0; overflow-wrap: anywhere; }
 .champion-color-details { min-width: 0; padding: 0; justify-self: start; }
 .champion-color-details .color-info-container { display: grid; grid-template-columns: repeat(2, max-content); gap: 8px; margin-bottom: 8px; }
 .champion-color-details .color-info-item { flex-direction: row; gap: 4px; font-size: 13px; }
 .champion-color-details .color-preview-box { margin-left: 0; }
-.champion-color-details .custom-color-palette { display: grid; grid-template-columns: repeat(2, max-content); gap: 6px 8px; padding-top: 0; margin-bottom: 0; }
+.champion-color-details .custom-color-palette { display: grid; grid-template-columns: repeat(3, max-content); align-items: center; gap: 6px 8px; padding-top: 0; margin-bottom: 0; }
+.champion-color-details .body-color-label { font-size: 13px; }
 .champion-color-details .palette-item { justify-content: flex-start; font-size: 13px; }
 .champion-color-details .pattern-rank { grid-column: 1 / -1; justify-self: start; }
 .champion-appearance {

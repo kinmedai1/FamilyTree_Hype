@@ -300,7 +300,11 @@
         const identity = element('div', 'champion-identity');
         const colors = element('div', 'champion-color-details');
         identity.append(original.querySelector('.name'), original.querySelector('.face-preview-container'));
-        colors.append(original.querySelector('.color-info-container'), original.querySelector('.custom-color-palette'));
+        const palette = original.querySelector('.custom-color-palette');
+        if (palette.querySelector('.palette-color-box')) {
+            palette.prepend(element('span', 'body-color-label', '体色'));
+        }
+        colors.append(original.querySelector('.color-info-container'), palette);
         header.append(identity, colors);
         const birthCount = original.querySelector('.birth-count-label');
         if (birthCount) birthCount.after(header);
