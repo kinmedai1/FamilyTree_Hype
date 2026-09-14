@@ -71,15 +71,17 @@
             const cx = (r.x + r.width / 2) * factor, cy = (r.y + r.height / 2) * factor;
             glowContext.clearRect(0, 0, size, size);
             glowContext.globalCompositeOperation = 'source-over';
-            // Two soft rings flow across the head with a gentle sway and changing scale.
-            for (let ring = 0; ring < 2; ring++) {
-                const phase = (time / 4600 + ring / 2) % 1;
-                const scale = 0.48 + phase * 0.86;
+            // Staggered waves travel from lower left to upper right. Each fades to zero
+            // with zero slope at both ends, so wrapping a phase never resets visible light.
+            for (let ring = 0; ring < 3; ring++) {
+                const phase = (time / 5400 + ring / 3) % 1;
+                const scale = 0.8 + phase * 0.28;
                 const w = r.width * factor * scale, h = r.height * factor * scale;
-                glowContext.globalAlpha = Math.sin(phase * Math.PI) * 0.95;
+                const travel = (phase - 0.5) * 2;
+                glowContext.globalAlpha = Math.sin(phase * Math.PI) ** 2 * 0.95;
                 glowContext.save();
-                glowContext.translate(cx + Math.sin(time / 1300 + ring * Math.PI) * w * 0.04, cy);
-                glowContext.rotate(Math.sin(time / 1800 + ring * Math.PI) * 0.12);
+                glowContext.translate(cx + travel * r.width * factor, cy - travel * r.height * factor);
+                glowContext.rotate(-Math.PI / 8);
                 for (let pass = 0; pass < 3; pass++) glowContext.drawImage(texture, -w / 2, -h / 2, w, h);
                 glowContext.restore();
             }
@@ -141,7 +143,7 @@
                 await preparing;
                 if (disposed) return;
                 note.textContent = '';
-                if (input.checked) { draw(1600); resume(); }
+                if (input.checked) { draw(reduced.matches ? 1600 : performance.now()); resume(); }
                 else restore();
             } catch (error) {
                 if (disposed) return;
