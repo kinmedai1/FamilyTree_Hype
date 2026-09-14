@@ -249,6 +249,15 @@
         if (total.unknown.length) heading.append(element('span', 'summary-partial', '既知分'));
         const antenna = element('div', 'summary-antenna');
         antenna.append(element('span', 'summary-stat-label', 'アンテナ'), element('strong', '', total.antennaName));
+        const traits = element('section', 'summary-traits');
+        traits.setAttribute('aria-label', '個体の基本情報');
+        traits.append(antenna);
+        for (const [category, label] of [['bodies', '体格'], ['heads', '頭'], ['patterns', '柄'], ['correction', '補正']]) {
+            const name = category === 'correction' ? correctionName : rows.find(row => row.category === category)?.name;
+            const row = element('div', 'summary-trait');
+            row.append(element('span', 'summary-stat-label', label), element('strong', '', name || '情報なし'));
+            traits.append(row);
+        }
         const grid = element('dl', 'summary-stats');
         const values = [
             ['hp', 'HP', Summary.statText(total.stats.hp)], ['ap', 'AP', total.ap == null ? '未確認' : Summary.number(total.ap)],
@@ -263,7 +272,7 @@
         }
         const fragment = document.createDocumentFragment();
         if (total.unknown.length) fragment.append(heading);
-        fragment.append(antenna, grid);
+        fragment.append(traits, grid);
         if (total.apRange) {
             const range = total.apRange.max === null ? '全レベル' : `Lv.${total.apRange.min}〜${total.apRange.max}`;
             fragment.append(element('p', 'summary-caption', `APの対応範囲：${range}`));

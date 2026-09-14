@@ -524,7 +524,8 @@ button:hover {
 .champion-color-details .color-info-item { flex-direction: row; gap: 4px; font-size: 13px; }
 .champion-color-details .color-preview-box { margin-left: 0; }
 .champion-color-details .custom-color-palette { display: grid; grid-template-columns: repeat(3, max-content); align-items: center; gap: 6px 8px; padding-top: 0; margin-bottom: 0; }
-.champion-color-details .body-color-label { font-size: 13px; }
+.champion-color-details .color-info-label,
+.champion-color-details .body-color-label { display: inline-block; line-height: 1.5; }
 .champion-color-details .palette-item { justify-content: flex-start; font-size: 13px; }
 .champion-color-details .pattern-rank { grid-column: 1 / -1; justify-self: start; }
 .champion-appearance {
@@ -593,11 +594,17 @@ button:hover {
 }
 .summary-heading { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
 .summary-partial { background: #fff1c7; color: #735018; padding: 1px 8px; border-radius: 20px; font-size: 11px; }
-.summary-antenna { display: flex; gap: 8px; align-items: center; margin-bottom: 6px; font-size: 14px; }
-.summary-antenna > strong { flex: 1; min-width: 0; overflow-wrap: anywhere; }
-.summary-stat-label {
+.summary-traits { display: grid; gap: 6px; margin-bottom: 20px; }
+.summary-antenna,
+.summary-trait { display: flex; gap: 8px; align-items: center; font-size: 14px; }
+.summary-traits .summary-stat-label { box-sizing: border-box; flex: 0 0 66px; }
+.summary-antenna > strong,
+.summary-trait > strong { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+.summary-stat-label,
+.champion-color-details .color-info-label,
+.champion-color-details .body-color-label {
     background: #5cbbda;
-    color: var(--summary-blue);
+    color: var(--summary-blue, #245875);
     border-radius: 12px 0 0 12px;
     padding: 1px 8px;
     font-size: 11px;

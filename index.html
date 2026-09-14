@@ -8,7 +8,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="./css/app.css?v=20260914-8">
+    <link rel="stylesheet" href="./css/app.css?v=20260915-2">
 </head>
 
 <body>
@@ -125,7 +125,7 @@
     <script src="./face-renderer.js?v=20260913-1"></script>
     <script src="./hyperion-core.js?v=20260912-1"></script>
     <script src="./status-summary.js?v=20260914-4"></script>
-    <script src="./status-effects-panel.js?v=20260915-1"></script>
+    <script src="./status-effects-panel.js?v=20260915-2"></script>
     <script src="./hyperion-transfer.js?v=20260912-1"></script>
     <script>
         // --- 色と柄の定数マッピング ---
@@ -1410,14 +1410,7 @@
                 const correction = StatusEffectsPanel.correction(statusString,
                     binary?.parsed.records.find(record => record.sourceIndex === binary.parsed.meta.selectedIndex));
                 if (statusString) {
-                    let tempStatus = correction.remaining.replace(/(?:^|\s)(?:アンテナ|頭|体格)[:：][\s\S]*?(?=\s+[^\s:：]+[:：]|$)/g, ' ');
-                    tempStatus = tempStatus.replace(
-                        /(色:)([\s\S]*?)(?=(?:柄:|髪:|髪色:|肌色:|眉:|目:|鼻:|頬:|口:)|$)/,
-                        (match, colorKeyword, colorText) => {
-                            const processedText = colorText.trim().replace(/\s+/g, '&');
-                            return colorKeyword + processedText + '\n';
-                        }
-                    );
+                    const tempStatus = correction.remaining.replace(/(?:^|\s)(?:アンテナ|頭|体格|体色|色|柄)[:：][\s\S]*?(?=\s+[^\s:：]+[:：]|$)/g, ' ');
                     formattedStatus = tempStatus.replace(/\s+/g, '\n').trim();
                 }
 
@@ -1520,7 +1513,7 @@
                             `<div class="player-card champion-card${collapsibleClass}${pairClass}" id="${node.uniqueId}" style="${cardStyle}">
                             ${birthCountHtml}
                             <div class="face-preview-container"><canvas class="face-preview-canvas" width="1024" height="1024" aria-label="最終個体の顔プレビュー"></canvas></div>
-                            <div class="color-info-container"> <div class="color-info-item">髪色<div class="color-preview-box hair-color-box"></div></div> <div class="color-info-item">肌色<div class="color-preview-box skin-color-box"></div></div> </div>
+                            <div class="color-info-container"> <div class="color-info-item"><span class="color-info-label">髪色</span><div class="color-preview-box hair-color-box"></div></div> <div class="color-info-item"><span class="color-info-label">肌色</span><div class="color-preview-box skin-color-box"></div></div> </div>
                             <div class="custom-color-palette"></div>
                             <div class="name">${escapeHtml(node.name).replace(' ', '<br>')}${nameSuffix}</div>
                             ${formattedStatus ? `<div class="status">${escapeHtml(formattedStatus)}</div>` : ''}
