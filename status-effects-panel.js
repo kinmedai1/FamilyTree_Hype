@@ -1,6 +1,7 @@
 /* Read-only additional effects; original records and existing card content stay intact. */
 (function (root) {
     'use strict';
+    const Summary = root.StatusSummary || (typeof require === 'function' ? require('./status-summary.js') : null);
     const CATEGORIES = ['antennas', 'heads', 'bodies', 'patterns', 'bodyColors'];
     let tablePromise;
     const pending = new WeakMap();
@@ -114,15 +115,25 @@
         return node;
     }
 
-    function correctionSection(name) {
+    function correctionSection(name, showEffects = true) {
         const section = element('section', 'additional-effects-section additional-effects-correction');
         section.append(element('h4', 'additional-effects-heading', '補正'), element('p', 'additional-effects-ap', name));
+        if (showEffects) {
+            const definition = Summary.resolveCorrection(name);
+            if (!definition.defined) section.append(element('p', 'additional-effects-note', '未定義・合計に未反映'));
+            else if (definition.effects.length) {
+                section.append(element('p', 'additional-effects-note', '合計に反映済み'));
+                const list = element('ul', 'additional-effects-list');
+                for (const effect of definition.effects) list.append(element('li', '', effect.sourceText));
+                section.append(list);
+            }
+        }
         return section;
     }
 
     function render(panel, rows, correctionName) {
         const fragment = document.createDocumentFragment();
-        fragment.append(element('h3', 'additional-effects-title', 'ステータス'));
+        fragment.append(element('h3', 'additional-effects-title', '内訳'));
         for (const { category, label, name, entry } of rows) {
             const section = element('section', 'additional-effects-section');
             const heading = element('h4', 'additional-effects-heading');
@@ -163,37 +174,131 @@
             fragment.append(section);
         }
         fragment.append(correctionSection(correctionName));
-        fragment.append(element('p', 'additional-effects-footnote', '各欄の効果を表示しています。体色の組み合わせには頭・柄・装備の補正を含みません。'));
+        fragment.append(element('p', 'additional-effects-footnote', '体色は組み合わせ表の値です。各部位の効果は中央の合計に反映しています。未確認・参考値は除きます。'));
         panel.replaceChildren(fragment);
         panel.dataset.state = 'ready';
     }
 
+    function resistanceGrid(title, entries, values, group, className) {
+        const section = element('section', 'summary-resistances');
+        section.append(element('h4', 'summary-section-title', title));
+        const grid = element('div', 'summary-resistance-grid ' + className);
+        for (const [key, label] of entries) {
+            const item = element('div', 'summary-resistance');
+            item.dataset.stat = key;
+            // No evasion-down artwork was supplied; keep the label and reserve the same space.
+            if (label !== '回避ダウン') {
+                const img = element('img', 'summary-resistance-icon');
+                img.alt = '';
+                img.width = img.height = 20;
+                img.src = `assets/耐性画像/${group}/${label}.webp`;
+                img.addEventListener('error', () => { img.style.visibility = 'hidden'; }, { once: true });
+                item.append(img);
+            } else item.append(element('span', 'summary-resistance-icon'));
+            item.append(element('span', 'summary-resistance-label', label), element('strong', 'summary-resistance-value', Summary.signed(values[key])));
+            grid.append(item);
+        }
+        section.append(grid);
+        return section;
+    }
+
+    function renderSummary(panel, rows, correctionName) {
+        const total = Summary.calculate(rows, correctionName);
+        const heading = element('div', 'summary-heading');
+        heading.append(element('h3', 'summary-title', 'ステータス'));
+        if (total.unknown.length) heading.append(element('span', 'summary-partial', '既知分'));
+        const antenna = element('div', 'summary-antenna');
+        antenna.append(element('span', 'summary-stat-label', 'アンテナ'), element('strong', '', total.antennaName));
+        const grid = element('dl', 'summary-stats');
+        const values = [
+            ['hp', 'HP', Summary.statText(total.stats.hp)], ['ap', 'AP', total.ap == null ? '未確認' : Summary.number(total.ap)],
+            ['attack', 'こうげきりょく', Summary.statText(total.stats.attack)], ['defense', 'ぼうぎょりょく', Summary.statText(total.stats.defense)],
+            ['speed', 'すばやさ', Summary.statText(total.stats.speed)], ['evasion', 'かいひりつ', total.evasion == null ? '未確認' : Summary.number(total.evasion) + '%']
+        ];
+        for (const [key, label, value] of values) {
+            const row = element('div', 'summary-stat');
+            row.dataset.stat = key;
+            row.append(element('dt', 'summary-stat-label', label), element('dd', 'summary-stat-value', value));
+            grid.append(row);
+        }
+        const fragment = document.createDocumentFragment();
+        fragment.append(heading, antenna, grid);
+        if (total.apRange) {
+            const range = total.apRange.max === null ? '全レベル' : `Lv.${total.apRange.min}〜${total.apRange.max}`;
+            fragment.append(element('p', 'summary-caption', `APの対応範囲：${range}`));
+        }
+        fragment.append(resistanceGrid('属性耐性', Summary.ELEMENTS, total.resistances, '属性耐性', 'summary-elements'));
+        fragment.append(resistanceGrid('状態異常耐性', Summary.AILMENTS, total.resistances, '異常耐性', 'summary-ailments'));
+        fragment.append(resistanceGrid('ジャック・ダウン耐性', [...Summary.OTHER_RESISTANCES, ...Summary.DOWNS], total.resistances, '異常耐性', 'summary-downs'));
+        if (total.extras.length) {
+            const extra = element('section', 'summary-resistances summary-other');
+            extra.append(element('h4', 'summary-section-title', 'その他の効果'));
+            for (const text of total.extras) extra.append(element('p', '', text));
+            fragment.append(extra);
+        }
+        fragment.append(element('p', 'summary-caption', 'HP・攻撃・防御・素早さ：倍率 ＋ 実数補正'));
+        if (total.unknown.length) fragment.append(element('p', 'summary-unknown', `未確認：${total.unknown.join('、')}。上の数値は確認できる効果のみの合計です。`));
+        panel.replaceChildren(fragment);
+        panel.dataset.state = 'ready';
+        // Off-screen image.decode() may remain pending even after cached images have loaded.
+        // Wait for loading instead, so restoring history never stalls export readiness.
+        return Promise.all([...panel.querySelectorAll('img')].map(img => {
+            if (img.complete) return Promise.resolve();
+            return new Promise(resolve => {
+                const finish = () => {
+                    clearTimeout(timer);
+                    img.removeEventListener('load', finish);
+                    img.removeEventListener('error', finish);
+                    resolve();
+                };
+                const timer = setTimeout(finish, 8000);
+                img.addEventListener('load', finish);
+                img.addEventListener('error', finish);
+            });
+        }));
+    }
+
     function attach(card, input, onLayout = () => {}) {
+        if (!card.classList.contains('champion-card')) return Promise.resolve();
         const correctionName = correction(input.statusText, input.record).name;
-        const style = getComputedStyle(card);
-        const width = card.clientWidth - parseFloat(style.paddingLeft) - parseFloat(style.paddingRight);
         const original = element('div', 'champion-existing');
-        original.style.width = `${width}px`;
         // Move the actual elements, retaining their contents, canvases and listeners.
         original.append(...card.childNodes);
+        const appearance = element('aside', 'champion-appearance');
+        appearance.setAttribute('aria-label', '顔パーツ情報');
+        appearance.append(element('h3', 'champion-appearance-title', '顔パーツ情報'));
+        const appearanceStatus = original.querySelector('.status');
+        appearance.append(appearanceStatus || element('p', 'additional-effects-note', '情報なし'));
+        appearance.addEventListener('click', event => event.stopPropagation());
+        const summary = element('section', 'champion-status-summary');
+        summary.setAttribute('aria-label', 'ステータス合計');
+        summary.addEventListener('click', event => event.stopPropagation());
+        original.querySelector('.name').after(summary);
         const panel = element('aside', 'additional-effects-panel');
-        panel.setAttribute('aria-label', 'ステータス');
+        panel.setAttribute('aria-label', 'ステータスの内訳');
         panel.addEventListener('click', event => event.stopPropagation());
-        card.append(original, panel);
+        card.append(appearance, original, panel);
         card.classList.add('has-additional-effects');
 
         function refresh() {
             panel.dataset.state = 'loading';
-            panel.replaceChildren(element('h3', 'additional-effects-title', 'ステータス'), element('p', 'additional-effects-note', '読み込み中…'), correctionSection(correctionName));
+            panel.replaceChildren(element('h3', 'additional-effects-title', '内訳'), element('p', 'additional-effects-note', '読み込み中…'), correctionSection(correctionName));
+            summary.dataset.state = 'loading';
+            summary.replaceChildren(element('h3', 'summary-title', 'ステータス'), element('p', 'summary-caption', '読み込み中…'));
             const task = loadTables().then(tables => {
-                if (panel.isConnected) render(panel, resolve(tables, input), correctionName);
+                if (!panel.isConnected) return;
+                const rows = resolve(tables, input);
+                render(panel, rows, correctionName);
+                return renderSummary(summary, rows, correctionName);
             }).catch(() => {
                 if (!panel.isConnected) return;
                 panel.dataset.state = 'error';
                 const retry = element('button', 'additional-effects-retry', '再読み込み');
                 retry.type = 'button';
                 retry.addEventListener('click', refresh);
-                panel.replaceChildren(element('h3', 'additional-effects-title', 'ステータス'), element('p', 'additional-effects-note', '対応表を読み込めませんでした。'), retry, correctionSection(correctionName));
+                panel.replaceChildren(element('h3', 'additional-effects-title', '内訳'), element('p', 'additional-effects-note', '対応表を読み込めませんでした。'), retry, correctionSection(correctionName));
+                summary.dataset.state = 'error';
+                summary.replaceChildren(element('h3', 'summary-title', 'ステータス'), element('p', 'summary-caption', '対応表を読み込めませんでした。右の「再読み込み」で再試行できます。'));
             }).finally(() => { if (panel.isConnected) onLayout(); });
             pending.set(panel, task);
             return task;

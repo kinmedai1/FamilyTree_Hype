@@ -474,19 +474,35 @@ button:hover {
     color: var(--text-color);
 }
 
-/* Extend only the final card; the original column keeps its measured width. */
+/* Only the final card: appearance / portrait and totals / source breakdown. */
 .player-card.champion-card.has-additional-effects {
     display: flex;
     align-items: flex-start;
-    gap: 20px;
+    gap: 16px;
     width: max-content;
     max-width: none;
 }
-.champion-existing { flex: none; min-width: 0; }
+.champion-existing { flex: 0 0 420px; width: 420px; min-width: 0; }
+.champion-appearance {
+    flex: 0 0 130px;
+    width: 130px;
+    text-align: left;
+    padding: 6px 0;
+    cursor: auto;
+}
+.champion-appearance-title { font-size: 13px; margin: 0 0 14px; color: var(--text-color); }
+.champion-appearance .status {
+    border: 0;
+    padding: 0;
+    margin: 0;
+    font-size: 13px;
+    line-height: 1.9;
+    overflow-wrap: anywhere;
+}
 .round:has(> .champion-card.has-additional-effects) { min-width: max-content; align-self: flex-start; }
 .additional-effects-panel {
-    flex: 0 0 270px;
-    width: 270px;
+    flex: 0 0 240px;
+    width: 240px;
     box-sizing: border-box;
     align-self: stretch;
     border-left: 1px solid rgba(211, 233, 211, .3);
@@ -515,6 +531,54 @@ button:hover {
 .additional-effects-retry { margin-top: 8px; padding: 6px 12px; font-size: 12px; color: #133c59; background: #a1ecf4; }
 [data-theme="light"] .additional-effects-panel { border-left-color: rgba(34, 71, 49, .3); }
 [data-theme="light"] .additional-effects-section + .additional-effects-section { border-top-color: rgba(34, 71, 49, .18); }
+
+.champion-status-summary {
+    --summary-ink: #573242;
+    --summary-blue: #245875;
+    margin: 18px 0;
+    padding: 12px 10px;
+    border: 2px solid #79d4ed;
+    border-radius: 14px;
+    background: linear-gradient(180deg, #a3e8f7, #cef7f7 58%, #a5e7f3);
+    box-shadow: inset 0 1px 0 #edffff, 0 3px 12px #063d501a;
+    color: var(--summary-ink);
+    text-align: left;
+    text-shadow: none;
+    line-height: 1.5;
+    cursor: auto;
+}
+.summary-heading { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+.summary-title { margin: 0; color: var(--summary-blue); font-size: 15px; font-weight: 800; }
+.summary-partial { background: #fff1c7; color: #735018; padding: 1px 8px; border-radius: 20px; font-size: 11px; }
+.summary-antenna { display: flex; gap: 8px; align-items: center; margin-bottom: 6px; font-size: 14px; }
+.summary-antenna > strong { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+.summary-stat-label {
+    background: #5cbbda;
+    color: var(--summary-blue);
+    border-radius: 12px 0 0 12px;
+    padding: 1px 8px;
+    font-size: 11px;
+    font-weight: 800;
+    white-space: nowrap;
+    clip-path: polygon(0 0, 100% 0, calc(100% - 5px) 100%, 0 100%);
+}
+.summary-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 9px; margin: 0; }
+.summary-stat { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 2px 4px; border-bottom: 1px solid #82cfe5; padding-bottom: 2px; }
+.summary-stat-value { margin: 0 0 0 auto; font-size: 14px; font-weight: 800; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.summary-caption { margin: 6px 0 0; font-size: 10px; color: #365d6c; }
+.summary-resistances { margin-top: 9px; padding: 6px; background: #e4fcf9; border: 1px solid #78d1e8; border-radius: 7px; }
+.summary-section-title { margin: 0 0 5px; color: #32728b; font-size: 10px; font-weight: 700; }
+.summary-resistance-grid { display: grid; gap: 4px 6px; }
+.summary-elements { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.summary-ailments { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.summary-downs { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.summary-resistance { display: flex; align-items: center; gap: 3px; min-width: 0; font-size: 12px; font-weight: 700; }
+.summary-elements .summary-resistance { background: #82d3f4; border-radius: 12px; padding: 1px 3px; font-size: 12px; }
+.summary-resistance-icon { display: block; flex: 0 0 18px; width: 18px; height: 18px; object-fit: contain; }
+.summary-resistance-label { min-width: 0; white-space: nowrap; }
+.summary-resistance-value { margin-left: auto; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.summary-unknown { margin: 10px 0 0; padding: 7px 9px; border-radius: 6px; background: #fff1cc; color: #735018; font-size: 11px; }
+.summary-other p { margin: 3px 0; font-size: 12px; }
 
 .relation-info {
     font-size: 0.9em;
