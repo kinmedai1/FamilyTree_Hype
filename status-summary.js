@@ -71,7 +71,7 @@
         if (combination?.entry?.coverage === 'element_resistances_only') unknown.push('体色の属性耐性以外の効果');
         if (colorKnown) {
             for (const row of colorRows) for (const effect of row.entry.effects) {
-                if (effect.operation === 'add' && ELEMENTS.some(([stat]) => stat === effect.stat)) {
+                if (effect.operation === 'add' && [...ELEMENTS, ...AILMENTS].some(([stat]) => stat === effect.stat)) {
                     colorBase[effect.stat] = (colorBase[effect.stat] || 0) + effect.value;
                 }
             }
@@ -104,7 +104,16 @@
                     if (!colorKnown) { unknown.push('星の適用先'); continue; }
                     targets = ELEMENTS.filter(([key]) => (colorBase[key] || 0) > 0).map(([key]) => key);
                 } else targets = ELEMENTS.map(([key]) => key);
-            } else if (stat === 'status_resistance') targets = AILMENTS.map(([key]) => key);
+            } else if (stat === 'status_resistance') {
+                if (effect.condition === 'body_color_status_resistances_only') {
+                    if (!colorKnown || combination?.entry?.coverage === 'element_resistances_only') {
+                        unknown.push('花の適用先');
+                        continue;
+                    }
+                    // Select each color-derived resistance once, including same-color shade pairs.
+                    targets = AILMENTS.filter(([key]) => (colorBase[key] || 0) > 0).map(([key]) => key);
+                } else targets = AILMENTS.map(([key]) => key);
+            }
             else if (stat === 'down_resistance') targets = DOWNS.map(([key]) => key);
             for (const key of targets) totals[key] = (totals[key] || 0) + value;
         }

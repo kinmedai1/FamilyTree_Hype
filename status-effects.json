@@ -3017,7 +3017,8 @@
           "operation": "add",
           "value": 1,
           "unit": "source_unspecified",
-          "sourceText": "状態異常耐性 +1"
+          "sourceText": "体色の状態異常耐性 +1（同じ耐性には1回のみ）",
+          "condition": "body_color_status_resistances_only"
         },
         {
           "stat": "evasion",

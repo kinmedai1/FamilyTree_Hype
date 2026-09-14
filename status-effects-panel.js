@@ -12,7 +12,7 @@
                 const controller = new AbortController();
                 const timer = setTimeout(() => controller.abort(), 10000);
                 try {
-                    const response = await fetch('./status-effects.json?v=20260914-2', { signal: controller.signal });
+                    const response = await fetch('./status-effects.json?v=20260914-3', { signal: controller.signal });
                     if (!response.ok) throw new Error('追加効果の対応表を取得できませんでした。');
                     const tables = await response.json();
                     if (tables.schemaVersion !== 1 || CATEGORIES.some(key => !tables[key] || typeof tables[key] !== 'object')) {

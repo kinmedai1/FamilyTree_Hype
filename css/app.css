@@ -507,6 +507,7 @@ button:hover {
     border-radius: 10px;
     padding: 12px;
 }
+.champion-card.has-additional-effects .champion-appearance { align-self: flex-start; }
 .champion-card.has-additional-effects .additional-effects-section + .additional-effects-section { border-top-color: #b3dfe8; }
 .champion-card.has-additional-effects .birth-count-label { border-bottom-color: #73c4da; }
 .champion-card.has-additional-effects .rsid-text { color: #426d7d; }
@@ -519,7 +520,7 @@ button:hover {
 .champion-identity .face-preview-container { margin-top: -8px; margin-bottom: 0; }
 .champion-identity > .name { margin-bottom: 0; overflow-wrap: anywhere; }
 .champion-color-details { min-width: 0; padding: 0; justify-self: start; }
-.champion-color-details .color-info-container { display: grid; grid-template-columns: repeat(2, max-content); gap: 8px; margin-bottom: 8px; }
+.champion-color-details .color-info-container { display: grid; grid-template-columns: max-content; gap: 6px; margin-bottom: 8px; }
 .champion-color-details .color-info-item { flex-direction: row; gap: 4px; font-size: 13px; }
 .champion-color-details .color-preview-box { margin-left: 0; }
 .champion-color-details .custom-color-palette { display: grid; grid-template-columns: repeat(3, max-content); align-items: center; gap: 6px 8px; padding-top: 0; margin-bottom: 0; }
