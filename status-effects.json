@@ -1,5 +1,24 @@
 {
   "schemaVersion": 1,
+  "bodyColorCombinationOverrides": {
+    "薄桃|濃桃": {
+      "colors": ["薄桃", "濃桃"],
+      "kind": "pair",
+      "sourceStatus": "available",
+      "coverage": "element_resistances_only",
+      "source": { "kind": "user_confirmed", "confirmedOn": "2026-09-14", "note": "薄桃×濃桃は全属性耐性-3。みりょう耐性+2・ゆうわく+8%は濃淡共通の同色効果として参照表から適用する。" },
+      "effects": [
+        { "stat": "fire_resistance", "operation": "add", "value": -3, "unit": "source_unspecified", "sourceText": "火耐性 -3" },
+        { "stat": "ice_resistance", "operation": "add", "value": -3, "unit": "source_unspecified", "sourceText": "氷耐性 -3" },
+        { "stat": "wind_resistance", "operation": "add", "value": -3, "unit": "source_unspecified", "sourceText": "風耐性 -3" },
+        { "stat": "earth_resistance", "operation": "add", "value": -3, "unit": "source_unspecified", "sourceText": "土耐性 -3" },
+        { "stat": "electric_resistance", "operation": "add", "value": -3, "unit": "source_unspecified", "sourceText": "雷耐性 -3" },
+        { "stat": "water_resistance", "operation": "add", "value": -3, "unit": "source_unspecified", "sourceText": "水耐性 -3" },
+        { "stat": "light_resistance", "operation": "add", "value": -3, "unit": "source_unspecified", "sourceText": "光耐性 -3" },
+        { "stat": "dark_resistance", "operation": "add", "value": -3, "unit": "source_unspecified", "sourceText": "闇耐性 -3" }
+      ]
+    }
+  },
   "source": {
     "title": "頭図鑑・出生ルート | NDF DB",
     "fileName": "頭図鑑・出生ルート _ NDF DB.html",

@@ -12,7 +12,7 @@
                 const controller = new AbortController();
                 const timer = setTimeout(() => controller.abort(), 10000);
                 try {
-                    const response = await fetch('./status-effects.json?v=20260914-1', { signal: controller.signal });
+                    const response = await fetch('./status-effects.json?v=20260914-2', { signal: controller.signal });
                     if (!response.ok) throw new Error('追加効果の対応表を取得できませんでした。');
                     const tables = await response.json();
                     if (tables.schemaVersion !== 1 || CATEGORIES.some(key => !tables[key] || typeof tables[key] !== 'object')) {
@@ -42,8 +42,28 @@
 
     function resolveColorCombination(tables, colors) {
         if (!Array.isArray(colors) || colors.length !== 2 || colors.some(name => typeof name !== 'string')) return null;
-        const key = colors.map(colorName).join('|');
-        return tables.bodyColorCombinations?.[key] || null;
+        const names = colors.map(colorName);
+        const key = names.join('|');
+        const overrides = tables.bodyColorCombinationOverrides;
+        const override = overrides?.[key] || overrides?.[[names[1], names[0]].join('|')];
+        let entry = tables.bodyColorCombinations?.[key] || null;
+        const baseNames = names.map(name => name.replace(/^[濃薄]/, ''));
+        // Same-color effects apply across different shades. The workbook's base|base row
+        // is an effect reference, not a pair we create or substitute into the original record.
+        if (names[0] !== names[1] && baseNames[0] === baseNames[1]
+            && names.every(name => tables.bodyColors?.[name]?.sourceStatus === 'available')) {
+            const referenceKey = baseNames.join('|');
+            const reference = tables.bodyColorCombinations?.[referenceKey];
+            if (reference?.sourceStatus === 'available') {
+                entry = { ...reference, colors: names, sameColorBase: baseNames[0], effectReference: referenceKey };
+            }
+        }
+        if (override?.coverage === 'element_resistances_only' && entry?.sourceStatus === 'available') {
+            const replacedStats = new Set(override.effects.map(effect => effect.stat));
+            return { ...entry, coverage: 'complete', overrideSource: override.source,
+                effects: [...entry.effects.filter(effect => !replacedStats.has(effect.stat)), ...override.effects] };
+        }
+        return override || entry;
     }
 
     function correction(statusText, record = null) {
@@ -94,7 +114,7 @@
         }
         if (count > 1) {
             // IDs have already been resolved above. Never use text as a fallback for an unknown ID,
-            // collapse shades to base colors, or treat two stored colors as a complete three-color pattern.
+            // change the original shade names, or treat two stored colors as a complete three-color pattern.
             const entry = count === 2 && rows[3].entry?.colorCount !== 3
                 && (!record || rows[3].entry?.colorCount === 2)
                 && colorRows.every(row => row.entry?.sourceStatus === 'available')
@@ -171,6 +191,8 @@
                     section.append(list);
                 }
             }
+            if (entry?.sameColorBase) section.append(element('p', 'additional-effects-note', '同色効果（濃淡共通）を反映しています。'));
+            if (entry?.coverage === 'element_resistances_only') section.append(element('p', 'additional-effects-note', '属性耐性を合計に反映しています。その他の体色効果は未確認です。'));
             fragment.append(section);
         }
         fragment.append(correctionSection(correctionName));
@@ -180,12 +202,16 @@
     }
 
     function resistanceGrid(title, entries, values, group, className) {
+        const visible = entries.filter(([key]) => Number.isFinite(values[key]) && values[key] !== 0);
+        if (!visible.length) return document.createDocumentFragment();
         const section = element('section', 'summary-resistances');
         section.append(element('h4', 'summary-section-title', title));
         const grid = element('div', 'summary-resistance-grid ' + className);
-        for (const [key, label] of entries) {
+        for (const [key, label] of visible) {
             const item = element('div', 'summary-resistance');
             item.dataset.stat = key;
+            item.dataset.value = String(values[key]);
+            if (values[key] < 0) item.classList.add('is-negative');
             // No evasion-down artwork was supplied; keep the label and reserve the same space.
             if (label !== '回避ダウン') {
                 const img = element('img', 'summary-resistance-icon');

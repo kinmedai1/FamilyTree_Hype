@@ -476,12 +476,43 @@ button:hover {
 
 /* Only the final card: appearance / portrait and totals / source breakdown. */
 .player-card.champion-card.has-additional-effects {
+    --text-color: #573242;
+    --text-muted: #4d7c8a;
+    --bg-color: #ecffff;
+    --champion-accent: #58bcd9;
+    --card-gloss: linear-gradient(180deg, #99dff3 0%, #c8f5f7 52%, #aee9f4 100%);
     display: flex;
     align-items: flex-start;
     gap: 16px;
     width: max-content;
     max-width: none;
+    background-color: #bceff6;
+    background-image: var(--card-gloss);
+    border-color: #58bcd9 !important;
+    color: var(--text-color);
+    text-shadow: none;
+    box-shadow: 0 4px 16px #124c6233;
 }
+.player-card.champion-card.has-additional-effects::after {
+    border-color: #edffff;
+    box-shadow: inset 0 1px 0 #ffffff, inset 0 -1px 0 #80cddd;
+}
+.player-card.champion-card.has-additional-effects[data-collapsed="true"] { background-image: var(--card-gloss); }
+.champion-card.has-additional-effects .champion-appearance,
+.champion-card.has-additional-effects .additional-effects-panel {
+    box-sizing: border-box;
+    align-self: stretch;
+    background: #edffff;
+    border: 1px solid #81d0e3;
+    border-radius: 10px;
+    padding: 12px;
+}
+.champion-card.has-additional-effects .additional-effects-section + .additional-effects-section { border-top-color: #b3dfe8; }
+.champion-card.has-additional-effects .birth-count-label { border-bottom-color: #73c4da; }
+.champion-card.has-additional-effects .rsid-text { color: #426d7d; }
+.champion-card.has-additional-effects .champion-existing > .name { color: #275a76; }
+.champion-card.has-additional-effects .additional-effects-title,
+.champion-card.has-additional-effects .champion-appearance-title { color: #275a76; }
 .champion-existing { flex: 0 0 420px; width: 420px; min-width: 0; }
 .champion-appearance {
     flex: 0 0 130px;
@@ -573,7 +604,8 @@ button:hover {
 .summary-ailments { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 .summary-downs { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .summary-resistance { display: flex; align-items: center; gap: 3px; min-width: 0; font-size: 12px; font-weight: 700; }
-.summary-elements .summary-resistance { background: #82d3f4; border-radius: 12px; padding: 1px 3px; font-size: 12px; }
+.summary-elements .summary-resistance { background: #82d3f4; border: 1px solid #65bde1; border-radius: 12px; padding: 1px 3px; font-size: 12px; }
+.summary-elements .summary-resistance.is-negative { background: #ffbac3; border-color: #ea6b7b; color: #7d253a; }
 .summary-resistance-icon { display: block; flex: 0 0 18px; width: 18px; height: 18px; object-fit: contain; }
 .summary-resistance-label { min-width: 0; white-space: nowrap; }
 .summary-resistance-value { margin-left: auto; white-space: nowrap; font-variant-numeric: tabular-nums; }

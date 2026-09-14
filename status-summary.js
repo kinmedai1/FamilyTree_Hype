@@ -68,6 +68,7 @@
         const colorRows = combination ? [combination] : rows.filter(row => row.category === 'bodyColors');
         const colorKnown = colorRows.length > 0 && colorRows.every(row => row.entry?.sourceStatus === 'available' && Array.isArray(row.entry.effects));
         if (!colorKnown) unknown.push('体色の効果');
+        if (combination?.entry?.coverage === 'element_resistances_only') unknown.push('体色の属性耐性以外の効果');
         if (colorKnown) {
             for (const row of colorRows) for (const effect of row.entry.effects) {
                 if (effect.operation === 'add' && ELEMENTS.some(([stat]) => stat === effect.stat)) {
