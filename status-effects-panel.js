@@ -231,7 +231,6 @@
     function renderSummary(panel, rows, correctionName) {
         const total = Summary.calculate(rows, correctionName);
         const heading = element('div', 'summary-heading');
-        heading.append(element('h3', 'summary-title', 'ステータス'));
         if (total.unknown.length) heading.append(element('span', 'summary-partial', '既知分'));
         const antenna = element('div', 'summary-antenna');
         antenna.append(element('span', 'summary-stat-label', 'アンテナ'), element('strong', '', total.antennaName));
@@ -248,7 +247,8 @@
             grid.append(row);
         }
         const fragment = document.createDocumentFragment();
-        fragment.append(heading, antenna, grid);
+        if (total.unknown.length) fragment.append(heading);
+        fragment.append(antenna, grid);
         if (total.apRange) {
             const range = total.apRange.max === null ? '全レベル' : `Lv.${total.apRange.min}〜${total.apRange.max}`;
             fragment.append(element('p', 'summary-caption', `APの対応範囲：${range}`));
@@ -299,7 +299,7 @@
         const header = element('div', 'champion-portrait-header');
         const identity = element('div', 'champion-identity');
         const colors = element('div', 'champion-color-details');
-        identity.append(original.querySelector('.face-preview-container'), original.querySelector('.name'));
+        identity.append(original.querySelector('.name'), original.querySelector('.face-preview-container'));
         colors.append(original.querySelector('.color-info-container'), original.querySelector('.custom-color-palette'));
         header.append(identity, colors);
         const birthCount = original.querySelector('.birth-count-label');
@@ -319,7 +319,7 @@
             panel.dataset.state = 'loading';
             panel.replaceChildren(element('h3', 'additional-effects-title', '内訳'), element('p', 'additional-effects-note', '読み込み中…'), correctionSection(correctionName));
             summary.dataset.state = 'loading';
-            summary.replaceChildren(element('h3', 'summary-title', 'ステータス'), element('p', 'summary-caption', '読み込み中…'));
+            summary.replaceChildren(element('p', 'summary-caption', '読み込み中…'));
             const task = loadTables().then(tables => {
                 if (!panel.isConnected) return;
                 const rows = resolve(tables, input);
@@ -333,7 +333,7 @@
                 retry.addEventListener('click', refresh);
                 panel.replaceChildren(element('h3', 'additional-effects-title', '内訳'), element('p', 'additional-effects-note', '対応表を読み込めませんでした。'), retry, correctionSection(correctionName));
                 summary.dataset.state = 'error';
-                summary.replaceChildren(element('h3', 'summary-title', 'ステータス'), element('p', 'summary-caption', '対応表を読み込めませんでした。右の「再読み込み」で再試行できます。'));
+                summary.replaceChildren(element('p', 'summary-caption', '対応表を読み込めませんでした。右の「再読み込み」で再試行できます。'));
             }).finally(() => { if (panel.isConnected) onLayout(); });
             pending.set(panel, task);
             return task;

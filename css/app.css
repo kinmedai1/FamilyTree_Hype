@@ -514,17 +514,17 @@ button:hover {
 .champion-card.has-additional-effects .additional-effects-title,
 .champion-card.has-additional-effects .champion-appearance-title { color: #275a76; }
 .champion-existing { flex: 0 0 420px; width: 420px; min-width: 0; }
-.champion-portrait-header { display: grid; grid-template-columns: 200px minmax(0, 1fr); gap: 16px; align-items: center; }
+.champion-portrait-header { display: grid; grid-template-columns: 200px minmax(0, 1fr); gap: 8px; align-items: center; }
 .champion-identity { min-width: 0; }
-.champion-identity .face-preview-container { margin-bottom: 8px; }
-.champion-identity > .name { margin-bottom: 0; overflow-wrap: anywhere; }
-.champion-color-details { min-width: 0; padding: 10px 4px; }
-.champion-color-details .color-info-container { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin-bottom: 16px; }
-.champion-color-details .color-info-item { flex-direction: column; gap: 5px; font-size: 13px; }
+.champion-identity .face-preview-container { margin-bottom: 0; }
+.champion-identity > .name { margin-bottom: 4px; overflow-wrap: anywhere; }
+.champion-color-details { min-width: 0; padding: 0; justify-self: start; }
+.champion-color-details .color-info-container { display: grid; grid-template-columns: repeat(2, max-content); gap: 8px; margin-bottom: 8px; }
+.champion-color-details .color-info-item { flex-direction: row; gap: 4px; font-size: 13px; }
 .champion-color-details .color-preview-box { margin-left: 0; }
-.champion-color-details .custom-color-palette { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px 8px; padding-top: 0; margin-bottom: 0; }
-.champion-color-details .palette-item { justify-content: center; font-size: 13px; }
-.champion-color-details .pattern-rank { grid-column: 1 / -1; justify-self: center; }
+.champion-color-details .custom-color-palette { display: grid; grid-template-columns: repeat(2, max-content); gap: 6px 8px; padding-top: 0; margin-bottom: 0; }
+.champion-color-details .palette-item { justify-content: flex-start; font-size: 13px; }
+.champion-color-details .pattern-rank { grid-column: 1 / -1; justify-self: start; }
 .champion-appearance {
     flex: 0 0 130px;
     width: 130px;
@@ -577,8 +577,8 @@ button:hover {
 .champion-status-summary {
     --summary-ink: #573242;
     --summary-blue: #245875;
-    margin: 18px 0;
-    padding: 14px 12px;
+    margin: 6px 0 18px;
+    padding: 0 12px;
     border: 0;
     border-radius: 0;
     background: transparent;
@@ -590,7 +590,6 @@ button:hover {
     cursor: auto;
 }
 .summary-heading { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
-.summary-title { margin: 0; color: var(--summary-blue); font-size: 15px; font-weight: 800; }
 .summary-partial { background: #fff1c7; color: #735018; padding: 1px 8px; border-radius: 20px; font-size: 11px; }
 .summary-antenna { display: flex; gap: 8px; align-items: center; margin-bottom: 6px; font-size: 14px; }
 .summary-antenna > strong { flex: 1; min-width: 0; overflow-wrap: anywhere; }
