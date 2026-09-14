@@ -510,10 +510,21 @@ button:hover {
 .champion-card.has-additional-effects .additional-effects-section + .additional-effects-section { border-top-color: #b3dfe8; }
 .champion-card.has-additional-effects .birth-count-label { border-bottom-color: #73c4da; }
 .champion-card.has-additional-effects .rsid-text { color: #426d7d; }
-.champion-card.has-additional-effects .champion-existing > .name { color: #275a76; }
+.champion-card.has-additional-effects .champion-identity > .name { color: #275a76; }
 .champion-card.has-additional-effects .additional-effects-title,
 .champion-card.has-additional-effects .champion-appearance-title { color: #275a76; }
 .champion-existing { flex: 0 0 420px; width: 420px; min-width: 0; }
+.champion-portrait-header { display: grid; grid-template-columns: 200px minmax(0, 1fr); gap: 16px; align-items: center; }
+.champion-identity { min-width: 0; }
+.champion-identity .face-preview-container { margin-bottom: 8px; }
+.champion-identity > .name { margin-bottom: 0; overflow-wrap: anywhere; }
+.champion-color-details { min-width: 0; padding: 10px 4px; }
+.champion-color-details .color-info-container { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin-bottom: 16px; }
+.champion-color-details .color-info-item { flex-direction: column; gap: 5px; font-size: 13px; }
+.champion-color-details .color-preview-box { margin-left: 0; }
+.champion-color-details .custom-color-palette { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px 8px; padding-top: 0; margin-bottom: 0; }
+.champion-color-details .palette-item { justify-content: center; font-size: 13px; }
+.champion-color-details .pattern-rank { grid-column: 1 / -1; justify-self: center; }
 .champion-appearance {
     flex: 0 0 130px;
     width: 130px;
@@ -567,11 +578,11 @@ button:hover {
     --summary-ink: #573242;
     --summary-blue: #245875;
     margin: 18px 0;
-    padding: 12px 10px;
-    border: 2px solid #79d4ed;
-    border-radius: 14px;
-    background: linear-gradient(180deg, #a3e8f7, #cef7f7 58%, #a5e7f3);
-    box-shadow: inset 0 1px 0 #edffff, 0 3px 12px #063d501a;
+    padding: 14px 12px;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
     color: var(--summary-ink);
     text-align: left;
     text-shadow: none;
