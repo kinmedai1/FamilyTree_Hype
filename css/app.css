@@ -528,6 +528,20 @@ button:hover {
 .champion-color-details .body-color-label { display: inline-block; line-height: 1.5; }
 .champion-color-details .palette-item { justify-content: flex-start; font-size: 13px; }
 .champion-color-details .pattern-rank { grid-column: 1 / -1; justify-self: start; }
+.sp-color-control { margin-top: 10px; text-align: left; }
+.sp-color-toggle { display: inline-flex; position: relative; align-items: center; gap: 7px; color: #245875; font-size: 12px; font-weight: 800; cursor: pointer; }
+.sp-color-toggle input { position: absolute; width: 1px; height: 1px; opacity: 0; }
+.sp-color-track { box-sizing: border-box; position: relative; width: 36px; height: 21px; border: 1px solid #70b7cc; border-radius: 20px; background: #c2dbe2; transition: background .18s; }
+.sp-color-track::after { content: ''; position: absolute; top: 2px; left: 2px; width: 15px; height: 15px; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px #24587555; transition: transform .18s; }
+.sp-color-toggle input:checked + .sp-color-track { background: #258bbd; border-color: #207ba8; }
+.sp-color-toggle input:checked + .sp-color-track::after { transform: translateX(15px); }
+.sp-color-toggle input:focus-visible + .sp-color-track { outline: 2px solid #245875; outline-offset: 3px; }
+.sp-color-toggle:has(input:disabled) { opacity: .55; cursor: not-allowed; }
+.sp-color-note { display: block; margin-top: 3px; font-size: 10px; color: #426d7d; }
+.sp-color-note:empty { display: none; }
+@media (prefers-reduced-motion: reduce) {
+    .sp-color-track, .sp-color-track::after { transition: none; }
+}
 .champion-appearance {
     flex: 0 0 130px;
     width: 130px;
@@ -594,9 +608,9 @@ button:hover {
 }
 .summary-heading { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
 .summary-partial { background: #fff1c7; color: #735018; padding: 1px 8px; border-radius: 20px; font-size: 11px; }
-.summary-traits { display: grid; gap: 6px; margin-bottom: 20px; }
+.summary-traits { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px 9px; margin-bottom: 20px; }
 .summary-antenna,
-.summary-trait { display: flex; gap: 8px; align-items: center; font-size: 14px; }
+.summary-trait { display: flex; gap: 8px; align-items: center; min-width: 0; font-size: 14px; }
 .summary-traits .summary-stat-label { box-sizing: border-box; flex: 0 0 66px; }
 .summary-antenna > strong,
 .summary-trait > strong { flex: 1; min-width: 0; overflow-wrap: anywhere; }

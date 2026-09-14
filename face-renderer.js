@@ -810,7 +810,7 @@ function findLinkedFace(id) {
   return linkedFaceMap.find(item => Number(item.id) === Number(id)) || linkedFaceMap[0];
 }
 
-async function renderComposition(targetCanvas, { transparent = false } = {}) {
+async function renderComposition(targetCanvas, { transparent = false, captureAura = false } = {}) {
   const context = targetCanvas.getContext("2d");
   context.clearRect(0, 0, CANVAS_SIZE, CANVAS_SIZE);
   context.imageSmoothingEnabled = true;
@@ -883,6 +883,12 @@ async function renderComposition(targetCanvas, { transparent = false } = {}) {
   }
 
   await drawHead(context, headProcessed, state.pattern, bodyColor1, bodyColor2, headRect);
+  let headLayer = null;
+  if (captureAura) {
+    headLayer = makeCanvas(CANVAS_SIZE, CANVAS_SIZE);
+    headLayer.getContext("2d").drawImage(targetCanvas, 0, 0);
+    context.clearRect(0, 0, CANVAS_SIZE, CANVAS_SIZE);
+  }
   if (antennaRect) drawCropped(context, antennaProcessed, antennaRect);
 
   let frameWidth;
@@ -924,6 +930,14 @@ async function renderComposition(targetCanvas, { transparent = false } = {}) {
   drawOriginalPart(context, noseImage, faceCenterX, frameY + frameHeight * 0.60, 125 * scale);
   drawOriginalPart(context, mouthImage, faceCenterX, frameY + frameHeight * 0.73, 215 * scale);
   drawOriginalLayer(context, tintedHair, frameX, frameY, frameWidth, frameHeight);
+  if (headLayer) {
+    const foreground = makeCanvas(CANVAS_SIZE, CANVAS_SIZE);
+    foreground.getContext("2d").drawImage(targetCanvas, 0, 0);
+    context.clearRect(0, 0, CANVAS_SIZE, CANVAS_SIZE);
+    context.drawImage(headLayer, 0, 0);
+    context.drawImage(foreground, 0, 0);
+    return { head: headLayer, foreground, headRect };
+  }
 }
 
 async function renderPreview() {
@@ -1326,14 +1340,14 @@ function ensureEmbeddedRendererInitialized() {
   return embeddedInitializationPromise;
 }
 
-function renderStatusFace(targetCanvas, statusText, { transparent = true } = {}) {
+function renderStatusFace(targetCanvas, statusText, { transparent = true, captureAura = false } = {}) {
   const requestedState = parseAppearanceStatus(statusText);
   embeddedRenderQueue = embeddedRenderQueue.catch(() => undefined).then(async () => {
     await ensureEmbeddedRendererInitialized();
     targetCanvas.width = CANVAS_SIZE;
     targetCanvas.height = CANVAS_SIZE;
     state = requestedState;
-    await renderComposition(targetCanvas, { transparent });
+    return renderComposition(targetCanvas, { transparent, captureAura });
   });
   return embeddedRenderQueue;
 }
@@ -1406,5 +1420,11 @@ window.DenpamenFaceRenderer = Object.freeze({
   parseStatus: parseAppearanceStatus,
   hasCompleteAppearance,
   render: renderStatusFace,
+  prepareAura(targetCanvas, statusText) {
+    if (statusValue(statusText, "柄") !== "なし" || !hasCompleteAppearance(statusText)) {
+      return Promise.reject(new Error("SPカラーは外見情報が揃った単色の個体で利用できます。"));
+    }
+    return renderStatusFace(targetCanvas, statusText, { transparent: true, captureAura: true });
+  },
   renderThumbnail: renderStatusThumbnail
 });

@@ -8,7 +8,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="./css/app.css?v=20260915-2">
+    <link rel="stylesheet" href="./css/app.css?v=20260915-4">
 </head>
 
 <body>
@@ -122,7 +122,8 @@
 
     <div id="global-history-tooltip" class="history-tooltip"></div>
 
-    <script src="./face-renderer.js?v=20260913-1"></script>
+    <script src="./face-renderer.js?v=20260915-1"></script>
+    <script src="./sp-aura.js?v=20260915-1"></script>
     <script src="./hyperion-core.js?v=20260912-1"></script>
     <script src="./status-summary.js?v=20260914-4"></script>
     <script src="./status-effects-panel.js?v=20260915-2"></script>
@@ -1542,6 +1543,7 @@
                 resetConversionUI();
                 currentRoundsData = reversedRounds;
                 nodesMap = preparedNodesMap;
+                SPAura.reset();
                 container.replaceChildren(...prepared.childNodes);
 
                 document.querySelectorAll('.round').forEach(roundEl => {
@@ -1575,6 +1577,7 @@
                         statusText: statusString,
                         record: appearanceRecords.get(championNode.sourceIndex) || null
                     }, () => drawLines(currentRoundsData));
+                    SPAura.attach(document.getElementById(championNode.uniqueId), statusString, currentFaceRenderPromise);
                 }
 
                 requestAnimationFrame(() => {
@@ -1629,6 +1632,7 @@
             HyperionTransfer.setActiveBinary(null);
             void HyperionTransfer.collect();
             document.getElementById('rsid-input').value = '';
+            SPAura.reset();
             document.getElementById('bracket-container').innerHTML = '<svg id="bracket-lines"></svg>';
             resetAncestorFaces();
             document.getElementById('error-message').style.display = 'none';
