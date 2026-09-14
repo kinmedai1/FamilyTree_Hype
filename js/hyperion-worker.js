@@ -1,6 +1,6 @@
 'use strict';
 importScripts('./hyperion-core.js?v=20260912-1');
-const tables = fetch('./hyperion-tables.json').then(r => {
+const tables = fetch('../hyperion-tables.json').then(r => {
     if (!r.ok) throw new Error('対応表を読み込めませんでした。');
     return r.json();
 });

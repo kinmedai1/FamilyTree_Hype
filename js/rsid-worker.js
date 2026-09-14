@@ -6,7 +6,7 @@
 // ======================================================================
 
 const CONFIG = {
-    DATA_PATH: './data/',
+    DATA_PATH: '../data/',
     FILE_COUNT: 256,
     DB_NAME: 'RSIDCache',
     DB_VERSION: 1,
