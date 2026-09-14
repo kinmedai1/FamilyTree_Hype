@@ -144,11 +144,26 @@
             else if (definition.effects.length) {
                 section.append(element('p', 'additional-effects-note', '合計に反映済み'));
                 const list = element('ul', 'additional-effects-list');
-                for (const effect of definition.effects) list.append(element('li', '', effect.sourceText));
+                for (const text of breakdownEffectTexts(definition.effects)) list.append(element('li', '', text));
                 section.append(list);
             }
         }
         return section;
+    }
+
+    // Presentation only: retain the original effects for totals and source data.
+    function breakdownEffectTexts(effects) {
+        const elemental = effects.filter(effect => Summary.ELEMENTS.some(([key]) => key === effect.stat));
+        const first = elemental[0];
+        const uniform = elemental.length === Summary.ELEMENTS.length
+            && new Set(elemental.map(effect => effect.stat)).size === Summary.ELEMENTS.length
+            && Number.isFinite(first.value) && first.value !== 0
+            && elemental.every(effect => effect.operation === 'add' && !effect.condition
+                && effect.value === first.value && effect.unit === first.unit);
+        if (!uniform) return effects.map(effect => effect.sourceText);
+        const grouped = new Set(elemental);
+        return effects.flatMap(effect => !grouped.has(effect) ? [effect.sourceText]
+            : effect === first ? [`全属性耐性 ${Summary.signed(first.value)}`] : []);
     }
 
     function render(panel, rows, correctionName) {
@@ -187,7 +202,7 @@
                 else if (!entry.effects.length) section.append(element('p', 'additional-effects-note', '固有効果なし'));
                 else {
                     const list = element('ul', 'additional-effects-list');
-                    for (const effect of entry.effects) list.append(element('li', '', effect.sourceText));
+                    for (const text of breakdownEffectTexts(entry.effects)) list.append(element('li', '', text));
                     section.append(list);
                 }
             }
@@ -348,7 +363,7 @@
     async function ready(container) {
         await Promise.all([...container.querySelectorAll('.additional-effects-panel')].map(panel => pending.get(panel)));
     }
-    const api = { resolve, resolveColorCombination, attach, ready, correction };
+    const api = { resolve, resolveColorCombination, attach, ready, correction, breakdownEffectTexts };
     root.StatusEffectsPanel = api;
     if (typeof module !== 'undefined' && module.exports) module.exports = api;
 })(globalThis);
