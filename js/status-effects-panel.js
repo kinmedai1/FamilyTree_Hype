@@ -228,10 +228,13 @@
         const elementEntry = Summary.ELEMENTS.find(([key]) => key === effect.stat);
         const ailmentEntry = [...Summary.AILMENTS, ...Summary.DOWNS, ...Summary.OTHER_RESISTANCES].find(([key]) => key === effect.stat);
         if (elementEntry || ailmentEntry) row.append(resistanceIcon((elementEntry || ailmentEntry)[1], elementEntry ? '属性耐性' : '異常耐性'));
-        const text = cleanEffectText(effect.sourceText);
+        const text = cleanEffectText(effect.sourceText)
+            .replaceAll('ぞくせいたいせい', '属性耐性')
+            .replaceAll('いじょうたいせい', '状態異常耐性')
+            .replaceAll('たいせい', '耐性');
         const value = text.match(/[+＋\-−－]\s*\d+(?:\.\d+)?[%％]?/);
         if (value) {
-            row.append(element('span', 'additional-effect-label', text.slice(0, value.index).trim()));
+            row.append(element('span', 'additional-effect-label', effect.stat === 'charm_resistance' ? 'ゆうわく耐性' : text.slice(0, value.index).trim()));
             const negative = /^[\-−－]/.test(value[0]);
             row.append(element('strong', `additional-effect-value ${negative ? 'is-negative' : 'is-positive'}`, value[0]));
             if (value.index + value[0].length < text.length) row.append(element('span', '', text.slice(value.index + value[0].length)));
