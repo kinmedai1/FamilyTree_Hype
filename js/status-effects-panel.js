@@ -224,7 +224,7 @@
     }
     function effectContent(effect) {
         const row = element('span', 'additional-effect-row');
-        row.dataset.stat = effect.stat;
+        if (effect.stat) row.dataset.stat = effect.stat;
         const elementEntry = Summary.ELEMENTS.find(([key]) => key === effect.stat);
         const ailmentEntry = [...Summary.AILMENTS, ...Summary.DOWNS, ...Summary.OTHER_RESISTANCES].find(([key]) => key === effect.stat);
         if (elementEntry || ailmentEntry) row.append(resistanceIcon((elementEntry || ailmentEntry)[1], elementEntry ? '属性耐性' : '異常耐性'));
@@ -344,33 +344,35 @@
         }
         const grid = element('dl', 'summary-stats');
         const values = [
-            ['hp', 'HP', Summary.statText(total.stats.hp)], ['ap', 'AP', total.ap == null ? '未確認' : Summary.number(total.ap)],
-            ['attack', 'こうげきりょく', Summary.statText(total.stats.attack)], ['defense', 'ぼうぎょりょく', Summary.statText(total.stats.defense)],
-            ['speed', 'すばやさ', Summary.statText(total.stats.speed)], ['evasion', 'かいひりつ', total.evasion == null ? '未確認' : Summary.number(total.evasion) + '%']
+            ['hp', 'HP', total.stats.hp.flat], ['ap', 'AP', total.ap],
+            ['attack', 'こうげきりょく', total.stats.attack.flat], ['defense', 'ぼうぎょりょく', total.stats.defense.flat],
+            ['speed', 'すばやさ', total.stats.speed.flat], ['evasion', 'かいひりつ', total.evasion, '%']
         ];
-        for (const [key, label, value] of values) {
+        for (const [key, label, value, suffix = ''] of values) {
             const row = element('div', 'summary-stat');
             row.dataset.stat = key;
-            row.append(element('dt', 'summary-stat-label', label), element('dd', 'summary-stat-value', value));
+            const display = element('dd', 'summary-stat-value', value == null ? '未確認' : Summary.signed(value) + suffix);
+            if (value > 0) display.classList.add('is-positive');
+            if (value < 0) display.classList.add('is-negative');
+            row.append(element('dt', 'summary-stat-label', label), display);
             grid.append(row);
         }
         const fragment = document.createDocumentFragment();
         if (total.unknown.length) fragment.append(heading);
-        fragment.append(grid);
-        if (total.apRange) {
-            const range = total.apRange.max === null ? '全レベル' : `Lv.${total.apRange.min}〜${total.apRange.max}`;
-            fragment.append(element('p', 'summary-caption', `APの対応範囲：${range}`));
-        }
+        fragment.append(element('h3', 'summary-additional-title', '追加ステータス'), grid);
         fragment.append(resistanceGrid('属性耐性', Summary.ELEMENTS, total.resistances, '属性耐性', 'summary-elements'));
         fragment.append(resistanceGrid('状態異常耐性', Summary.AILMENTS, total.resistances, '異常耐性', 'summary-ailments'));
         fragment.append(resistanceGrid('ジャック・ダウン耐性', [...Summary.OTHER_RESISTANCES, ...Summary.DOWNS], total.resistances, '異常耐性', 'summary-downs'));
         if (total.extras.length) {
             const extra = element('section', 'summary-resistances summary-other');
             extra.append(element('h4', 'summary-section-title', 'その他の効果'));
-            for (const text of total.extras) extra.append(element('p', '', text));
+            for (const text of total.extras) {
+                const line = element('p');
+                line.append(effectContent({ sourceText: text }));
+                extra.append(line);
+            }
             fragment.append(extra);
         }
-        fragment.append(element('p', 'summary-caption', 'HP・攻撃・防御・素早さ：倍率 ＋ 実数補正'));
         if (total.unknown.length) fragment.append(element('p', 'summary-unknown', `未確認：${total.unknown.join('、')}。上の数値は確認できる効果のみの合計です。`));
         panel.replaceChildren(fragment);
         panel.dataset.state = 'ready';

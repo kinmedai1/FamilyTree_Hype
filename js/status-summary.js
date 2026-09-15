@@ -128,7 +128,6 @@
         }
         if (!body || body.sourceStatus !== 'available') unknown.push('体格');
         const antenna = rows.find(row => row.category === 'antennas');
-        const ap = antenna?.entry?.ap;
         const apRange = antenna?.entry?.apLevelRange;
         const resistances = {};
         for (const [key] of [...ELEMENTS, ...AILMENTS, ...OTHER_RESISTANCES, ...DOWNS]) resistances[key] = totals[key] || 0;
@@ -137,8 +136,8 @@
         }
         return {
             stats, resistances, correction, unknown: [...new Set(unknown)],
-            evasion: body?.evasionPercent == null ? null : body.evasionPercent + (totals.evasion || 0),
-            ap: ap == null || !apRange ? null : ap + (totals.max_ap || 0),
+            evasion: totals.evasion || 0,
+            ap: totals.max_ap || 0,
             apRange, antennaName: antenna?.name || '情報なし', extras: [...extras.values()]
         };
     }
