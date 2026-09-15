@@ -272,9 +272,35 @@
         return list;
     }
 
+    function panelHeading(panel) {
+        const heading = element('h3', 'additional-effects-title');
+        const button = element('button', 'additional-effects-toggle', '内訳');
+        button.type = 'button';
+        button.setAttribute('aria-expanded', String(panel.dataset.detailsOpen !== 'false'));
+        button.addEventListener('click', () => {
+            panel.dataset.detailsOpen = String(panel.dataset.detailsOpen === 'false');
+            button.setAttribute('aria-expanded', panel.dataset.detailsOpen);
+            panel.dispatchEvent(new CustomEvent('breakdown-layout-change'));
+        });
+        heading.append(button);
+        return heading;
+    }
+
+    function categoryImage(category, name) {
+        const renderer = root.DenpamenFaceRenderer;
+        const config = { antennas: ['antennas', 'アンテナ画像'], heads: ['heads', '頭画像'], patterns: ['patterns', '色・柄情報/柄画像'] }[category];
+        if (!config || !renderer?.[config[0]]?.includes(name)) return null;
+        const img = element('img', 'additional-effects-category-image');
+        img.alt = '';
+        img.width = img.height = 32;
+        img.src = `assets/${config[1]}/${encodeURIComponent(name)}.png`;
+        img.addEventListener('error', () => { img.closest('h4')?.classList.remove('has-category-image'); img.remove(); }, { once: true });
+        return img;
+    }
+
     function render(panel, rows, correctionName) {
         const fragment = document.createDocumentFragment();
-        fragment.append(element('h3', 'additional-effects-title', '内訳'));
+        fragment.append(panelHeading(panel));
         for (const { category, label, name, entry, excludedFromTotals } of rows) {
             if (excludedFromTotals) continue;
             const section = element('section', 'additional-effects-section');
@@ -282,6 +308,11 @@
             const heading = element('h4', 'additional-effects-heading');
             heading.append(element('span', 'additional-effects-category', category === 'spColors' ? '体色' : label),
                 element('span', '', category === 'spColors' ? `${name}(SPカラー)` : name));
+            const icon = categoryImage(category, name);
+            if (icon) {
+                heading.classList.add('has-category-image');
+                heading.children[0].after(icon);
+            }
             section.append(heading);
             if (!entry || entry.sourceStatus !== 'available') {
                 const note = category === 'bodyColorCombinations'
@@ -371,10 +402,10 @@
         }
         const fragment = document.createDocumentFragment();
         if (total.unknown.length) fragment.append(heading);
-        fragment.append(element('h3', 'summary-additional-title', '追加ステータス'), grid);
+        fragment.append(element('h3', 'summary-additional-title', '合計追加ステータス'), grid);
         fragment.append(resistanceGrid('属性耐性', Summary.ELEMENTS, total.resistances, '属性耐性', 'summary-elements'));
         fragment.append(resistanceGrid('状態異常耐性', Summary.AILMENTS, total.resistances, '異常耐性', 'summary-ailments'));
-        fragment.append(resistanceGrid('ジャック・ダウン耐性', [...Summary.OTHER_RESISTANCES, ...Summary.DOWNS], total.resistances, '異常耐性', 'summary-downs'));
+        fragment.append(resistanceGrid('その他の耐性', [...Summary.OTHER_RESISTANCES, ...Summary.DOWNS], total.resistances, '異常耐性', 'summary-downs'));
         if (total.extras.length) {
             const extra = element('section', 'summary-resistances summary-other');
             extra.append(element('h4', 'summary-section-title', 'その他の効果'));
@@ -390,7 +421,7 @@
         panel.dataset.state = 'ready';
         // Off-screen image.decode() may remain pending even after cached images have loaded.
         // Wait for loading instead, so restoring history never stalls export readiness.
-        return Promise.all([...panel.querySelectorAll('img')].map(img => {
+        return Promise.all([...panel.closest('.champion-card').querySelectorAll('.champion-status-summary img, .additional-effects-panel img')].map(img => {
             if (img.complete) return Promise.resolve();
             return new Promise(resolve => {
                 const finish = () => {
@@ -449,7 +480,9 @@
         summary.addEventListener('click', event => event.stopPropagation());
         details.after(summary);
         const panel = element('aside', 'additional-effects-panel');
+        panel.dataset.detailsOpen = 'true';
         panel.setAttribute('aria-label', 'ステータスの内訳');
+        panel.addEventListener('breakdown-layout-change', onLayout);
         panel.addEventListener('click', event => event.stopPropagation());
         panel.addEventListener('toggle', event => {
             if (event.target.classList.contains('additional-effect-group')) onLayout();
@@ -466,7 +499,7 @@
         function refresh() {
             const version = ++renderVersion;
             panel.dataset.state = 'loading';
-            panel.replaceChildren(element('h3', 'additional-effects-title', '内訳'), element('p', 'additional-effects-note', '読み込み中…'), correctionSection(correctionName));
+            panel.replaceChildren(panelHeading(panel), element('p', 'additional-effects-note', '読み込み中…'), correctionSection(correctionName));
             summary.dataset.state = 'loading';
             traits.replaceChildren(element('p', 'summary-caption', '読み込み中…'));
             summary.replaceChildren(element('p', 'summary-caption', '読み込み中…'));
@@ -481,7 +514,7 @@
                 const retry = element('button', 'additional-effects-retry', '再読み込み');
                 retry.type = 'button';
                 retry.addEventListener('click', refresh);
-                panel.replaceChildren(element('h3', 'additional-effects-title', '内訳'), element('p', 'additional-effects-note', '対応表を読み込めませんでした。'), retry, correctionSection(correctionName));
+                panel.replaceChildren(panelHeading(panel), element('p', 'additional-effects-note', '対応表を読み込めませんでした。'), retry, correctionSection(correctionName));
                 summary.dataset.state = 'error';
                 traits.replaceChildren(element('p', 'summary-caption', '基本情報を読み込めませんでした。'));
                 summary.replaceChildren(element('p', 'summary-caption', '対応表を読み込めませんでした。右の「再読み込み」で再試行できます。'));

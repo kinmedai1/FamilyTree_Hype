@@ -576,6 +576,17 @@ button:hover {
     cursor: auto;
 }
 .additional-effects-title { margin: 0 0 14px; font-size: 16px; }
+.additional-effects-toggle { display: flex; align-items: center; gap: 6px; width: 100%; margin: 0; padding: 0; border: 0; border-radius: 3px; background: transparent; box-shadow: none; color: #275a76; font: inherit; text-align: left; cursor: pointer; }
+.additional-effects-toggle::before { content: '▼'; font-size: 10px; }
+.additional-effects-toggle[aria-expanded="false"]::before { content: '▶'; }
+.additional-effects-toggle:hover { background: #d8f0f5; transform: none; box-shadow: none; }
+.additional-effects-toggle:focus-visible { outline: 2px solid #1674ae; outline-offset: 4px; }
+.champion-card.has-additional-effects .additional-effects-panel[data-details-open="false"] { flex-basis: 88px; width: 88px; align-self: flex-start; }
+.additional-effects-panel[data-details-open="false"] > :not(.additional-effects-title) { display: none; }
+.additional-effects-panel[data-details-open="false"] .additional-effects-title { margin-bottom: 0; }
+.additional-effects-category-image { width: 32px; height: 32px; object-fit: contain; border-radius: 5px; }
+.additional-effects-heading.has-category-image { display: grid; grid-template-columns: auto 32px minmax(0, 1fr); align-items: center; }
+.additional-effects-heading.has-category-image > :last-child { overflow-wrap: anywhere; }
 .additional-effects-section + .additional-effects-section {
     margin-top: 12px;
     padding-top: 12px;
