@@ -588,6 +588,7 @@ button:hover {
 .additional-effect-row { display: flex; align-items: center; flex-wrap: wrap; gap: 3px 5px; min-height: 23px; }
 .additional-effect-row .summary-resistance-icon { flex: 0 0 18px; width: 18px; height: 18px; object-fit: contain; }
 .additional-effect-label { overflow-wrap: anywhere; }
+.additional-effect-source { margin: 2px 0 5px; color: #4d7c8a; font-size: 11px; line-height: 1.5; }
 .additional-effect-value { padding: 0 5px; border-radius: 5px; font-variant-numeric: tabular-nums; white-space: nowrap; line-height: 1.55; }
 .additional-effect-value.is-positive, .summary-stat-value.is-positive { color: #0962ad; background: #d8f0ff; }
 .additional-effect-value.is-negative, .summary-stat-value.is-negative { color: #c12742; background: #ffe0e6; }

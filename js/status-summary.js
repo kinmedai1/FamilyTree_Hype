@@ -57,19 +57,12 @@
         return { name, defined: Object.hasOwn(CORRECTIONS, key), effects: CORRECTIONS[key] || [] };
     }
 
-    function calculate(rows, correctionName) {
-        const correction = resolveCorrection(correctionName);
-        const unknown = [];
-        const totals = {};
-        const scales = {};
-        const extras = new Map();
+    function colorContext(rows) {
         const colorBase = {};
         const combination = rows.find(row => row.category === 'bodyColorCombinations');
         const spColor = rows.find(row => row.category === 'spColors');
         const colorRows = spColor ? [spColor] : combination ? [combination] : rows.filter(row => row.category === 'bodyColors');
         const colorKnown = colorRows.length > 0 && colorRows.every(row => row.entry?.sourceStatus === 'available' && Array.isArray(row.entry.effects));
-        if (!colorKnown) unknown.push('体色の効果');
-        if (combination?.entry?.coverage === 'element_resistances_only') unknown.push('体色の属性耐性以外の効果');
         if (colorKnown) {
             for (const row of colorRows) for (const effect of row.entry.effects) {
                 if (effect.operation === 'add' && [...ELEMENTS, ...AILMENTS].some(([stat]) => stat === effect.stat)) {
@@ -77,6 +70,35 @@
                 }
             }
         }
+        return { colorBase, colorKnown, combination };
+    }
+
+    // Shared by the totals and the per-source breakdown; null means unknown, [] means no targets.
+    function colorEffectTargets(effect, context) {
+        const { colorBase, colorKnown, combination } = context;
+        if (effect.stat === 'element_resistance' && effect.condition === 'positive_element_resistances_only') {
+            return colorKnown ? ELEMENTS.filter(([key]) => (colorBase[key] || 0) > 0) : null;
+        }
+        if (effect.stat === 'status_resistance' && effect.condition === 'body_color_status_resistances_only') {
+            return colorKnown && combination?.entry?.coverage !== 'element_resistances_only'
+                ? AILMENTS.filter(([key]) => (colorBase[key] || 0) > 0) : null;
+        }
+        return undefined;
+    }
+    function resolveBodyColorEffect(effect, rows) {
+        return colorEffectTargets(effect, colorContext(rows));
+    }
+
+    function calculate(rows, correctionName) {
+        const correction = resolveCorrection(correctionName);
+        const unknown = [];
+        const totals = {};
+        const scales = {};
+        const extras = new Map();
+        const context = colorContext(rows);
+        const { colorKnown, combination } = context;
+        if (!colorKnown) unknown.push('体色の効果');
+        if (combination?.entry?.coverage === 'element_resistances_only') unknown.push('体色の属性耐性以外の効果');
         const effects = [];
         for (const row of rows) {
             if (row.excludedFromTotals) continue;
@@ -104,17 +126,19 @@
             let targets = [stat];
             if (stat === 'element_resistance') {
                 if (effect.condition === 'positive_element_resistances_only') {
-                    if (!colorKnown) { unknown.push('星の適用先'); continue; }
-                    targets = ELEMENTS.filter(([key]) => (colorBase[key] || 0) > 0).map(([key]) => key);
+                    const entries = colorEffectTargets(effect, context);
+                    if (entries === null) { unknown.push('星の適用先'); continue; }
+                    targets = entries.map(([key]) => key);
                 } else targets = ELEMENTS.map(([key]) => key);
             } else if (stat === 'status_resistance') {
                 if (effect.condition === 'body_color_status_resistances_only') {
-                    if (!colorKnown || combination?.entry?.coverage === 'element_resistances_only') {
+                    const entries = colorEffectTargets(effect, context);
+                    if (entries === null) {
                         unknown.push('花の適用先');
                         continue;
                     }
                     // Select each color-derived resistance once, including same-color shade pairs.
-                    targets = AILMENTS.filter(([key]) => (colorBase[key] || 0) > 0).map(([key]) => key);
+                    targets = entries.map(([key]) => key);
                 } else targets = AILMENTS.map(([key]) => key);
             }
             else if (stat === 'down_resistance') targets = DOWNS.map(([key]) => key);
@@ -145,7 +169,7 @@
     function signed(value) { return value > 0 ? `+${number(value)}` : number(value); }
     function statText(stat) { return `${stat.percent == null ? '未確認' : number(stat.percent) + '%'} ${stat.flat < 0 ? '−' : '＋'} ${number(Math.abs(stat.flat))}`; }
 
-    const api = { ELEMENTS, AILMENTS, DOWNS, OTHER_RESISTANCES, CORRECTIONS, UNDEFINED_CORRECTIONS, resolveCorrection, calculate, number, signed, statText };
+    const api = { ELEMENTS, AILMENTS, DOWNS, OTHER_RESISTANCES, CORRECTIONS, UNDEFINED_CORRECTIONS, resolveCorrection, resolveBodyColorEffect, calculate, number, signed, statText };
     root.StatusSummary = api;
     if (typeof module !== 'undefined' && module.exports) module.exports = api;
 })(globalThis);

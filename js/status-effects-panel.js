@@ -238,11 +238,20 @@
         } else row.append(element('span', 'additional-effect-label', text));
         return row;
     }
-    function effectList(effects) {
+    function effectList(effects, rows = []) {
         const list = element('ul', 'additional-effects-list');
         for (const effect of breakdownEffects(effects)) {
+            const targets = Summary.resolveBodyColorEffect(effect, rows);
+            if (targets?.length === 0) continue;
             const item = element('li');
-            if (effect.children) {
+            if (targets !== undefined) {
+                if (targets === null) item.append(element('span', 'additional-effects-note', '対象の耐性は未確認'));
+                else for (const [stat, label] of targets) {
+                    item.append(effectContent({ ...effect, stat, sourceText: `${label}耐性 ${Summary.signed(effect.value)}` }));
+                }
+                const source = effect.stat === 'element_resistance' ? '体色の属性耐性' : '体色の状態異常耐性';
+                item.append(element('p', 'additional-effect-source', `（${source}${Summary.signed(effect.value)}）`));
+            } else if (effect.children) {
                 const details = element('details', 'additional-effect-group');
                 const summary = element('summary');
                 summary.append(effectContent(effect));
@@ -298,7 +307,7 @@
                 if (!Array.isArray(entry.effects)) section.append(element('p', 'additional-effects-note', '効果未確認'));
                 else if (!entry.effects.length) section.append(element('p', 'additional-effects-note', '固有効果なし'));
                 else {
-                    section.append(effectList(entry.effects));
+                    section.append(effectList(entry.effects, rows));
                 }
             }
             if (entry?.derivation === 'single_color_sum') section.append(element('p', 'additional-effects-note', 'それぞれの体色の効果を合算しています。'));
