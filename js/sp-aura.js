@@ -1,4 +1,4 @@
-/* Optional, final-card-only SP appearance. No source records or stats are changed. */
+/* Final-card-only SP switch: animate appearance and notify the status panel. Source records stay intact. */
 (() => {
     'use strict';
     let disposeCurrent = null;
@@ -25,8 +25,8 @@
     function attach(card, statusText, faceReady) {
         reset();
         const target = card.querySelector('.champion-identity .face-preview-canvas');
-        const colors = card.querySelector('.champion-color-details');
-        if (!target || !colors) return;
+        const identity = card.querySelector('.champion-identity');
+        if (!target || !identity) return;
         const renderer = window.DenpamenFaceRenderer;
         const eligible = renderer.hasCompleteAppearance(statusText) && renderer.parseStatus(statusText).pattern === 'なし';
         const control = document.createElement('div');
@@ -51,7 +51,10 @@
         control.append(label, note);
         control.addEventListener('click', event => event.stopPropagation());
         control.addEventListener('dblclick', event => event.stopPropagation());
-        colors.append(control);
+        identity.append(control);
+        function notifyChange() {
+            card.dispatchEvent(new CustomEvent('sp-color-change', { detail: { enabled: input.checked && !input.disabled } }));
+        }
 
         let disposed = false, frame = 0, visible = true, lastFrame = -Infinity;
         let layers = null, texture = null, baseline = null, preparing = null;
@@ -116,6 +119,7 @@
         function dispose() {
             if (disposed) return;
             disposed = true;
+            if (input.checked) { input.checked = false; notifyChange(); }
             stop(); restore();
             observer.disconnect();
             document.removeEventListener('visibilitychange', resume);
@@ -124,6 +128,8 @@
         }
         disposeCurrent = dispose;
         input.addEventListener('change', async () => {
+            if (!eligible || input.disabled) input.checked = false;
+            notifyChange();
             if (!input.checked) { stop(); restore(); note.textContent = ''; return; }
             note.textContent = '準備中…';
             try {
@@ -148,6 +154,7 @@
             } catch (error) {
                 if (disposed) return;
                 input.checked = false;
+                notifyChange();
                 stop(); restore();
                 note.textContent = '読み込み失敗。再試行できます';
                 note.title = error.message;

@@ -65,7 +65,8 @@
         const extras = new Map();
         const colorBase = {};
         const combination = rows.find(row => row.category === 'bodyColorCombinations');
-        const colorRows = combination ? [combination] : rows.filter(row => row.category === 'bodyColors');
+        const spColor = rows.find(row => row.category === 'spColors');
+        const colorRows = spColor ? [spColor] : combination ? [combination] : rows.filter(row => row.category === 'bodyColors');
         const colorKnown = colorRows.length > 0 && colorRows.every(row => row.entry?.sourceStatus === 'available' && Array.isArray(row.entry.effects));
         if (!colorKnown) unknown.push('体色の効果');
         if (combination?.entry?.coverage === 'element_resistances_only') unknown.push('体色の属性耐性以外の効果');
@@ -78,7 +79,9 @@
         }
         const effects = [];
         for (const row of rows) {
-            // A missing pair must not fall back to summing the individual reference effects.
+            if (row.excludedFromTotals) continue;
+            // Resolved pairs already include the mixed-color sum or the same-color special effect.
+            // Unknown IDs and incomplete three-color data must not be counted via reference rows.
             if (combination && row.category === 'bodyColors') continue;
             if (row.category === 'bodies' || row.category === 'antennas') continue;
             if (row.entry?.sourceStatus === 'available' && Array.isArray(row.entry.effects)) effects.push(...row.entry.effects);

@@ -48,6 +48,26 @@
         const override = overrides?.[key] || overrides?.[[names[1], names[0]].join('|')];
         let entry = tables.bodyColorCombinations?.[key] || null;
         const baseNames = names.map(name => name.replace(/^[濃薄]/, ''));
+        // Different colors always use the sum of the single-color entries, including shades.
+        // Keep the workbook rows intact as source data; only same-color pairs use their special effects.
+        const individual = names.map(name => tables.bodyColors?.[name]);
+        if (baseNames[0] !== baseNames[1]
+            && individual.every(color => color?.sourceStatus === 'available' && Array.isArray(color.effects))) {
+            const summed = new Map();
+            const other = [];
+            for (const color of individual) for (const effect of color.effects) {
+                if (effect.operation !== 'add' || !Number.isFinite(effect.value)) { other.push({ ...effect }); continue; }
+                const effectKey = JSON.stringify([effect.stat, effect.unit, effect.condition]);
+                const previous = summed.get(effectKey);
+                if (previous) previous.value += effect.value;
+                else summed.set(effectKey, { ...effect });
+            }
+            const effects = [...summed.values()].filter(effect => effect.value !== 0).map(effect => ({
+                ...effect, sourceText: effect.sourceText.replace(/[+-]?\d+(?:\.\d+)?(%?)$/, (_, suffix) => Summary.signed(effect.value) + suffix)
+            }));
+            return { colors: names, sourceStatus: 'available', kind: 'pair', coverage: 'complete',
+                derivation: 'single_color_sum', effects: [...effects, ...other] };
+        }
         // Same-color effects apply across different shades. The workbook's base|base row
         // is an effect reference, not a pair we create or substitute into the original record.
         if (names[0] !== names[1] && baseNames[0] === baseNames[1]
@@ -83,7 +103,7 @@
         return { name, remaining };
     }
 
-    function resolve(tables, { statusText = '', record = null } = {}) {
+    function resolve(tables, { statusText = '', record = null, spColor = false } = {}) {
         const fields = textFields(statusText);
         function find(category, label, field, dataIndex, overrideName) {
             const requested = overrideName ?? (fields[field] || '').split(/\s+/)[0];
@@ -124,6 +144,13 @@
             if (!entry) rows.push(...colorRows);
         } else {
             rows.push(...colorRows);
+        }
+        if (spColor && singleColor && colorRows[0]?.entry?.sourceStatus === 'available') {
+            const color = colorRows[0];
+            const base = colorName(color.name).replace(/^[濃薄]/, '');
+            color.excludedFromTotals = true;
+            rows.push({ category: 'spColors', label: 'SPカラー効果', name: color.name,
+                entry: tables.bodyColorCombinations?.[base + '|SP'] || null });
         }
         return rows;
     }
@@ -169,12 +196,15 @@
     function render(panel, rows, correctionName) {
         const fragment = document.createDocumentFragment();
         fragment.append(element('h3', 'additional-effects-title', '内訳'));
-        for (const { category, label, name, entry } of rows) {
+        for (const { category, label, name, entry, excludedFromTotals } of rows) {
             const section = element('section', 'additional-effects-section');
+            section.dataset.category = category;
             const heading = element('h4', 'additional-effects-heading');
             heading.append(element('span', 'additional-effects-category', label), element('span', '', name));
             section.append(heading);
-            if (!entry || entry.sourceStatus !== 'available') {
+            if (excludedFromTotals) {
+                section.append(element('p', 'additional-effects-note', '通常の体色効果をSPカラー効果に置き換えています。'));
+            } else if (!entry || entry.sourceStatus !== 'available') {
                 const note = category === 'bodyColorCombinations'
                     ? '組み合わせの効果は未確認です。以下の個別効果は参考値です。'
                     : name === '情報なし' ? '情報なし' : '対応表にデータがありません';
@@ -207,11 +237,12 @@
                 }
             }
             if (entry?.sameColorBase) section.append(element('p', 'additional-effects-note', '同色効果（濃淡共通）を反映しています。'));
+            if (entry?.derivation === 'single_color_sum') section.append(element('p', 'additional-effects-note', 'それぞれの体色の効果を合算しています。'));
             if (entry?.coverage === 'element_resistances_only') section.append(element('p', 'additional-effects-note', '属性耐性を合計に反映しています。その他の体色効果は未確認です。'));
             fragment.append(section);
         }
         fragment.append(correctionSection(correctionName));
-        fragment.append(element('p', 'additional-effects-footnote', '体色は組み合わせ表の値です。各部位の効果は中央の合計に反映しています。未確認・参考値は除きます。'));
+        fragment.append(element('p', 'additional-effects-footnote', '別色の体色は単色表の合算、同色は専用効果です。各部位の効果は中央の合計に反映しています。未確認・参考値は除きます。'));
         panel.replaceChildren(fragment);
         panel.dataset.state = 'ready';
     }
@@ -243,15 +274,13 @@
         return section;
     }
 
-    function renderSummary(panel, rows, correctionName) {
+    function renderSummary(panel, rows, correctionName, traits) {
         const total = Summary.calculate(rows, correctionName);
         const heading = element('div', 'summary-heading');
         if (total.unknown.length) heading.append(element('span', 'summary-partial', '既知分'));
         const antenna = element('div', 'summary-antenna');
         antenna.append(element('span', 'summary-stat-label', 'アンテナ'), element('strong', '', total.antennaName));
-        const traits = element('section', 'summary-traits');
-        traits.setAttribute('aria-label', '個体の基本情報');
-        traits.append(antenna);
+        traits.replaceChildren(antenna);
         for (const [category, label] of [['bodies', '体格'], ['heads', '頭'], ['patterns', '柄'], ['correction', '補正']]) {
             const name = category === 'correction' ? correctionName : rows.find(row => row.category === category)?.name;
             const row = element('div', 'summary-trait');
@@ -272,7 +301,7 @@
         }
         const fragment = document.createDocumentFragment();
         if (total.unknown.length) fragment.append(heading);
-        fragment.append(traits, grid);
+        fragment.append(grid);
         if (total.apRange) {
             const range = total.apRange.max === null ? '全レベル' : `Lv.${total.apRange.min}〜${total.apRange.max}`;
             fragment.append(element('p', 'summary-caption', `APの対応範囲：${range}`));
@@ -318,6 +347,14 @@
         appearance.setAttribute('aria-label', '顔パーツ情報');
         appearance.append(element('h3', 'champion-appearance-title', '顔パーツ情報'));
         const appearanceStatus = original.querySelector('.status');
+        if (appearanceStatus) {
+            const lines = appearanceStatus.textContent.split('\n');
+            appearanceStatus.replaceChildren();
+            lines.forEach((line, index) => {
+                if (index) appearanceStatus.append(document.createTextNode('\n'));
+                appearanceStatus.append(element('span', 'appearance-part', line));
+            });
+        }
         appearance.append(appearanceStatus || element('p', 'additional-effects-note', '情報なし'));
         appearance.addEventListener('click', event => event.stopPropagation());
         const header = element('div', 'champion-portrait-header');
@@ -333,34 +370,48 @@
         const birthCount = original.querySelector('.birth-count-label');
         if (birthCount) birthCount.after(header);
         else original.prepend(header);
+        const details = element('div', 'champion-details-header');
+        const traits = element('section', 'summary-traits');
+        traits.setAttribute('aria-label', '個体の基本情報');
+        details.append(traits, appearance);
+        header.after(details);
         const summary = element('section', 'champion-status-summary');
         summary.setAttribute('aria-label', 'ステータス合計');
         summary.addEventListener('click', event => event.stopPropagation());
-        header.after(summary);
+        details.after(summary);
         const panel = element('aside', 'additional-effects-panel');
         panel.setAttribute('aria-label', 'ステータスの内訳');
         panel.addEventListener('click', event => event.stopPropagation());
-        card.append(appearance, original, panel);
+        card.append(original, panel);
         card.classList.add('has-additional-effects');
 
+        let spColor = false;
+        let renderVersion = 0;
+        card.addEventListener('sp-color-change', event => {
+            spColor = event.detail.enabled === true;
+            refresh();
+        });
         function refresh() {
+            const version = ++renderVersion;
             panel.dataset.state = 'loading';
             panel.replaceChildren(element('h3', 'additional-effects-title', '内訳'), element('p', 'additional-effects-note', '読み込み中…'), correctionSection(correctionName));
             summary.dataset.state = 'loading';
+            traits.replaceChildren(element('p', 'summary-caption', '読み込み中…'));
             summary.replaceChildren(element('p', 'summary-caption', '読み込み中…'));
             const task = loadTables().then(tables => {
-                if (!panel.isConnected) return;
-                const rows = resolve(tables, input);
+                if (!panel.isConnected || version !== renderVersion) return;
+                const rows = resolve(tables, { ...input, spColor });
                 render(panel, rows, correctionName);
-                return renderSummary(summary, rows, correctionName);
+                return renderSummary(summary, rows, correctionName, traits);
             }).catch(() => {
-                if (!panel.isConnected) return;
+                if (!panel.isConnected || version !== renderVersion) return;
                 panel.dataset.state = 'error';
                 const retry = element('button', 'additional-effects-retry', '再読み込み');
                 retry.type = 'button';
                 retry.addEventListener('click', refresh);
                 panel.replaceChildren(element('h3', 'additional-effects-title', '内訳'), element('p', 'additional-effects-note', '対応表を読み込めませんでした。'), retry, correctionSection(correctionName));
                 summary.dataset.state = 'error';
+                traits.replaceChildren(element('p', 'summary-caption', '基本情報を読み込めませんでした。'));
                 summary.replaceChildren(element('p', 'summary-caption', '対応表を読み込めませんでした。右の「再読み込み」で再試行できます。'));
             }).finally(() => { if (panel.isConnected) onLayout(); });
             pending.set(panel, task);
