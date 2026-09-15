@@ -197,14 +197,14 @@
         const fragment = document.createDocumentFragment();
         fragment.append(element('h3', 'additional-effects-title', '内訳'));
         for (const { category, label, name, entry, excludedFromTotals } of rows) {
+            if (excludedFromTotals) continue;
             const section = element('section', 'additional-effects-section');
             section.dataset.category = category;
             const heading = element('h4', 'additional-effects-heading');
-            heading.append(element('span', 'additional-effects-category', label), element('span', '', name));
+            heading.append(element('span', 'additional-effects-category', category === 'spColors' ? '体色' : label),
+                element('span', '', category === 'spColors' ? `${name}(SPカラー)` : name));
             section.append(heading);
-            if (excludedFromTotals) {
-                section.append(element('p', 'additional-effects-note', '通常の体色効果をSPカラー効果に置き換えています。'));
-            } else if (!entry || entry.sourceStatus !== 'available') {
+            if (!entry || entry.sourceStatus !== 'available') {
                 const note = category === 'bodyColorCombinations'
                     ? '組み合わせの効果は未確認です。以下の個別効果は参考値です。'
                     : name === '情報なし' ? '情報なし' : '対応表にデータがありません';
