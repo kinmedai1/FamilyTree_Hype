@@ -164,33 +164,100 @@
 
     function correctionSection(name, showEffects = true) {
         const section = element('section', 'additional-effects-section additional-effects-correction');
-        section.append(element('h4', 'additional-effects-heading', '補正'), element('p', 'additional-effects-ap', name));
+        const heading = element('h4', 'additional-effects-heading');
+        heading.append(element('span', 'additional-effects-category', '補正'), element('span', '', name));
+        section.append(heading);
         if (showEffects) {
             const definition = Summary.resolveCorrection(name);
             if (!definition.defined) section.append(element('p', 'additional-effects-note', '未定義・合計に未反映'));
             else if (definition.effects.length) {
-                section.append(element('p', 'additional-effects-note', '合計に反映済み'));
-                const list = element('ul', 'additional-effects-list');
-                for (const text of breakdownEffectTexts(definition.effects)) list.append(element('li', '', text));
-                section.append(list);
+                section.append(effectList(definition.effects));
             }
         }
         return section;
     }
 
     // Presentation only: retain the original effects for totals and source data.
+    const RESISTANCE_GROUPS = [
+        ['element_resistance', '全属性耐性', Summary.ELEMENTS],
+        ['status_resistance', '状態異常耐性', Summary.AILMENTS],
+        ['down_resistance', 'ダウン耐性', Summary.DOWNS]
+    ];
+    function cleanEffectText(text) {
+        return String(text || '').replaceAll('（同じ耐性には1回のみ）', '').trim();
+    }
+    function breakdownEffects(effects) {
+        const replacements = new Map();
+        const hidden = new Set();
+        for (const [stat, label, entries] of RESISTANCE_GROUPS) {
+            const members = effects.filter(effect => entries.some(([key]) => key === effect.stat));
+            const first = members[0];
+            if (members.length !== entries.length || new Set(members.map(effect => effect.stat)).size !== entries.length
+                || !Number.isFinite(first.value) || first.value === 0
+                || !members.every(effect => effect.operation === 'add' && !effect.condition
+                    && effect.value === first.value && effect.unit === first.unit)) continue;
+            replacements.set(first, { ...first, stat, sourceText: `${label} ${Summary.signed(first.value)}`, children: members });
+            members.slice(1).forEach(effect => hidden.add(effect));
+        }
+        return effects.filter(effect => !hidden.has(effect)).map(effect => {
+            if (replacements.has(effect)) return replacements.get(effect);
+            const group = RESISTANCE_GROUPS.find(([stat]) => stat === effect.stat);
+            if (group && effect.operation === 'add' && !effect.condition && Number.isFinite(effect.value)) {
+                return { ...effect, children: group[2].map(([stat, label]) => ({ ...effect, stat,
+                    sourceText: `${label}耐性 ${Summary.signed(effect.value)}` })) };
+            }
+            return effect;
+        });
+    }
     function breakdownEffectTexts(effects) {
-        const elemental = effects.filter(effect => Summary.ELEMENTS.some(([key]) => key === effect.stat));
-        const first = elemental[0];
-        const uniform = elemental.length === Summary.ELEMENTS.length
-            && new Set(elemental.map(effect => effect.stat)).size === Summary.ELEMENTS.length
-            && Number.isFinite(first.value) && first.value !== 0
-            && elemental.every(effect => effect.operation === 'add' && !effect.condition
-                && effect.value === first.value && effect.unit === first.unit);
-        if (!uniform) return effects.map(effect => effect.sourceText);
-        const grouped = new Set(elemental);
-        return effects.flatMap(effect => !grouped.has(effect) ? [effect.sourceText]
-            : effect === first ? [`全属性耐性 ${Summary.signed(first.value)}`] : []);
+        return breakdownEffects(effects).map(effect => cleanEffectText(effect.sourceText));
+    }
+    function resistanceIcon(label, group) {
+        // Reuse exactly the same assets and missing-artwork handling in both columns.
+        if (label === '回避ダウン') return element('span', 'summary-resistance-icon');
+        const img = element('img', 'summary-resistance-icon');
+        img.alt = '';
+        img.width = img.height = 20;
+        img.src = `assets/耐性画像/${group}/${label}.webp`;
+        img.addEventListener('error', () => { img.style.visibility = 'hidden'; }, { once: true });
+        return img;
+    }
+    function effectContent(effect) {
+        const row = element('span', 'additional-effect-row');
+        row.dataset.stat = effect.stat;
+        const elementEntry = Summary.ELEMENTS.find(([key]) => key === effect.stat);
+        const ailmentEntry = [...Summary.AILMENTS, ...Summary.DOWNS, ...Summary.OTHER_RESISTANCES].find(([key]) => key === effect.stat);
+        if (elementEntry || ailmentEntry) row.append(resistanceIcon((elementEntry || ailmentEntry)[1], elementEntry ? '属性耐性' : '異常耐性'));
+        const text = cleanEffectText(effect.sourceText);
+        const value = text.match(/[+＋\-−－]\s*\d+(?:\.\d+)?[%％]?/);
+        if (value) {
+            row.append(element('span', 'additional-effect-label', text.slice(0, value.index).trim()));
+            const negative = /^[\-−－]/.test(value[0]);
+            row.append(element('strong', `additional-effect-value ${negative ? 'is-negative' : 'is-positive'}`, value[0]));
+            if (value.index + value[0].length < text.length) row.append(element('span', '', text.slice(value.index + value[0].length)));
+        } else row.append(element('span', 'additional-effect-label', text));
+        return row;
+    }
+    function effectList(effects) {
+        const list = element('ul', 'additional-effects-list');
+        for (const effect of breakdownEffects(effects)) {
+            const item = element('li');
+            if (effect.children) {
+                const details = element('details', 'additional-effect-group');
+                const summary = element('summary');
+                summary.append(effectContent(effect));
+                const children = element('ul', 'additional-effects-list additional-effect-children');
+                for (const child of effect.children) {
+                    const line = element('li');
+                    line.append(effectContent(child));
+                    children.append(line);
+                }
+                details.append(summary, children);
+                item.append(details);
+            } else item.append(effectContent(effect));
+            list.append(item);
+        }
+        return list;
     }
 
     function render(panel, rows, correctionName) {
@@ -231,18 +298,14 @@
                 if (!Array.isArray(entry.effects)) section.append(element('p', 'additional-effects-note', '効果未確認'));
                 else if (!entry.effects.length) section.append(element('p', 'additional-effects-note', '固有効果なし'));
                 else {
-                    const list = element('ul', 'additional-effects-list');
-                    for (const text of breakdownEffectTexts(entry.effects)) list.append(element('li', '', text));
-                    section.append(list);
+                    section.append(effectList(entry.effects));
                 }
             }
-            if (entry?.sameColorBase) section.append(element('p', 'additional-effects-note', '同色効果（濃淡共通）を反映しています。'));
             if (entry?.derivation === 'single_color_sum') section.append(element('p', 'additional-effects-note', 'それぞれの体色の効果を合算しています。'));
             if (entry?.coverage === 'element_resistances_only') section.append(element('p', 'additional-effects-note', '属性耐性を合計に反映しています。その他の体色効果は未確認です。'));
             fragment.append(section);
         }
         fragment.append(correctionSection(correctionName));
-        fragment.append(element('p', 'additional-effects-footnote', '別色の体色は単色表の合算、同色は専用効果です。各部位の効果は中央の合計に反映しています。未確認・参考値は除きます。'));
         panel.replaceChildren(fragment);
         panel.dataset.state = 'ready';
     }
@@ -258,15 +321,7 @@
             item.dataset.stat = key;
             item.dataset.value = String(values[key]);
             if (values[key] < 0) item.classList.add('is-negative');
-            // No evasion-down artwork was supplied; keep the label and reserve the same space.
-            if (label !== '回避ダウン') {
-                const img = element('img', 'summary-resistance-icon');
-                img.alt = '';
-                img.width = img.height = 20;
-                img.src = `assets/耐性画像/${group}/${label}.webp`;
-                img.addEventListener('error', () => { img.style.visibility = 'hidden'; }, { once: true });
-                item.append(img);
-            } else item.append(element('span', 'summary-resistance-icon'));
+            item.append(resistanceIcon(label, group));
             item.append(element('span', 'summary-resistance-label', label), element('strong', 'summary-resistance-value', Summary.signed(values[key])));
             grid.append(item);
         }
@@ -382,6 +437,9 @@
         const panel = element('aside', 'additional-effects-panel');
         panel.setAttribute('aria-label', 'ステータスの内訳');
         panel.addEventListener('click', event => event.stopPropagation());
+        panel.addEventListener('toggle', event => {
+            if (event.target.classList.contains('additional-effect-group')) onLayout();
+        }, true);
         card.append(original, panel);
         card.classList.add('has-additional-effects');
 
@@ -423,7 +481,7 @@
     async function ready(container) {
         await Promise.all([...container.querySelectorAll('.additional-effects-panel')].map(panel => pending.get(panel)));
     }
-    const api = { resolve, resolveColorCombination, attach, ready, correction, breakdownEffectTexts };
+    const api = { resolve, resolveColorCombination, attach, ready, correction, breakdownEffectTexts, breakdownEffects };
     root.StatusEffectsPanel = api;
     if (typeof module !== 'undefined' && module.exports) module.exports = api;
 })(globalThis);
