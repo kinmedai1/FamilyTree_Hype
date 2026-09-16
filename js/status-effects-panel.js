@@ -139,7 +139,7 @@
                 && (!record || rows[3].entry?.colorCount === 2)
                 && colorRows.every(row => row.entry?.sourceStatus === 'available')
                 ? resolveColorCombination(tables, colorRows.map(row => row.name)) : null;
-            rows.push({ category: 'bodyColorCombinations', label: '体色の組み合わせ',
+            rows.push({ category: 'bodyColorCombinations', label: '体色',
                 name: colorRows.map(row => row.name).join(' × '), entry });
             if (!entry) rows.push(...colorRows);
         } else {
@@ -272,18 +272,30 @@
         return list;
     }
 
-    function panelHeading(panel) {
-        const heading = element('h3', 'additional-effects-title');
-        const button = element('button', 'additional-effects-toggle', '内訳');
+    function panelHeading() {
+        return element('h3', 'additional-effects-title', '内訳');
+    }
+    function panelToggle(panel) {
+        const button = element('button', 'additional-effects-toggle');
+        const icon = element('span', 'additional-effects-toggle-icon');
+        icon.setAttribute('aria-hidden', 'true');
+        button.append(icon);
+        button.append(element('span', 'additional-effects-toggle-label', '内訳'));
         button.type = 'button';
-        button.setAttribute('aria-expanded', String(panel.dataset.detailsOpen !== 'false'));
-        button.addEventListener('click', () => {
+        function syncLabel() {
+            const open = panel.dataset.detailsOpen !== 'false';
+            button.setAttribute('aria-expanded', String(open));
+            button.title = open ? '内訳を非表示にする' : '内訳を表示する';
+            button.setAttribute('aria-label', button.title);
+        }
+        syncLabel();
+        button.addEventListener('click', event => {
+            event.stopPropagation();
             panel.dataset.detailsOpen = String(panel.dataset.detailsOpen === 'false');
-            button.setAttribute('aria-expanded', panel.dataset.detailsOpen);
+            syncLabel();
             panel.dispatchEvent(new CustomEvent('breakdown-layout-change'));
         });
-        heading.append(button);
-        return heading;
+        return button;
     }
 
     function categoryImage(category, name) {
@@ -311,7 +323,7 @@
             const icon = categoryImage(category, name);
             if (icon) {
                 heading.classList.add('has-category-image');
-                heading.children[0].after(icon);
+                heading.append(icon);
             }
             section.append(heading);
             if (!entry || entry.sourceStatus !== 'available') {
@@ -402,7 +414,7 @@
         }
         const fragment = document.createDocumentFragment();
         if (total.unknown.length) fragment.append(heading);
-        fragment.append(element('h3', 'summary-additional-title', '合計追加ステータス'), grid);
+        fragment.append(grid);
         fragment.append(resistanceGrid('属性耐性', Summary.ELEMENTS, total.resistances, '属性耐性', 'summary-elements'));
         fragment.append(resistanceGrid('状態異常耐性', Summary.AILMENTS, total.resistances, '異常耐性', 'summary-ailments'));
         fragment.append(resistanceGrid('その他の耐性', [...Summary.OTHER_RESISTANCES, ...Summary.DOWNS], total.resistances, '異常耐性', 'summary-downs'));
@@ -481,12 +493,17 @@
         details.after(summary);
         const panel = element('aside', 'additional-effects-panel');
         panel.dataset.detailsOpen = 'true';
+        const summaryHeader = element('div', 'summary-additional-header');
+        summaryHeader.append(element('h3', 'summary-additional-title', '合計追加ステータス'));
+        const summaryContent = element('div', 'summary-content');
+        summary.append(summaryHeader, summaryContent);
         panel.setAttribute('aria-label', 'ステータスの内訳');
         panel.addEventListener('breakdown-layout-change', onLayout);
         panel.addEventListener('click', event => event.stopPropagation());
         panel.addEventListener('toggle', event => {
             if (event.target.classList.contains('additional-effect-group')) onLayout();
         }, true);
+        original.append(panelToggle(panel));
         card.append(original, panel);
         card.classList.add('has-additional-effects');
 
@@ -502,12 +519,13 @@
             panel.replaceChildren(panelHeading(panel), element('p', 'additional-effects-note', '読み込み中…'), correctionSection(correctionName));
             summary.dataset.state = 'loading';
             traits.replaceChildren(element('p', 'summary-caption', '読み込み中…'));
-            summary.replaceChildren(element('p', 'summary-caption', '読み込み中…'));
+            summaryContent.replaceChildren(element('p', 'summary-caption', '読み込み中…'));
             const task = loadTables().then(tables => {
                 if (!panel.isConnected || version !== renderVersion) return;
                 const rows = resolve(tables, { ...input, spColor });
                 render(panel, rows, correctionName);
-                return renderSummary(summary, rows, correctionName, traits);
+                summary.dataset.state = 'ready';
+                return renderSummary(summaryContent, rows, correctionName, traits);
             }).catch(() => {
                 if (!panel.isConnected || version !== renderVersion) return;
                 panel.dataset.state = 'error';
@@ -517,7 +535,7 @@
                 panel.replaceChildren(panelHeading(panel), element('p', 'additional-effects-note', '対応表を読み込めませんでした。'), retry, correctionSection(correctionName));
                 summary.dataset.state = 'error';
                 traits.replaceChildren(element('p', 'summary-caption', '基本情報を読み込めませんでした。'));
-                summary.replaceChildren(element('p', 'summary-caption', '対応表を読み込めませんでした。右の「再読み込み」で再試行できます。'));
+                summaryContent.replaceChildren(element('p', 'summary-caption', '対応表を読み込めませんでした。内訳の「再読み込み」で再試行できます。'));
             }).finally(() => { if (panel.isConnected) onLayout(); });
             pending.set(panel, task);
             return task;

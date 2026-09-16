@@ -756,9 +756,10 @@
                 if (!el || el.classList.contains('collapsed')) return null;
                 const containerRect = container.getBoundingClientRect();
                 const elRect = el.getBoundingClientRect();
+                const anchorRect = el.querySelector('.champion-existing')?.getBoundingClientRect() || elRect;
                 return {
                     id: id,
-                    cx: elRect.left - containerRect.left + container.scrollLeft + elRect.width / 2,
+                    cx: anchorRect.left - containerRect.left + container.scrollLeft + anchorRect.width / 2,
                     top: elRect.top - containerRect.top + container.scrollTop,
                     bottom: elRect.top - containerRect.top + container.scrollTop + elRect.height,
                 };

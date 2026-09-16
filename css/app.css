@@ -514,7 +514,7 @@ button:hover {
 .champion-card.has-additional-effects .champion-identity > .name { color: #275a76; }
 .champion-card.has-additional-effects .additional-effects-title,
 .champion-card.has-additional-effects .champion-appearance-title { color: #275a76; }
-.champion-existing { flex: 0 0 420px; width: 420px; min-width: 0; }
+.champion-existing { position: relative; flex: 0 0 420px; width: 420px; min-width: 0; }
 .champion-portrait-header { display: grid; grid-template-columns: 200px minmax(0, 1fr); gap: 8px; align-items: center; }
 .champion-identity { min-width: 0; }
 .champion-identity .face-preview-container { margin-top: -8px; margin-bottom: 0; }
@@ -561,7 +561,14 @@ button:hover {
     line-height: 1.5;
     overflow-wrap: anywhere;
 }
-.round:has(> .champion-card.has-additional-effects) { min-width: max-content; align-self: flex-start; }
+/* Center the closed card's footprint (420px content + 28px frame + 80px margins).
+   An open breakdown extends to the right without recentering the original card. */
+.round:has(> .champion-card.has-additional-effects) {
+    display: grid;
+    grid-template-columns: 528px;
+    min-width: 528px;
+    align-self: flex-start;
+}
 .additional-effects-panel {
     flex: 0 0 240px;
     width: 240px;
@@ -576,24 +583,27 @@ button:hover {
     cursor: auto;
 }
 .additional-effects-title { margin: 0 0 14px; font-size: 16px; }
-.additional-effects-toggle { display: flex; align-items: center; gap: 6px; width: 100%; margin: 0; padding: 0; border: 0; border-radius: 3px; background: transparent; box-shadow: none; color: #275a76; font: inherit; text-align: left; cursor: pointer; }
-.additional-effects-toggle::before { content: '▼'; font-size: 10px; }
-.additional-effects-toggle[aria-expanded="false"]::before { content: '▶'; }
-.additional-effects-toggle:hover { background: #d8f0f5; transform: none; box-shadow: none; }
+.summary-additional-header { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 10px; }
+.summary-additional-header .summary-additional-title { margin: 0; }
+.additional-effects-toggle { display: inline-flex; align-items: center; gap: 6px; flex-shrink: 0; min-height: 28px; width: auto; margin: 0; padding: 3px 9px; border: 1px solid #409cbb; border-radius: 7px; background: #58bcd9; box-shadow: none; color: #16466b; font-family: inherit; font-size: 12px; font-weight: 700; line-height: 1.4; cursor: pointer; }
+.additional-effects-toggle[aria-expanded="false"] { background: transparent; border-color: #98bac7; color: #416a7c; }
+.champion-card.has-additional-effects .champion-existing > .additional-effects-toggle { position: absolute; top: 10px; right: 14px; z-index: 2; }
+.additional-effects-toggle-icon { position: relative; box-sizing: border-box; width: 17px; height: 14px; border: 1.5px solid currentColor; border-radius: 3px; }
+.additional-effects-toggle-icon::after { content: ''; position: absolute; top: 0; bottom: 0; right: 0; width: 5px; border-left: 1.5px solid currentColor; background: currentColor; opacity: .7; }
+.additional-effects-toggle[aria-expanded="false"] .additional-effects-toggle-icon::after { background: transparent; }
+.additional-effects-toggle:hover { filter: brightness(1.06); transform: none; box-shadow: none; }
 .additional-effects-toggle:focus-visible { outline: 2px solid #1674ae; outline-offset: 4px; }
-.champion-card.has-additional-effects .additional-effects-panel[data-details-open="false"] { flex-basis: 88px; width: 88px; align-self: flex-start; }
-.additional-effects-panel[data-details-open="false"] > :not(.additional-effects-title) { display: none; }
-.additional-effects-panel[data-details-open="false"] .additional-effects-title { margin-bottom: 0; }
+.champion-card.has-additional-effects .additional-effects-panel[data-details-open="false"] { display: none; }
 .additional-effects-category-image { width: 32px; height: 32px; object-fit: contain; border-radius: 5px; }
-.additional-effects-heading.has-category-image { display: grid; grid-template-columns: auto 32px minmax(0, 1fr); align-items: center; }
-.additional-effects-heading.has-category-image > :last-child { overflow-wrap: anywhere; }
+.additional-effects-heading.has-category-image { display: grid; grid-template-columns: max-content minmax(0, max-content) 32px; justify-content: start; align-items: center; }
+.additional-effects-heading.has-category-image > :nth-child(2) { overflow-wrap: anywhere; }
 .additional-effects-section + .additional-effects-section {
     margin-top: 12px;
     padding-top: 12px;
     border-top: 1px solid rgba(211, 233, 211, .18);
 }
 .additional-effects-heading { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px; margin: 0 0 5px; font-size: 13px; }
-.additional-effects-category { font-weight: 400; font-size: 11px; opacity: .8; }
+.additional-effects-category { font-weight: 800; font-size: 11px; }
 .additional-effects-list { list-style: none; padding: 0; margin: 0; }
 .additional-effects-list li + li { margin-top: 2px; }
 .additional-effect-row { display: flex; align-items: center; flex-wrap: wrap; gap: 3px 5px; min-height: 23px; }
@@ -647,6 +657,7 @@ button:hover {
 .summary-antenna > strong,
 .summary-trait > strong { flex: 1; min-width: 0; overflow-wrap: anywhere; }
 .summary-stat-label,
+.additional-effects-category,
 .champion-color-details .color-info-label,
 .champion-color-details .body-color-label {
     background: #5cbbda;
@@ -861,15 +872,27 @@ button:hover {
     z-index: 8;
 }
 
+.face-preview-container.is-error,
+.face-preview-container.modal-face-preview.is-error {
+    background: transparent;
+    border: 0;
+    box-shadow: none;
+}
+
+.face-preview-container.is-error .face-preview-canvas,
+.face-preview-container.is-error .part-layer {
+    visibility: hidden;
+}
+
 .face-preview-container.is-error::after {
-    content: "顔画像を読み込めませんでした";
+    content: "顔画像が読み込めませんでした";
     position: absolute;
     inset: 0;
     display: grid;
     place-items: center;
     padding: 16px;
-    color: #fca5a5;
-    background: rgba(15, 23, 42, 0.88);
+    color: var(--text-color);
+    background: transparent;
     font-size: 12px;
     text-align: center;
     z-index: 8;
