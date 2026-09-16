@@ -527,7 +527,13 @@ button:hover {
 .champion-color-details .color-info-label,
 .champion-color-details .body-color-label { display: inline-block; line-height: 1.5; }
 .champion-color-details .palette-item { justify-content: flex-start; font-size: 13px; }
-.champion-color-details .pattern-rank { grid-column: 1 / -1; justify-self: start; }
+.champion-color-details .pattern-rank { grid-column: 1 / -1; justify-self: start; gap: 6px; padding: 0; border: 0; background: transparent; }
+.pattern-rank-value { display: inline-flex; align-items: center; gap: 5px; color: var(--rank-ink, #6534a0); font-weight: 800; }
+.pattern-rank-value::before { content: ''; width: 9px; height: 9px; border-radius: 50%; background: var(--rank-color); border: 1px solid #24587540; }
+.pattern-rank[data-rank="D"] { --rank-ink: #245875; }
+.pattern-rank[data-rank="C"] { --rank-ink: #24633a; }
+.pattern-rank[data-rank="B"] { --rank-ink: #235877; }
+.pattern-rank[data-rank="A"] { --rank-ink: #a13745; }
 .sp-color-control { margin-top: 2px; text-align: center; }
 .sp-color-toggle { display: inline-flex; position: relative; align-items: center; gap: 7px; color: #245875; font-size: 12px; font-weight: 800; cursor: pointer; }
 .sp-color-toggle input { position: absolute; width: 1px; height: 1px; opacity: 0; }
@@ -658,6 +664,7 @@ button:hover {
 .summary-trait > strong { flex: 1; min-width: 0; overflow-wrap: anywhere; }
 .summary-stat-label,
 .additional-effects-category,
+.champion-color-details .pattern-rank-label,
 .champion-color-details .color-info-label,
 .champion-color-details .body-color-label {
     background: #5cbbda;
