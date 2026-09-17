@@ -24,6 +24,39 @@
     async function digest(buffer) {
         return Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256', buffer)), n => n.toString(16).padStart(2, '0')).join('');
     }
+    function decodeRecord(buffer, offset, sourceIndex, tables) {
+        const bytes = new Uint8Array(buffer), view = new DataView(buffer);
+        const lookup = (key, id) => {
+            const values = tables[key];
+            if (!values || !Object.hasOwn(values, String(id))) return null;
+            return values[String(id)];
+        };
+        const data = Array.from({ length: 26 }, (_, i) => view.getUint32(offset + i * 4, true));
+        const rsidBytes = Array.from(bytes.subarray(offset + 116, offset + 124));
+        const rawRsid = rsidBytes[0] === 95 ? '_' + rsidBytes.slice(1, 7).map(v => v.toString(16).padStart(2, '0')).join(':') :
+            String.fromCharCode(...rsidBytes.slice(0, rsidBytes.includes(0) ? rsidBytes.indexOf(0) : 8));
+        const record = {
+            sourceIndex, data, ability1: view.getUint32(offset + 104, true), ability2: view.getUint32(offset + 108, true),
+            personal_type: bytes[offset + 112], pair_param: bytes[offset + 113], category1: bytes[offset + 114], category2: bytes[offset + 115],
+            rsidBytes, rawRsid, rsid: normalRsid(rawRsid) ? rawRsid : '',
+            left_index: view.getUint32(offset + 124, true), right_index: view.getUint32(offset + 128, true)
+        };
+        record.name = lookup('Name', data[23]) || '名称不明';
+        const display = [
+            ['アンテナ', lookup('SkillGroup', data[24])], ['頭', lookup('Head', data[1])], ['体格', lookup('Body', data[10])],
+            ['色', [lookup('BodyColor', data[11]), lookup('BodyColor', data[12])].filter(v => v !== null).join(' ') || null],
+            ['柄', lookup('BodyPattern', data[14])], ['髪', data[2]], ['髪色', lookup('HairColor', data[4])],
+            ['肌色', lookup('FaceColor', data[3])], ['目', data[5]], ['口', data[6]], ['鼻', data[7]], ['眉', data[8]], ['頬', data[9]]
+        ];
+        // Unknown IDs remain in raw records; never substitute a known appearance.
+        record.statusText = display.filter(([, v]) => v !== null).map(([k, v]) => `${k}:${v}`).join(' ');
+        record.appearanceComplete = display.filter(([k]) => k !== '体格').every(([, v]) => v !== null && v !== '指定なし');
+        record.appearanceComplete &&= [[2, 94], [5, 67], [6, 70], [7, 41], [8, 38], [9, 13]].every(([i, max]) => data[i] <= max);
+        const ability = lookup('Ability', record.ability1);
+        record.correctionName = ability === null ? null : ability || 'なし';
+        if (ability) record.statusText += ' ' + ability;
+        return record;
+    }
     async function parse(buffer, sha256, tables) {
         if (!(buffer instanceof ArrayBuffer) || buffer.byteLength < 12 || buffer.byteLength > LIMITS.bytes) fail('転送容量が不正、または上限を超えています。');
         if (typeof sha256 !== 'string' || !/^[a-f0-9]{64}$/.test(sha256) || await digest(buffer) !== sha256) fail('転送データのハッシュが一致しません。');
@@ -40,38 +73,8 @@
             indices.some(n => !integer(n) || n >= meta.sourceCount) || new Set(indices).size !== indices.length ||
             !indices.includes(meta.selectedIndex) || 12 + length + indices.length * 132 !== bytes.length) fail('レコード番号・件数・ファイル長が不正です。');
         const records = new Map();
-        const lookup = (key, id) => {
-            const values = tables[key];
-            if (!values || !Object.hasOwn(values, String(id))) return null;
-            return values[String(id)];
-        };
         indices.forEach((sourceIndex, slot) => {
-            const offset = 12 + length + slot * 132;
-            const data = Array.from({ length: 26 }, (_, i) => view.getUint32(offset + i * 4, true));
-            const rsidBytes = Array.from(bytes.subarray(offset + 116, offset + 124));
-            const rawRsid = rsidBytes[0] === 95 ? '_' + rsidBytes.slice(1, 7).map(v => v.toString(16).padStart(2, '0')).join(':') :
-                String.fromCharCode(...rsidBytes.slice(0, rsidBytes.includes(0) ? rsidBytes.indexOf(0) : 8));
-            const record = {
-                sourceIndex, data, ability1: view.getUint32(offset + 104, true), ability2: view.getUint32(offset + 108, true),
-                personal_type: bytes[offset + 112], pair_param: bytes[offset + 113], category1: bytes[offset + 114], category2: bytes[offset + 115],
-                rsidBytes, rawRsid, rsid: normalRsid(rawRsid) ? rawRsid : '',
-                left_index: view.getUint32(offset + 124, true), right_index: view.getUint32(offset + 128, true)
-            };
-            record.name = lookup('Name', data[23]) || '名称不明';
-            const display = [
-                ['アンテナ', lookup('SkillGroup', data[24])], ['頭', lookup('Head', data[1])], ['体格', lookup('Body', data[10])],
-                ['色', [lookup('BodyColor', data[11]), lookup('BodyColor', data[12])].filter(v => v !== null).join(' ') || null],
-                ['柄', lookup('BodyPattern', data[14])], ['髪', data[2]], ['髪色', lookup('HairColor', data[4])],
-                ['肌色', lookup('FaceColor', data[3])], ['目', data[5]], ['口', data[6]], ['鼻', data[7]], ['眉', data[8]], ['頬', data[9]]
-            ];
-            // Unknown IDs remain in raw records; never substitute a known appearance.
-            record.statusText = display.filter(([, v]) => v !== null).map(([k, v]) => `${k}:${v}`).join(' ');
-            record.appearanceComplete = display.filter(([k]) => k !== '体格').every(([, v]) => v !== null && v !== '指定なし');
-            record.appearanceComplete &&= [[2, 94], [5, 67], [6, 70], [7, 41], [8, 38], [9, 13]].every(([i, max]) => data[i] <= max);
-            const ability = lookup('Ability', record.ability1);
-            record.correctionName = ability === null ? null : ability || 'なし';
-            if (ability) record.statusText += ' ' + ability;
-            records.set(sourceIndex, record);
+            records.set(sourceIndex, decodeRecord(buffer, 12 + length + slot * 132, sourceIndex, tables));
         });
         for (const r of records.values()) {
             if ((r.left_index === NONE) !== (r.right_index === NONE)) fail('片方だけの親参照には対応していません。');
@@ -116,7 +119,7 @@
     }
     const matchesHistoryText = (value, parsed) => typeof value === 'string' &&
         [parsed.treeText, parsed.legacyTreeText].some(text => typeof text === 'string' && value.trim() === text.trim());
-    const api = { LIMITS, normalRsid, qrPayload, matchesHistoryText, fromBase64, toBase64, digest, parse };
+    const api = { LIMITS, normalRsid, qrPayload, matchesHistoryText, fromBase64, toBase64, digest, parse, decodeRecord };
     if (typeof module !== 'undefined' && module.exports) module.exports = api;
     root.HyperionCore = api;
 })(globalThis);

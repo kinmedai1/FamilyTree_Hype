@@ -29,7 +29,7 @@
     async function parse(buffer, sha256) {
         checkTransfer(buffer, sha256);
         return new Promise((resolve, reject) => {
-            const worker = new Worker('./js/hyperion-worker.js?v=20260912-1');
+            const worker = new Worker('./js/hyperion-worker.js?v=20260917-3');
             const timer = setTimeout(() => { worker.terminate(); reject(new Error('バイナリ解析がタイムアウトしました。')); }, 20000);
             const finish = () => { clearTimeout(timer); worker.terminate(); };
             worker.onmessage = ({ data }) => { finish(); data.ok ? resolve(data.parsed) : reject(new Error(data.error)); };
@@ -109,6 +109,20 @@
         element.hidden = !message;
         element.style.color = error ? '#ff9393' : '';
     }
+    async function importBinary(buffer, sha256, receive) {
+        checkTransfer(buffer, sha256);
+        protectedIds.add(sha256);
+        status('家系図を読み込み中…');
+        try {
+            const parsed = await parse(buffer, sha256);
+            const storageWarning = await put(buffer, sha256, parsed);
+            const historyWarning = await receive(parsed, sha256);
+            const warning = [storageWarning, historyWarning].filter(Boolean).join(' ');
+            status(warning || '家系図を表示しました。', !!warning);
+            return { ok: true, warning };
+        } catch (error) { status(error.message, true); throw error; }
+        finally { protectedIds.delete(sha256); void collect(); }
+    }
     function trustedOrigin(origin) {
         if (origin === 'https://colab.research.google.com') return true;
         if (/^https:\/\/[a-z0-9-]+-colab\.googleusercontent\.com$/.test(origin)) return true;
@@ -165,16 +179,7 @@
                 (p.started < started || (p.started === started && id < instance))).sort((a, b) => a[1].started - b[1].started)[0]?.[0];
         }
         async function applyBinary(data) {
-            protectedIds.add(data.sha256);
-            status('家系図を読み込み中…');
-            try {
-                const parsed = await parse(data.buffer, data.sha256);
-                const storageWarning = await put(data.buffer, data.sha256, parsed);
-                const historyWarning = await receive(parsed, data.sha256);
-                const warning = [storageWarning, historyWarning].filter(Boolean).join(' ');
-                status(warning || '家系図を表示しました。', !!warning);
-                return { ok: true, warning };
-            } finally { protectedIds.delete(data.sha256); void collect(); }
+            return importBinary(data.buffer, data.sha256, receive);
         }
         window.addEventListener('message', async event => {
             const d = event.data;
@@ -230,5 +235,5 @@
             } finally { processing = false; session = null; }
         });
     }
-    window.HyperionTransfer = { parse, put, get, model, collect, exportBinaries, importBinaries, finishImport, setActiveBinary, status, install };
+    window.HyperionTransfer = { parse, put, get, model, collect, exportBinaries, importBinaries, importBinary, finishImport, setActiveBinary, status, install };
 })();

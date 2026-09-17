@@ -1461,7 +1461,7 @@
                     activeHyperion = binary;
                     HyperionTransfer.setActiveBinary(binary?.binaryId);
                     const championName = tree.name || '名称不明';
-                    if (!saveToHistory(championName, input, statusString, { unread: !!(options.newHistory && binary) })) {
+                    if (!saveToHistory(championName, input, statusString, { unread: !!(options.newHistory && binary) && options.unread !== false })) {
                         options.warning = '履歴を保存できませんでした。再読み込み前に保存容量を確認してください。';
                         HyperionTransfer.status(options.warning, true);
                     }
@@ -1482,17 +1482,19 @@
             renderFamilyTree(document.getElementById('rsid-input').value);
         });
 
-        HyperionTransfer.install(async (parsed, binaryId) => {
+        async function receiveHyperionTree(parsed, binaryId, unread = true) {
             ++hyperionNavigationVersion;
             isLoadingFromHistory = false;
-            const options = { hyperion: { parsed, binaryId }, newHistory: true };
+            const options = { hyperion: { parsed, binaryId }, newHistory: true, unread };
             if (!renderFamilyTree(parsed.treeText, options)) throw new Error(document.getElementById('error-message').textContent);
             const input = document.getElementById('rsid-input');
             input.value = parsed.treeText;
             input.style.height = 'auto';
             input.style.height = `${input.scrollHeight}px`;
             return options.warning || '';
-        });
+        }
+        HyperionTransfer.install(receiveHyperionTree);
+        HyperionFileImport.install((parsed, binaryId) => receiveHyperionTree(parsed, binaryId, false), () => hyperionNavigationVersion);
 
         document.getElementById('clear-btn').addEventListener('click', () => {
             cleanupQRCodeModal?.();

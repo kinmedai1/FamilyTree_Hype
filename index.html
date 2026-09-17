@@ -8,7 +8,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="./css/app.css?v=20260917-1">
+    <link rel="stylesheet" href="./css/app.css?v=20260917-3">
 </head>
 
 <body>
@@ -85,8 +85,35 @@
                 <span id="progress-text">準備中...</span>
             </div>
         </div>
-        <details class="save-share-panel">
-            <summary>保存・共有</summary>
+        <details class="save-share-panel" id="import-panel">
+            <summary>インポート</summary>
+            <div class="save-share-content">
+                <div class="button-group">
+                    <button id="history-import-btn" class="menu-button">jsonでインポート</button>
+                    <button id="binary-import-btn" class="menu-button">バイナリでインポート</button>
+                </div>
+                <input type="file" id="binary-import-file" accept=".hype.bin,.bin" hidden>
+                <div id="binary-import-selection" hidden>
+                    <p id="binary-file-name"></p>
+                    <div id="binary-record-grid" role="group" aria-label="家系図にする個体を選択"></div>
+                    <div class="binary-pagination">
+                        <button id="binary-page-prev" class="menu-button menu-button-small" type="button">前へ</button>
+                        <label for="binary-page-number">ページ</label>
+                        <input id="binary-page-number" type="number" min="1" step="1" value="1" required>
+                        <span id="binary-page-count"></span>
+                        <button id="binary-page-go" class="menu-button menu-button-small" type="button">移動</button>
+                        <button id="binary-page-next" class="menu-button menu-button-small" type="button">次へ</button>
+                    </div>
+                    <div class="binary-selection-footer">
+                        <span id="binary-selected-name" aria-live="polite">個体を選択してください</span>
+                        <button id="binary-open-btn" class="menu-button menu-button-gold" type="button" disabled>この個体の家系図を開く</button>
+                    </div>
+                </div>
+                <p id="binary-import-message" role="status" aria-live="polite"></p>
+            </div>
+        </details>
+        <details class="save-share-panel" id="export-panel">
+            <summary>エクスポート</summary>
             <div class="save-share-content">
                 <div class="webhook-settings">
                     <label for="webhook-url-input">Webhook URL:</label>
@@ -98,7 +125,6 @@
                     <button id="save-btn" class="menu-button">画像として保存</button>
                     <button id="webhook-share-btn" class="menu-button">Webhookで共有</button>
                     <button id="history-export-btn" class="menu-button">jsonでエクスポート</button>
-                    <button id="history-import-btn" class="menu-button">jsonでインポート</button>
                 </div>
             </div>
         </details>
@@ -124,11 +150,12 @@
 
     <script src="./js/face-renderer.js?v=20260915-1"></script>
     <script src="./js/sp-aura.js?v=20260915-4"></script>
-    <script src="./js/hyperion-core.js?v=20260912-1"></script>
+    <script src="./js/hyperion-core.js?v=20260917-3"></script>
     <script src="./js/status-summary.js?v=20260916-3"></script>
     <script src="./js/status-effects-panel.js?v=20260916-12"></script>
-    <script src="./js/hyperion-transfer.js?v=20260912-1"></script>
-    <script src="./js/app.js?v=20260917-1"></script>
+    <script src="./js/hyperion-transfer.js?v=20260917-3"></script>
+    <script src="./js/hyperion-file-import.js?v=20260917-3"></script>
+    <script src="./js/app.js?v=20260917-3"></script>
 </body>
 
 </html>
