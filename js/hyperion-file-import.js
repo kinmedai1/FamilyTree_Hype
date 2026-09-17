@@ -16,7 +16,8 @@
         const byId = id => document.getElementById(id);
         const choose = byId('binary-import-btn'), input = byId('binary-import-file'), selection = byId('binary-import-selection');
         const list = byId('binary-record-grid'), open = byId('binary-open-btn'), previous = byId('binary-page-prev'), next = byId('binary-page-next');
-        const pageNumber = byId('binary-page-number'), go = byId('binary-page-go'), message = byId('binary-import-message');
+        const pageNumber = byId('binary-page-number'), message = byId('binary-import-message');
+        let pageJumpTimer;
         let file = null, info = null, page = 0, busy = false, selectedIndex = null, resultsOnly = false, originIndex = null;
         let dataset = null;
         const visibleCount = () => info ? info.count - (resultsOnly ? info.start : 0) : 0;
@@ -57,12 +58,13 @@
         }
         function controls() {
             choose.disabled = busy;
-            for (const control of [open, previous, next, pageNumber, go, ...list.querySelectorAll('button')]) control.disabled = busy || !file;
+            for (const control of [open, previous, next, pageNumber, ...list.querySelectorAll('button')]) control.disabled = busy || !file;
             open.disabled ||= selectedIndex === null;
             previous.disabled ||= page <= 0;
             next.disabled ||= !info || page + 1 >= Math.ceil(visibleCount() / info.pageSize);
         }
         async function run(task) {
+            clearTimeout(pageJumpTimer);
             if (busy) return;
             busy = true; controls();
             message.textContent = '読み込み中…'; message.classList.remove('is-error');
@@ -112,7 +114,8 @@
             page = result.page;
             pageNumber.value = String(page + 1); pageNumber.max = String(result.pages);
             byId('binary-page-count').textContent = `／ ${result.pages} ページ`;
-            byId('binary-file-name').textContent = resultsOnly ? `${info.name}（最終個体 ${visibleCount().toLocaleString()}体）` : `${info.name}（${info.count.toLocaleString()}体）`;
+            const fileLabel = resultsOnly && dataset?.meta.searchSourceFileName ? `${dataset.meta.searchSourceFileName} の検索結果` : info.name;
+            byId('binary-file-name').textContent = resultsOnly ? `${fileLabel}（最終個体${visibleCount().toLocaleString()}体）` : `${info.name}（${info.count.toLocaleString()}体）`;
             if (!result.records.length) list.append(element('p', '', 'このファイルに最終個体はありません。'));
             selection.hidden = false;
             message.textContent = '';
@@ -146,14 +149,18 @@
         });
         previous.addEventListener('click', () => { void run(() => showPage(page - 1)); });
         next.addEventListener('click', () => { void run(() => showPage(page + 1)); });
-        const jump = () => { void run(async () => {
-            const target = Number(pageNumber.value);
-            if (!Number.isInteger(target) || target < 1 || target > Math.max(1, Math.ceil(visibleCount() / info.pageSize))) {
-                throw new Error('表示できるページ番号を入力してください。');
-            }
-            await showPage(target - 1);
-        }); };
-        go.addEventListener('click', jump);
+        const jump = () => {
+            clearTimeout(pageJumpTimer);
+            if (busy || !info || !pageNumber.validity.valid) return;
+            const target = pageNumber.valueAsNumber;
+            if (!Number.isInteger(target) || target < 1 || target > Math.max(1, Math.ceil(visibleCount() / info.pageSize)) || target === page + 1) return;
+            void run(() => showPage(target - 1));
+        };
+        pageNumber.addEventListener('input', () => {
+            clearTimeout(pageJumpTimer);
+            pageJumpTimer = setTimeout(jump, 300);
+        });
+        pageNumber.addEventListener('change', jump);
         pageNumber.addEventListener('keydown', event => { if (event.key === 'Enter') { event.preventDefault(); jump(); } });
         open.addEventListener('click', () => { void run(async () => {
             if (selectedIndex === null) throw new Error('表示する個体を選択してください。');
@@ -174,6 +181,7 @@
             HyperionDataset.validate(meta, index);
             if (busy) throw new Error('個体一覧を操作中です。完了後にColabから再試行してください。');
             if (!(candidate instanceof Blob) || candidate.size !== meta.size) throw new Error('結果ファイルを再送信してください。');
+            clearTimeout(pageJumpTimer);
             busy = true; controls();
             const navigation = navigationVersion();
             message.textContent = '結果ファイルを確認中…'; message.classList.remove('is-error');

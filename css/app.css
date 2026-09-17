@@ -1345,7 +1345,7 @@ button:hover {
 .binary-pagination, .binary-selection-footer { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
 .binary-pagination { font-size: 13px; }
 #binary-page-number { width: 58px; padding: 6px; border: 1px solid #69bace; border-radius: 6px; color: #244e64; background: #e8fcff; }
-.binary-selection-footer { justify-content: space-between; }
+.binary-selection-footer { flex-direction: column; justify-content: center; }
 #binary-selected-name { font-size: 13px; }
 #binary-import-message { font-size: 13px; margin: 10px 0 0; }
 #binary-import-message:empty { display: none; }
@@ -1933,7 +1933,7 @@ button:hover {
 .menu-button-danger { --button-top: #ffe2e4; --button-bottom: #edb0b9; --button-edge: #c88597; }
 :is(#paste-btn, #generate-btn, #clear-btn, #collapse-all-btn, #convert-rsid-btn,
     #save-btn, #webhook-share-btn, #history-export-btn, #history-import-btn,
-    #binary-import-btn, #binary-open-btn, #binary-page-prev, #binary-page-next, #binary-page-go,
+    #binary-import-btn, #binary-open-btn, #binary-page-prev, #binary-page-next,
     #show-register-btn, #pid-del-btn, #pid-add-btn, #webhook-save-btn, #history-clear-btn).menu-button,
 .history-new-item {
     box-sizing: border-box;
@@ -1957,7 +1957,7 @@ button:hover {
 }
 .container .menu-button:active:not(:disabled), #history-clear-btn:active:not(:disabled), .history-new-item:active { transform: translateY(2px); }
 .container .menu-button:disabled { opacity: .5; cursor: not-allowed; transform: none; filter: saturate(.5); }
-:is(#show-register-btn, #pid-del-btn, #pid-add-btn, #webhook-save-btn, #history-clear-btn, #binary-page-prev, #binary-page-next, #binary-page-go).menu-button-small { min-height: 36px; padding: 6px 14px; font-size: 12px; border-radius: 10px; }
+:is(#show-register-btn, #pid-del-btn, #pid-add-btn, #webhook-save-btn, #history-clear-btn, #binary-page-prev, #binary-page-next).menu-button-small { min-height: 36px; padding: 6px 14px; font-size: 12px; border-radius: 10px; }
 .step-number { margin-right: 5px; font-size: 1.1em; }
 .primary-actions { gap: 12px; }
 .player-id-area, .save-share-panel {

@@ -7,6 +7,7 @@
             !Number.isInteger(meta.count) || !Number.isInteger(meta.start) || meta.start < 0 || meta.start > meta.count ||
             meta.size !== 8 + meta.count * 132 || !Number.isInteger(index) || index < 0 || index >= meta.count ||
             typeof meta.fileName !== 'string' || !meta.fileName || meta.fileName.length > 255 ||
+            (meta.searchSourceFileName !== undefined && (typeof meta.searchSourceFileName !== 'string' || !meta.searchSourceFileName || meta.searchSourceFileName.length > 255)) ||
             !/^[a-f0-9]{64}$/.test(meta.sha256) || typeof meta.tableVersion !== 'string') {
             throw new Error('結果ファイルの形式・容量・選択番号が不正です（転送上限100 MiB）。');
         }
