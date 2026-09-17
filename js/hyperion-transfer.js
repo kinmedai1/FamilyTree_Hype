@@ -135,12 +135,16 @@
     }
     function install(receive) {
         window.name = 'HyperionFamilyTree';
-        let session = null, processing = false, relayCloseTimer = null;
+        let session = null, sessionTimer, processing = false, relayCloseTimer = null;
+        const touchSession = () => {
+            clearTimeout(sessionTimer);
+            sessionTimer = setTimeout(() => { if (!processing) session = null; }, 65000);
+        };
         const completed = new Map();
         // A manually opened tab can be in a different browsing-context group.
         // A newly opened same-origin tab relays to the older tab, then closes itself.
         const instance = crypto.randomUUID(), started = performance.timeOrigin;
-        const peers = new Map(), relayRequests = new Map();
+        const peers = new Map(), relayRequests = new Map(), cacheRequests = new Map();
         const channel = typeof BroadcastChannel === 'function' ? new BroadcastChannel('hyperion-tree:' + new URL('.', location.href).pathname) : null;
         const announce = () => channel?.postMessage({ type: 'present', instance, started });
         channel?.addEventListener('message', async ({ data: message }) => {
@@ -150,6 +154,16 @@
                 peers.set(message.instance, { started: message.started, seen: Date.now() }); return;
             }
             if (message.target !== instance) return;
+            if (message.type === 'dataset-cache-query') {
+                channel.postMessage({ type: 'dataset-cache-result', instance, target: message.instance, requestId: message.requestId,
+                    cached: !!message.meta && HyperionFileImport.hasDataset(message.meta) });
+                return;
+            }
+            if (message.type === 'dataset-cache-result') {
+                const pending = cacheRequests.get(message.requestId);
+                if (pending?.owner === message.instance) { cacheRequests.delete(message.requestId); clearTimeout(pending.timer); pending.resolve(message.cached === true); }
+                return;
+            }
             if (message.type === 'relay-result') {
                 const pending = relayRequests.get(message.transferId);
                 if (pending && pending.owner === message.instance) { relayRequests.delete(message.transferId); clearTimeout(pending.timer); pending.resolve(message.result); }
@@ -179,6 +193,10 @@
                 (p.started < started || (p.started === started && id < instance))).sort((a, b) => a[1].started - b[1].started)[0]?.[0];
         }
         async function applyBinary(data) {
+            if (data.dataset) {
+                HyperionDataset.validate(data.dataset, data.selectedIndex);
+                return HyperionFileImport.receiveDataset(data.file || HyperionFileImport.getDataset(data.dataset), data.dataset, data.selectedIndex);
+            }
             return importBinary(data.buffer, data.sha256, receive);
         }
         window.addEventListener('message', async event => {
@@ -204,23 +222,52 @@
                 relayCloseTimer = null;
                 if (processing) { reply({ ok: false, error: '別の家系図を読み込み中です。完了後に再試行してください。' }); return; }
                 if (!session || session.transferId !== d.transferId || session.source !== event.source || session.origin !== event.origin) {
+                    if (session?.dataset && Date.now() - session.created < 65000) {
+                        reply({ ok: false, error: '別の結果ファイルを受信中です。完了後に再試行してください。' }); return;
+                    }
                     session = { transferId: d.transferId, source: event.source, origin: event.origin, challenge: crypto.randomUUID(), created: Date.now() };
                 }
-                event.source.postMessage({ type: 'hyperion-ready', transferId: d.transferId, challenge: session.challenge }, event.origin);
+                touchSession();
+                event.source.postMessage({ type: 'hyperion-ready', transferId: d.transferId, challenge: session.challenge, dataset: true }, event.origin);
                 return;
             }
-            if (d.type !== 'hyperion-data' || processing || !session || Date.now() - session.created > 65000 ||
+            const datasetMessage = ['hyperion-dataset-begin', 'hyperion-dataset-chunk', 'hyperion-dataset-end', 'hyperion-dataset-abort'].includes(d.type);
+            if ((!datasetMessage && d.type !== 'hyperion-data') || processing || !session || Date.now() - session.created > 65000 ||
                 session.source !== event.source || session.origin !== event.origin || session.transferId !== d.transferId || session.challenge !== d.challenge) return;
+            let payload = d;
+            if (datasetMessage) {
+                if (d.type === 'hyperion-dataset-abort') { session = null; clearTimeout(sessionTimer); return; }
+                try {
+                    if (d.type === 'hyperion-dataset-begin') {
+                        HyperionDataset.validate(d.meta, d.selectedIndex);
+                        // Probe the actual destination when a newly opened tab relays to an older tab.
+                        processing = true;
+                        try {
+                            session.owner = await olderPeer();
+                            if (session.owner) session.remoteCached = await new Promise(resolve => {
+                                const requestId = crypto.randomUUID();
+                                const timer = setTimeout(() => { cacheRequests.delete(requestId); resolve(false); }, 2000);
+                                cacheRequests.set(requestId, { owner: session.owner, resolve, timer });
+                                channel.postMessage({ type: 'dataset-cache-query', instance, target: session.owner, requestId, meta: d.meta });
+                            });
+                        } finally { processing = false; }
+                    }
+                    session.created = Date.now(); touchSession();
+                    payload = HyperionDataset.accept(d, session, details => event.source.postMessage({ type: 'hyperion-dataset-ack',
+                        transferId: d.transferId, challenge: session.challenge, ...details }, event.origin));
+                    if (!payload) return;
+                } catch (error) { session = null; clearTimeout(sessionTimer); status(error.message, true); reply({ ok: false, error: error.message }); return; }
+            }
             processing = true;
             status('家系図を読み込み中…');
             try {
-                checkTransfer(d.buffer, d.sha256);
-                const owner = await olderPeer();
+                if (!payload.dataset) checkTransfer(payload.buffer, payload.sha256);
+                const owner = payload.dataset ? session.owner : await olderPeer();
                 const result = owner ? await new Promise((resolve, reject) => {
-                    const timer = setTimeout(() => { relayRequests.delete(d.transferId); reject(new Error('開いているサイトのタブに接続できませんでした。再試行してください。')); }, 25000);
+                    const timer = setTimeout(() => { relayRequests.delete(d.transferId); reject(new Error('開いているサイトのタブに接続できませんでした。再試行してください。')); }, payload.dataset ? 180000 : 25000);
                     relayRequests.set(d.transferId, { resolve, owner, timer });
-                    channel.postMessage({ type: 'relay-data', instance, target: owner, transferId: d.transferId, buffer: d.buffer, sha256: d.sha256 });
-                }) : await applyBinary(d);
+                    channel.postMessage({ ...payload, type: 'relay-data', instance, target: owner, transferId: d.transferId });
+                }) : await applyBinary(payload);
                 if (!result.ok) throw new Error(result.error);
                 completed.set(d.transferId, { source: event.source, origin: event.origin, result });
                 while (completed.size > 100) completed.delete(completed.keys().next().value);
@@ -232,7 +279,7 @@
             } catch (error) {
                 status(error.message, true);
                 reply({ ok: false, error: error.message });
-            } finally { processing = false; session = null; }
+            } finally { processing = false; session = null; clearTimeout(sessionTimer); }
         });
     }
     window.HyperionTransfer = { parse, put, get, model, collect, exportBinaries, importBinaries, importBinary, finishImport, setActiveBinary, status, install };

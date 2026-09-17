@@ -23,6 +23,15 @@
     }
     let snapshot;
     async function prepare(index) {
+        if (config.dataset) {
+            if (config.dataset.error) throw new Error(config.dataset.error);
+            const { meta, chunks } = config.dataset;
+            if (!meta || meta.version !== 1 || !Number.isSafeInteger(meta.size) || meta.size < 140 || meta.size > 100 * 1024 * 1024 ||
+                !Number.isInteger(meta.count) || meta.size !== 8 + meta.count * 132 || !Number.isInteger(meta.start) || meta.start < 0 || meta.start > meta.count ||
+                !/^[a-f0-9]{64}$/.test(meta.sha256) || !Array.isArray(chunks) || chunks.length !== Math.ceil(meta.size / (1024 * 1024)) ||
+                !Number.isInteger(index) || index < 0 || index >= meta.count) throw new Error('結果欄のファイル情報が不正です。検索・出生結果を表示し直してください。');
+            return { dataset: meta, chunks, selectedIndex: index };
+        }
         if (config.snapshot?.error) throw new Error(config.snapshot.error);
         if (!config.snapshot?.meta || typeof config.snapshot.base64 !== 'string') {
             throw new Error('この結果欄には転送用データがありません。更新済みNotebookで検索・出生結果を表示し直してください。');
@@ -82,13 +91,13 @@
         if (state.busy && Date.now() < state.busyUntil && !state.busyOwner?.closed) return;
         state.busy = true;
         state.busyOwner = window;
-        state.busyUntil = Date.now() + 65000;
+        state.busyUntil = Date.now() + 305000;
         button.disabled = true;
         button.textContent = '送信中';
         button.parentElement.querySelector('.hyperion-send-error')?.remove();
         const transferId = crypto.randomUUID();
         state.transferId = transferId;
-        let timer, pulse, listener, finished = false;
+        let timer, pulse, listener, sessionChallenge, finished = false, succeeded = false;
         try {
             let popup = state.popup;
             if (!popup || popup.closed) popup = state.open ? state.open() : window.open('', 'HyperionFamilyTree');
@@ -97,10 +106,17 @@
             try { if (popup.location.href === 'about:blank') popup.location.replace(site.href); } catch (_) { /* Existing cross-origin tab. */ }
             if (state.focus) state.focus(); else popup.focus();
             const exchange = new Promise((resolve, reject) => {
-                let prepared, ready, sent = false;
+                let prepared, ready, sent = false, nextChunk = 0, committed = false;
                 const send = () => {
                     if (!prepared || !ready || sent || finished) return;
                     try {
+                        if (prepared.dataset) {
+                            if (ready.dataset !== true) throw new Error('サイトが全体転送に対応していません。サイトを更新して再読み込みしてください。');
+                            popup.postMessage({ type: 'hyperion-dataset-begin', version: 1, transferId, challenge: ready.challenge,
+                                meta: prepared.dataset, selectedIndex: index }, origin);
+                            sent = true;
+                            return;
+                        }
                         const buffer = prepared.buffer;
                         popup.postMessage({ type: 'hyperion-data', version: 1, transferId, challenge: ready.challenge, sha256: prepared.sha256, buffer }, origin, [buffer]);
                         sent = true;
@@ -109,7 +125,27 @@
                 listener = event => {
                     if (event.source !== popup || event.origin !== origin || event.data?.transferId !== transferId) return;
                     const data = event.data;
-                    if (data.type === 'hyperion-ready' && typeof data.challenge === 'string') { ready = data; send(); }
+                    if (data.type === 'hyperion-ready' && typeof data.challenge === 'string') { ready = data; sessionChallenge = data.challenge; send(); }
+                    if (data.type === 'hyperion-dataset-ack' && prepared?.dataset && sent && !committed && data.challenge === ready?.challenge) {
+                        try {
+                            if (data.next !== nextChunk || typeof data.cached !== 'boolean' || (data.cached && nextChunk !== 0)) throw new Error('転送の応答順序が不正です。再試行してください。');
+                            const envelope = { version: 1, transferId, challenge: ready.challenge };
+                            if (data.cached || nextChunk === prepared.chunks.length) {
+                                committed = true;
+                                button.textContent = data.cached ? '個体を切替中' : '家系図を読込中';
+                                popup.postMessage({ ...envelope, type: 'hyperion-dataset-end' }, origin);
+                            } else {
+                                const encoded = prepared.chunks[nextChunk];
+                                const expected = Math.min(1024 * 1024, prepared.dataset.size - nextChunk * 1024 * 1024);
+                                if (typeof encoded !== 'string' || encoded.length !== Math.ceil(expected / 3) * 4) throw new Error('結果欄の分割データが不正です。');
+                                const bytes = Uint8Array.from(atob(encoded), c => c.charCodeAt(0));
+                                if (bytes.length !== expected) throw new Error('結果欄の分割データが途中で切れています。');
+                                popup.postMessage({ ...envelope, type: 'hyperion-dataset-chunk', index: nextChunk, buffer: bytes.buffer }, origin, [bytes.buffer]);
+                                nextChunk++;
+                                button.textContent = `送信中 ${Math.floor(nextChunk / prepared.chunks.length * 100)}%`;
+                            }
+                        } catch (error) { reject(error); }
+                    }
                     if (data.type === 'hyperion-result') {
                         if (data.ok) resolve(data); else reject(new Error(data.error || '受信に失敗しました。'));
                     }
@@ -124,13 +160,14 @@
                 timer = setTimeout(() => {
                     const phase = !ready ? 'サイトからの応答待ち' : !prepared ? '結果欄のデータ準備待ち' : 'サイトでの受信・表示完了待ち';
                     reject(new Error(`サイトとの通信がタイムアウトしました（${phase}）。サイトを再読み込みして再試行してください。送信元: ${location.origin}`));
-                }, 60000);
+                }, config.dataset ? 300000 : 60000);
                 prepare(index).then(result => {
                     prepared = result;
                     send();
                 }).catch(reject);
             });
             const result = await exchange;
+            succeeded = true;
             button.title = result.warning || '家系図を表示しました。';
             button.textContent = '家系図';
         } catch (error) {
@@ -141,6 +178,9 @@
             message.textContent = error.message;
         } finally {
             finished = true;
+            if (!succeeded && config.dataset && sessionChallenge) {
+                try { state.popup?.postMessage({ type: 'hyperion-dataset-abort', version: 1, transferId, challenge: sessionChallenge }, origin); } catch (_) { /* Closed tab. */ }
+            }
             clearTimeout(timer); clearInterval(pulse);
             if (listener) window.removeEventListener('message', listener);
             button.disabled = false;

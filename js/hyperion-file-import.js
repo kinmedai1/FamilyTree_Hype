@@ -3,7 +3,7 @@
     'use strict';
     function request(action, file, options = {}) {
         return new Promise((resolve, reject) => {
-            const worker = new Worker('./js/hyperion-file-worker.js?v=20260917-3');
+            const worker = new Worker('./js/hyperion-file-worker.js?v=20260918-1');
             const timer = setTimeout(() => { worker.terminate(); reject(new Error('ファイルの読込がタイムアウトしました。再試行してください。')); }, 60000);
             const finish = () => { clearTimeout(timer); worker.terminate(); };
             worker.onmessage = ({ data }) => { finish(); data.ok ? resolve(data.result) : reject(new Error(data.error)); };
@@ -17,7 +17,9 @@
         const choose = byId('binary-import-btn'), input = byId('binary-import-file'), selection = byId('binary-import-selection');
         const list = byId('binary-record-grid'), open = byId('binary-open-btn'), previous = byId('binary-page-prev'), next = byId('binary-page-next');
         const pageNumber = byId('binary-page-number'), go = byId('binary-page-go'), message = byId('binary-import-message');
-        let file = null, info = null, page = 0, busy = false, selectedIndex = null;
+        let file = null, info = null, page = 0, busy = false, selectedIndex = null, resultsOnly = false, originIndex = null;
+        let dataset = null;
+        const visibleCount = () => info ? info.count - (resultsOnly ? info.start : 0) : 0;
         let faceGeneration = 0, observer = null, faceQueue = [], renderingFace = false;
         const element = (tag, className, text) => {
             const el = document.createElement(tag);
@@ -58,7 +60,7 @@
             for (const control of [open, previous, next, pageNumber, go, ...list.querySelectorAll('button')]) control.disabled = busy || !file;
             open.disabled ||= selectedIndex === null;
             previous.disabled ||= page <= 0;
-            next.disabled ||= !info || page + 1 >= Math.ceil(info.count / info.pageSize);
+            next.disabled ||= !info || page + 1 >= Math.ceil(visibleCount() / info.pageSize);
         }
         async function run(task) {
             if (busy) return;
@@ -68,8 +70,8 @@
             catch (error) { message.textContent = error.message; message.classList.add('is-error'); }
             finally { busy = false; controls(); }
         }
-        async function showPage(target) {
-            const result = await request('list', file, { page: target });
+        async function showPage(target, prepared) {
+            const result = prepared || await request('list', file, { page: target, resultsOnly });
             stopFaces(); selectedIndex = null;
             byId('binary-selected-name').textContent = '個体を選択してください';
             const fragment = document.createDocumentFragment();
@@ -86,6 +88,10 @@
                 const label = element('span', 'binary-record-face-note', '顔を描画中…');
                 face.append(canvas, label);
                 button.append(face, element('span', 'binary-record-name', record.name), element('span', 'binary-record-number', `No.${record.index + 1}`));
+                if (record.index === originIndex) {
+                    button.dataset.colabSelected = 'true';
+                    button.append(element('span', 'binary-record-origin', 'Colabで選択'));
+                }
                 if (record.appearanceComplete && DenpamenFaceRenderer.hasCompleteAppearance(record.statusText)) {
                     canvas.dataset.state = 'loading';
                     jobs.set(canvas, { canvas, record, label, generation: faceGeneration });
@@ -106,7 +112,8 @@
             page = result.page;
             pageNumber.value = String(page + 1); pageNumber.max = String(result.pages);
             byId('binary-page-count').textContent = `／ ${result.pages} ページ`;
-            byId('binary-file-name').textContent = `${info.name}（${info.count.toLocaleString()}体）`;
+            byId('binary-file-name').textContent = resultsOnly ? `${info.name}（最終個体 ${visibleCount().toLocaleString()}体）` : `${info.name}（${info.count.toLocaleString()}体）`;
+            if (!result.records.length) list.append(element('p', '', 'このファイルに最終個体はありません。'));
             selection.hidden = false;
             message.textContent = '';
             if (typeof IntersectionObserver === 'function') {
@@ -127,7 +134,9 @@
             if (!candidate || busy) return;
             void run(async () => {
                 stopFaces(); selectedIndex = null;
-                file = null; info = null; selection.hidden = true; list.replaceChildren();
+                file = null; info = null; dataset = null; resultsOnly = false; originIndex = null;
+                byId('binary-colab-selection').hidden = true;
+                selection.hidden = true; list.replaceChildren();
                 const inspected = await request('inspect', candidate);
                 file = candidate; info = inspected;
                 const selected = info.start < info.count ? info.start : 0;
@@ -139,7 +148,7 @@
         next.addEventListener('click', () => { void run(() => showPage(page + 1)); });
         const jump = () => { void run(async () => {
             const target = Number(pageNumber.value);
-            if (!Number.isInteger(target) || target < 1 || target > Math.ceil(info.count / info.pageSize)) {
+            if (!Number.isInteger(target) || target < 1 || target > Math.max(1, Math.ceil(visibleCount() / info.pageSize))) {
                 throw new Error('表示できるページ番号を入力してください。');
             }
             await showPage(target - 1);
@@ -153,11 +162,56 @@
             const sha256 = await HyperionCore.digest(buffer);
             const result = await HyperionTransfer.importBinary(buffer, sha256, async (parsed, id) => {
                 if (navigationVersion() !== navigation) throw new Error('表示する家系図が切り替わったため、読込を中止しました。必要ならもう一度開いてください。');
-                return receive(parsed, id);
+                return receive(parsed, id, false);
             });
             message.textContent = result.warning || '家系図を表示し、新しい履歴に追加しました。';
             message.classList.toggle('is-error', !!result.warning);
         }); });
+        const sameDataset = meta => !!dataset && ['sha256', 'size', 'fileName', 'tableVersion', 'start', 'count'].every(key => dataset.meta[key] === meta[key]);
+        window.HyperionFileImport.hasDataset = sameDataset;
+        window.HyperionFileImport.getDataset = meta => sameDataset(meta) ? dataset.file : null;
+        window.HyperionFileImport.receiveDataset = async (candidate, meta, index) => {
+            HyperionDataset.validate(meta, index);
+            if (busy) throw new Error('個体一覧を操作中です。完了後にColabから再試行してください。');
+            if (!(candidate instanceof Blob) || candidate.size !== meta.size) throw new Error('結果ファイルを再送信してください。');
+            busy = true; controls();
+            const navigation = navigationVersion();
+            message.textContent = '結果ファイルを確認中…'; message.classList.remove('is-error');
+            try {
+                const cached = sameDataset(meta) && candidate === dataset.file;
+                const inspected = cached ? dataset.info : await request('verify', candidate, { meta });
+                const target = Math.max(0, Math.floor((index - inspected.start) / inspected.pageSize));
+                const prepared = await request('list', candidate, { page: target, resultsOnly: true });
+                const buffer = await request('extract', candidate, { index });
+                const sha256 = await HyperionCore.digest(buffer);
+                let selectedName;
+                const result = await HyperionTransfer.importBinary(buffer, sha256, async (parsed, id) => {
+                    if (navigationVersion() !== navigation) throw new Error('表示する家系図が切り替わったため、読込を中止しました。Colabから再試行してください。');
+                    selectedName = parsed.tree.name;
+                    return receive(parsed, id, true);
+                });
+                // Commit the temporary picker only after validation and successful tree import.
+                file = candidate; info = inspected; resultsOnly = true; originIndex = index;
+                dataset = { file, info, meta: { ...meta } };
+                byId('import-panel').open = true;
+                const origin = byId('binary-colab-selection');
+                origin.textContent = `Colabで選択：No.${index + 1} ${selectedName}`;
+                origin.hidden = false;
+                await showPage(target, prepared);
+                const selected = list.querySelector(`[data-index="${index}"]`);
+                if (selected) {
+                    selectedIndex = index; selected.setAttribute('aria-pressed', 'true');
+                    byId('binary-selected-name').textContent = `No.${index + 1} ${selectedName}`;
+                    // Scroll the list itself, keeping the page and family-tree position stable.
+                    list.scrollTop = selected.offsetTop - list.offsetTop;
+                }
+                message.textContent = result.warning || '結果の一覧を受け取り、選択個体の家系図を表示しました。';
+                message.classList.toggle('is-error', !!result.warning);
+                return result;
+            } catch (error) {
+                message.textContent = error.message; message.classList.add('is-error'); throw error;
+            } finally { busy = false; controls(); }
+        };
         controls();
     }
     window.HyperionFileImport = { install };

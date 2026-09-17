@@ -12,10 +12,11 @@
         if (!count) throw new Error('保存ファイルに個体がありません。');
         return { start, count, name: file.name || 'import.hype.bin', pageSize: PAGE_SIZE };
     }
-    async function list(file, page, tables) {
-        const info = await inspect(file), pages = Math.ceil(info.count / PAGE_SIZE);
+    async function list(file, page, tables, resultsOnly = false) {
+        const info = await inspect(file), firstIndex = resultsOnly ? info.start : 0;
+        const visibleCount = info.count - firstIndex, pages = Math.max(1, Math.ceil(visibleCount / PAGE_SIZE));
         if (!Number.isInteger(page) || page < 0 || page >= pages) throw new Error('一覧のページ番号が不正です。');
-        const first = page * PAGE_SIZE, last = Math.min(first + PAGE_SIZE, info.count);
+        const first = firstIndex + page * PAGE_SIZE, last = Math.min(first + PAGE_SIZE, info.count);
         const buffer = await file.slice(8 + first * RECORD_SIZE, 8 + last * RECORD_SIZE).arrayBuffer();
         const records = [];
         for (let slot = 0; slot < last - first; slot++) {
@@ -23,7 +24,7 @@
             const record = Core.decodeRecord(buffer, offset, first + slot, tables);
             records.push({ index: record.sourceIndex, name: record.name, statusText: record.statusText, appearanceComplete: record.appearanceComplete });
         }
-        return { ...info, page, pages, records };
+        return { ...info, page, pages, records, visibleCount };
     }
     async function extract(file, selectedIndex, tables) {
         const info = await inspect(file);

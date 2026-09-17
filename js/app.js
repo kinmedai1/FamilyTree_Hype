@@ -1494,7 +1494,7 @@
             return options.warning || '';
         }
         HyperionTransfer.install(receiveHyperionTree);
-        HyperionFileImport.install((parsed, binaryId) => receiveHyperionTree(parsed, binaryId, false), () => hyperionNavigationVersion);
+        HyperionFileImport.install((parsed, binaryId, unread = false) => receiveHyperionTree(parsed, binaryId, unread), () => hyperionNavigationVersion);
 
         document.getElementById('clear-btn').addEventListener('click', () => {
             cleanupQRCodeModal?.();
