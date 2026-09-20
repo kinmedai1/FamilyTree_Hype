@@ -9,6 +9,7 @@
     <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="./css/app.css?v=20260918-3">
+    <link rel="stylesheet" href="./css/training-support.css?v=20260919-1">
 </head>
 
 <body>
@@ -85,6 +86,10 @@
                 <span id="progress-text">準備中...</span>
             </div>
         </div>
+        <details class="training-panel" id="training-panel">
+            <summary>育成サポート</summary>
+            <div id="training-content"></div>
+        </details>
         <details class="save-share-panel" id="import-panel">
             <summary>インポート</summary>
             <div class="save-share-content">
@@ -156,7 +161,9 @@
     <script src="./js/hyperion-dataset.js?v=20260918-4"></script>
     <script src="./js/hyperion-transfer.js?v=20260918-1"></script>
     <script src="./js/hyperion-file-import.js?v=20260918-4"></script>
-    <script src="./js/app.js?v=20260918-1"></script>
+    <script src="./js/training-core.js?v=20260919-1"></script>
+    <script src="./js/training-support.js?v=20260919-1"></script>
+    <script src="./js/app.js?v=20260919-1"></script>
 </body>
 
 </html>

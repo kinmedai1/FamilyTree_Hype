@@ -175,6 +175,7 @@
             history = history.filter(h => h.id !== entryId);
             if (currentActiveHistoryId === entryId) {
                 currentActiveHistoryId = null;
+                TrainingSupport.detach();
             }
             localStorage.setItem('rsidHistory', JSON.stringify(history));
             renderHistoryList();
@@ -187,6 +188,7 @@
         function clearAllHistory() {
             localStorage.removeItem('rsidHistory');
             currentActiveHistoryId = null;
+            TrainingSupport.detach();
             renderHistoryList();
             void HyperionTransfer.collect([]);
         }
@@ -221,6 +223,7 @@
                 qr.dataset.id = displayId;
                 new QRCode(qr, { text: payload, width: 150, height: 150 });
             }
+            TrainingSupport.refreshQR();
         }
 
         function restoreConversionState(playerIdHex) {
@@ -1467,6 +1470,8 @@
                     }
                 }
                 isLoadingFromHistory = false;
+                TrainingSupport.attach(tree, binary?.parsed.records || [], currentActiveHistoryId,
+                    getHistory().find(entry => entry.id === currentActiveHistoryId)?.trainingSupport);
                 return true;
 
             } catch (e) {
@@ -1495,8 +1500,20 @@
         }
         HyperionTransfer.install(receiveHyperionTree);
         HyperionFileImport.install((parsed, binaryId, unread = false) => receiveHyperionTree(parsed, binaryId, unread), () => hyperionNavigationVersion);
+        TrainingSupport.install({
+            save: (historyId, progress) => {
+                const history = getHistory();
+                const entry = history.find(item => item.id === historyId);
+                if (!entry) return false;
+                entry.trainingSupport = progress;
+                localStorage.setItem('rsidHistory', JSON.stringify(history));
+                return true;
+            },
+            qr: node => document.getElementById(node.uniqueId)?.querySelector('.qr-code')?.dataset.id || node.rsid
+        });
 
         document.getElementById('clear-btn').addEventListener('click', () => {
+            TrainingSupport.detach();
             cleanupQRCodeModal?.();
             ++hyperionNavigationVersion;
             if (activeHyperion) currentActiveHistoryId = null;
