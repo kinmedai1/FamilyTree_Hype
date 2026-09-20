@@ -211,10 +211,58 @@
                 }
                 return false;
             }
-            if (search(start, 0, [])) return { status: 'optimal', actions: solution, trips: solution.filter(a => a.type === 'train').length, explored, elapsed: Date.now() - started };
+            if (search(start, 0, [])) return { status: 'optimal', actions: deferAdmissions(m, solution, slots, start), trips: solution.filter(a => a.type === 'train').length, explored, elapsed: Date.now() - started };
             if (limit) return { status: 'limit', lowerBound: bound, explored, elapsed: Date.now() - started };
         }
         return { status: 'impossible', explored, elapsed: Date.now() - started };
+    }
+    // The search may admit independent individuals early to reduce branching.
+    // Move admissions to their latest legal position before showing the plan.
+    // Each adjacent swap must remain legal AND reach the same state, so training
+    // batches, the minimum number of trips, residency and admission order survive.
+    function deferAdmissions(m, actions, slots, start = initial(m)) {
+        replay(m, actions, slots, start);
+        let plan = actions.map(action => ({ type: action.type, ids: action.ids.slice() }));
+        // A pair need not be caught together if one member can leave before the
+        // other is needed. Split only when replay proves that recapture is legal.
+        for (const pair of plan.filter(action => action.type === 'capture' && action.ids.length === 2)) {
+            const pageOf = id => {
+                let page = 0;
+                for (const action of plan) if (action.type === 'train') {
+                    if (action.ids.includes(id)) return page;
+                    page++;
+                }
+                return page;
+            };
+            if (pageOf(pair.ids[0]) === pageOf(pair.ids[1])) continue;
+            const [early, late] = [...pair.ids].sort((a, b) => pageOf(a) - pageOf(b));
+            const original = plan.indexOf(pair);
+            const split = plan.slice(); split[original] = { type: 'capture', ids: [early] };
+            const needed = split.findIndex(action => action.type === 'train' && action.ids.includes(late));
+            for (let index = needed; index > original; index--) {
+                const candidate = split.slice(); candidate.splice(index, 0, { type: 'capture', ids: [late] });
+                try { replay(m, candidate, slots, start); plan = candidate; break; } catch (_) { /* Other member still resident or admission order requires both. */ }
+            }
+        }
+        for (const action of [...plan].reverse()) {
+            if (action.type === 'train') continue;
+            let index = plan.indexOf(action);
+            let before = replay(m, plan.slice(0, index), slots, start);
+            let after = apply(m, before, action, slots);
+            while (index + 1 < plan.length) {
+                const next = plan[index + 1];
+                let skipped, swapped, expected;
+                try {
+                    skipped = apply(m, before, next, slots);
+                    swapped = apply(m, skipped, action, slots);
+                    expected = apply(m, after, next, slots);
+                } catch (_) { break; }
+                if (expected.some((value, i) => swapped[i] !== value)) break;
+                plan[index] = next; plan[index + 1] = action;
+                before = skipped; after = swapped; index++;
+            }
+        }
+        return plan;
     }
     // Each screen commits its preparation actions and one trip together. The last
     // screen contains only the final births/capture, and costs no training trip.
@@ -243,7 +291,7 @@
         } catch (_) { return null; }
         return { state, trips, saved };
     }
-    const api = { VERSION, model, initial, apply, replay, lowerBound, solve, batches, restore };
+    const api = { VERSION, model, initial, apply, replay, lowerBound, solve, deferAdmissions, batches, restore };
     root.TrainingCore = api;
     if (typeof module !== 'undefined' && module.exports) module.exports = api;
 })(globalThis);

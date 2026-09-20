@@ -1,4 +1,4 @@
-importScripts('./training-core.js?v=20260919-1');
+importScripts('./training-core.js?v=20260920-1');
 self.onmessage = event => {
     const { model, slots, start, maxMs, maxStates } = event.data;
     try {

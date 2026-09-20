@@ -41,6 +41,8 @@
 .training-person { display: flex; flex-direction: column; align-items: center; gap: 4px; width: 170px; max-width: 100%; box-sizing: border-box; padding: 10px; border: 1px solid #7dc6dd; border-radius: 12px; background: #ffffff90; text-align: center; overflow-wrap: anywhere; }
 .training-person small { font-size: .75rem; }
 .training-person-role { font-size: .8rem; color: #376682; }
+.training-waiting { display: block; color: #815510; background: #fff0ba; border: 1px solid #d9b257; border-radius: 6px; padding: 4px 8px; font-size: .8rem; }
+.training-birth-timing { display: block; color: #175c8e; background: #e9fbff; border-left: 4px solid #4cacce; border-radius: 4px; padding: 8px 10px; }
 .training-face { display: flex; align-items: center; justify-content: center; width: 72px; height: 72px; color: #5b7486; font-size: .75rem; }
 .training-face canvas { width: 72px; height: 72px; object-fit: contain; }
 .training-qr.menu-button { padding: 6px; margin: 6px 0 0; background: white; border: 1px solid #86b9ce; border-radius: 6px; box-shadow: none; width: 142px; min-height: 142px; }
