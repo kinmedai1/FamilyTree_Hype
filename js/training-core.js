@@ -211,7 +211,7 @@
                 }
                 return false;
             }
-            if (search(start, 0, [])) return { status: 'optimal', actions: deferAdmissions(m, solution, slots, start), trips: solution.filter(a => a.type === 'train').length, explored, elapsed: Date.now() - started };
+            if (search(start, 0, [])) return { status: 'optimal', actions: scheduleAdmissions(m, solution, slots, start), trips: solution.filter(a => a.type === 'train').length, explored, elapsed: Date.now() - started };
             if (limit) return { status: 'limit', lowerBound: bound, explored, elapsed: Date.now() - started };
         }
         return { status: 'impossible', explored, elapsed: Date.now() - started };
@@ -264,6 +264,32 @@
         }
         return plan;
     }
+    // Keep catches late, but release trained parents by giving birth as soon as
+    // the remaining plan permits. This is not an optimization of peak occupancy.
+    function scheduleAdmissions(m, actions, slots, start = initial(m)) {
+        const plan = deferAdmissions(m, actions, slots, start);
+        for (const birth of plan.filter(action => action.type === 'birth')) {
+            let index = plan.indexOf(birth);
+            while (index > 0) {
+                const previous = plan[index - 1];
+                const before = replay(m, plan.slice(0, index - 1), slots, start);
+                try {
+                    const swapped = apply(m, apply(m, before, birth, slots), previous, slots);
+                    const expected = apply(m, apply(m, before, previous, slots), birth, slots);
+                    if (expected.some((value, i) => swapped[i] !== value)) break;
+                } catch (_) { break; }
+                plan[index - 1] = birth; plan[index] = previous; index--;
+            }
+        }
+        return plan;
+    }
+    // Leading births get their own confirmation after a trip, before showing
+    // the next catches. No game action is recorded just by pressing training done.
+    function nextStep(actions) {
+        if (actions[0]?.type !== 'birth') return batches(actions)[0] || [];
+        const end = actions.findIndex(action => action.type !== 'birth');
+        return actions.slice(0, end === -1 ? actions.length : end);
+    }
     // Each screen commits its preparation actions and one trip together. The last
     // screen contains only the final births/capture, and costs no training trip.
     function batches(actions) {
@@ -276,7 +302,7 @@
         return result;
     }
     function restore(m, saved) {
-        if (!saved || saved.version !== VERSION || saved.fingerprint !== m.fingerprint || !Array.isArray(saved.completed) || saved.completed.length > m.nodes.length + 1) return null;
+        if (!saved || saved.version !== VERSION || saved.fingerprint !== m.fingerprint || !Array.isArray(saved.completed) || saved.completed.length > m.nodes.length * 2) return null;
         let state = initial(m), trips = 0;
         try {
             for (const batch of saved.completed) {
@@ -288,10 +314,12 @@
             if (saved.plan) {
                 if (!Array.isArray(saved.plan) || saved.plan.length > m.nodes.length * 2 || !replay(m, saved.plan, saved.slots, state)[0]) return null;
             }
+            if (saved.lockedStepLength !== undefined && (saved.preparing !== true || !Number.isSafeInteger(saved.lockedStepLength) ||
+                saved.lockedStepLength < 1 || !Array.isArray(saved.plan) || saved.lockedStepLength !== batches(saved.plan)[0]?.length)) return null;
         } catch (_) { return null; }
         return { state, trips, saved };
     }
-    const api = { VERSION, model, initial, apply, replay, lowerBound, solve, deferAdmissions, batches, restore };
+    const api = { VERSION, model, initial, apply, replay, lowerBound, solve, deferAdmissions, scheduleAdmissions, nextStep, batches, restore };
     root.TrainingCore = api;
     if (typeof module !== 'undefined' && module.exports) module.exports = api;
 })(globalThis);
