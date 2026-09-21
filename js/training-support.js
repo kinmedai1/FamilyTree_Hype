@@ -9,6 +9,7 @@
     let host, content, adapter, current = null, data = null, worker = null, computing = false, message = '', viewing = null, serial = 0;
     let error = false, retry = false, saveError = '', qrFrame = 0;
     const qrTargets = new Map();
+    const rsidTargets = new Map();
     function install(options) {
         adapter = options;
         host = document.getElementById('training-panel');
@@ -17,7 +18,7 @@
     }
     function stop() { worker?.terminate(); worker = null; computing = false; serial++; }
     function empty(slots = 7) {
-        return { version: C.VERSION, admissionTiming: 2, fingerprint: current.model.fingerprint, slots, completed: [], plan: null, preparing: false };
+        return { version: C.VERSION, admissionTiming: 3, fingerprint: current.model.fingerprint, slots, completed: [], plan: null, preparing: false };
     }
     function attach(tree, records, historyId, saved) {
         stop(); closeQR(); viewing = null; message = ''; error = false; retry = false; saveError = '';
@@ -25,16 +26,18 @@
             current = { model: C.model(tree, records), historyId };
             const restored = C.restore(current.model, saved);
             data = restored ? structuredClone(saved) : empty();
-            if (restored && data.admissionTiming !== 2) {
+            if (restored && data.admissionTiming !== 3) {
                 if (data.plan) {
                     // A user may already have followed part of the displayed
                     // preparation. Keep that page exactly as saved, then defer.
-                    const locked = data.preparing ? C.batches(data.plan)[0] || [] : [];
+                    const previousStep = data.lockedStepLength ? data.plan.slice(0, data.lockedStepLength) :
+                        data.admissionTiming >= 2 ? C.nextStep(data.plan) : C.batches(data.plan)[0] || [];
+                    const locked = data.preparing ? previousStep : [];
                     const state = C.replay(current.model, locked, data.slots, restored.state);
                     data.plan = locked.concat(C.scheduleAdmissions(current.model, data.plan.slice(locked.length), data.slots, state));
                     if (locked.length) { data.legacyPreparation = true; data.lockedStepLength = locked.length; }
                 }
-                data.admissionTiming = 2;
+                data.admissionTiming = 3;
                 persist();
             }
             if (saved && !restored) message = '家系図または保存された進捗が変わったため、育成計画を作り直してください。';
@@ -75,7 +78,7 @@
         if (!restored) { message = '保存された進捗を確認できません。'; error = true; render(); return; }
         computing = true; error = false; retry = false; message = '最短手順を計算しています…'; viewing = null; render();
         try {
-            worker = new Worker('./js/training-worker.js?v=20260921-1');
+            worker = new Worker('./js/training-worker.js?v=20260921-2');
             worker.onmessage = event => {
                 if (token !== serial) return;
                 const result = event.data;
@@ -87,7 +90,7 @@
                 stop();
                 if (result.type === 'error') { message = result.message; error = true; }
                 else if (result.result.status === 'optimal') {
-                    data.plan = result.result.actions; data.preparing = false; data.admissionTiming = 2;
+                    data.plan = result.result.actions; data.preparing = false; data.admissionTiming = 3;
                     delete data.legacyPreparation; delete data.lockedStepLength; message = ''; persist();
                 } else if (result.result.status === 'limit') {
                     retry = true;
@@ -128,6 +131,8 @@
         qrFrame = requestAnimationFrame(() => {
             for (const [target, id] of qrTargets) if (target.isConnected) drawQR(target, id);
             else qrTargets.delete(target);
+            for (const [target, id] of rsidTargets) if (target.isConnected) target.textContent = `RSID：${getQR(id) || 'なし'}`;
+            else rsidTargets.delete(target);
         });
     }
     function face(id) {
@@ -155,6 +160,25 @@
         }
         return card;
     }
+    function birthFamily(childId) {
+        const child = current.model.nodes[childId], family = el('div', 'training-birth-family');
+        family.setAttribute('role', 'group'); family.setAttribute('aria-label', child.name + 'の出生');
+        const members = [...child.children, childId], roles = ['先の親', '後の親', '生まれる個体'];
+        members.forEach((id, i) => {
+            if (i) {
+                const symbol = el('span', 'training-birth-symbol' + (i === 2 ? ' training-birth-arrow' : ''), i === 1 ? '＋' : '→');
+                symbol.setAttribute('aria-hidden', 'true'); family.append(symbol);
+            }
+            const member = el('div', 'training-birth-member' + (i === 2 ? ' training-birth-child' : ''));
+            const rsid = el('span', 'training-birth-rsid', `RSID：${getQR(id) || 'なし'}`);
+            rsidTargets.set(rsid, id);
+            member.append(el('strong', 'training-birth-role', roles[i]), face(id),
+                el('strong', 'training-birth-name', current.model.nodes[id].name),
+                el('span', 'training-person-role', `#${id + 1}`), rsid);
+            family.append(member);
+        });
+        return family;
+    }
     function renderActions(parent, actions, completedTrips) {
         const training = actions.find(a => a.type === 'train');
         const final = actions.some(action => action.type !== 'train' && action.ids.includes(0));
@@ -172,10 +196,10 @@
                     const cards = el('div', 'training-roster'); action.ids.forEach(id => cards.append(person(id, true, !!training && !targets.has(id)))); item.append(cards);
                     if (waiting) item.append(el('p', 'training-note', '待機と表示された個体も先にキャッチし、今回は育成せず、そのまま待機させてください。'));
                 } else {
-                    const child = current.model.nodes[action.ids[0]], [a, b] = child.children;
+                    const child = current.model.nodes[action.ids[0]];
                     const timing = completedTrips ? `第${completedTrips}回の育成完了後` : '育成済みの両親の準備が完了したら';
                     item.append(el('strong', 'training-birth-timing', `出生タイミング：${timing}${training ? `・第${completedTrips + 1}回の出撃前` : final ? '（追加の出撃は不要）' : '（次のキャッチ・出撃より先に出生）'}`));
-                    item.append(el('p', '', `出生：${label(a)} ＋ ${label(b)} → ${label(child.id)}`));
+                    item.append(birthFamily(child.id));
                     item.append(el('p', 'training-note', '両親の上限突破・しあわせ度MAXを済ませてから、上の順番どおりに出生してください。'));
                     if (training && !targets.has(child.id)) item.append(el('strong', 'training-waiting', '生まれた個体は今回は育成せず待機'));
                 }
@@ -196,7 +220,12 @@
         if (!data.preparing || !batch.length) return;
         data.completed.push({ slots: data.slots, actions: batch });
         data.plan = data.plan.slice(batch.length); data.preparing = false;
-        delete data.legacyPreparation; delete data.lockedStepLength; message = ''; persist(); render();
+        delete data.legacyPreparation; delete data.lockedStepLength;
+        // Re-evaluate the actual saved state after every confirmation, including
+        // completion of a locked legacy page. Never auto-record a birth itself.
+        const restored = progress();
+        if (restored) data.plan = C.scheduleAdmissions(current.model, data.plan, data.slots, restored.state);
+        message = ''; persist(); render();
     }
     function undo() {
         if (data.preparing || computing || !data.completed.length) return;
@@ -206,7 +235,7 @@
     }
     function render() {
         if (!content) return;
-        qrTargets.clear(); content.replaceChildren();
+        qrTargets.clear(); rsidTargets.clear(); content.replaceChildren();
         if (!current) { content.append(el('p', '', message || '家系図を表示すると、育成手順を計算できます。')); return; }
         const restored = progress();
         if (!restored) { content.append(el('p', 'training-error', '育成進捗が不正です。家系図を開き直してください。')); return; }
@@ -265,11 +294,24 @@
         if (!batch.length) return;
         const train = batch.find(a => a.type === 'train');
         const birthOnly = !train && !batch.some(a => a.ids.includes(0));
-        content.append(el('h3', '', train ? `次の出撃：${restored.trips + 1}回目` : birthOnly ? `第${restored.trips}回の育成完了後：出生` : '最終個体の入居'));
+        content.append(el('h3', '', train ? `次の出撃：${restored.trips + 1}回目` : birthOnly ? `第${restored.trips}回の育成完了：今すぐ出生` : '最終個体の入居'));
         if (data.preparing) content.append(el('p', 'training-note', '準備・育成中です。途中から再開した場合、実施済みのキャッチ・出生を繰り返さず、残りの操作を進めてください。'));
         else content.append(el('p', 'training-note', birthOnly ? '出生できる両親がそろいました。次のキャッチに進む前に、以下の出生を済ませてください。' : '枠を変更する場合は、下の準備を始める前に変更してください。'));
         if (data.legacyPreparation) content.append(el('p', 'training-note', '更新前に準備を始めた回は、保存済みの手順を維持しています。完了後から、キャッチは必要な回に、出生はできるだけ早いタイミングで案内します。'));
         renderActions(content, batch, restored.trips);
+        if (train) {
+            const following = C.nextStep(data.plan.slice(batch.length));
+            if (following[0]?.type === 'birth') {
+                const preview = el('section', 'training-birth-preview');
+                preview.append(el('h4', '', `この出撃後にすぐ出生（${following.length}体）`));
+                const list = el('ol');
+                following.forEach(action => {
+                    const item = el('li'); item.append(birthFamily(action.ids[0])); list.append(item);
+                });
+                preview.append(list, el('p', 'training-note', '育成から戻ったら、次のキャッチより先に出生します。「全員の育成完了」を押すと出生の案内に進みます。'));
+                content.append(preview);
+            }
+        }
         if (!data.preparing) content.append(button(birthOnly ? 'この出生を始める' : 'この手順で準備を始める', () => {
             if (!data.plan || !validSlots()) return;
             data.preparing = true; persist(); render();

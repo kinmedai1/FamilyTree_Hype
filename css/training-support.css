@@ -43,6 +43,15 @@
 .training-person-role { font-size: .8rem; color: #376682; }
 .training-waiting { display: block; color: #815510; background: #fff0ba; border: 1px solid #d9b257; border-radius: 6px; padding: 4px 8px; font-size: .8rem; }
 .training-birth-timing { display: block; color: #175c8e; background: #e9fbff; border-left: 4px solid #4cacce; border-radius: 4px; padding: 8px 10px; }
+.training-birth-preview { margin: 18px 0; padding: 2px 14px 10px; border: 1px solid #76bbce; border-left: 4px solid #379bbd; border-radius: 8px; background: #e9fbff; }
+.training-birth-preview li { padding: 4px 0; line-height: 1.7; overflow-wrap: anywhere; }
+.training-birth-family { display: grid; grid-template-columns: minmax(0, 150px) 22px minmax(0, 150px) 22px minmax(0, 150px); align-items: center; gap: 8px; margin: 12px 0; }
+.training-birth-member { display: flex; flex-direction: column; align-items: center; gap: 3px; align-self: stretch; padding: 10px 6px; min-width: 0; border: 1px solid #85c8d9; border-radius: 10px; background: #ffffff9e; text-align: center; overflow-wrap: anywhere; }
+.training-birth-child { background: #d7f4ff; border-color: #54aecb; }
+.training-birth-role { font-size: .8rem; color: #205b81; }
+.training-birth-name { font-size: .9rem; }
+.training-birth-rsid { font-size: .75rem; color: #375a72; font-variant-numeric: tabular-nums; user-select: text; }
+.training-birth-symbol { text-align: center; font-size: 1.2rem; font-weight: 700; color: #267a9c; }
 .training-face { display: flex; align-items: center; justify-content: center; width: 72px; height: 72px; color: #5b7486; font-size: .75rem; }
 .training-face canvas { width: 72px; height: 72px; object-fit: contain; }
 .training-qr.menu-button { padding: 6px; margin: 6px 0 0; background: white; border: 1px solid #86b9ce; border-radius: 6px; box-shadow: none; width: 142px; min-height: 142px; }
@@ -56,6 +65,9 @@
 .training-large-qr { background: white; padding: 12px; }
 .training-large-qr img, .training-large-qr canvas { max-width: 100%; height: auto; margin: auto; }
 @media (max-width: 600px) {
+    .training-birth-family { grid-template-columns: minmax(0, 1fr) 18px minmax(0, 1fr); gap: 6px; }
+    .training-birth-arrow { grid-column: 1 / -1; transform: rotate(90deg); }
+    .training-birth-child { grid-column: 1 / -1; justify-self: center; width: calc((100% - 24px) / 2); box-sizing: border-box; }
     #training-content { padding: 0 10px 14px; }
     .training-roster { gap: 8px; }
     .training-person { width: min(170px, 100%); }

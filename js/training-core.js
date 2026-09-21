@@ -264,22 +264,26 @@
         }
         return plan;
     }
-    // Keep catches late, but release trained parents by giving birth as soon as
-    // the remaining plan permits. This is not an optimization of peak occupancy.
+    // Before every next action (especially after a trip), inspect ALL remaining
+    // births. Execute each currently possible birth whose removal from the tail
+    // leaves a valid full plan. Recheck after each birth because admission of the
+    // first individual can unlock the second. Training batches never change.
     function scheduleAdmissions(m, actions, slots, start = initial(m)) {
-        const plan = deferAdmissions(m, actions, slots, start);
-        for (const birth of plan.filter(action => action.type === 'birth')) {
-            let index = plan.indexOf(birth);
-            while (index > 0) {
-                const previous = plan[index - 1];
-                const before = replay(m, plan.slice(0, index - 1), slots, start);
+        const pending = deferAdmissions(m, actions, slots, start), plan = [];
+        let state = start;
+        while (pending.length) {
+            let immediate = -1;
+            for (let index = 0; index < pending.length; index++) {
+                const candidate = pending[index];
+                if (candidate.type !== 'birth' || !birthAllowed(m, state, candidate.ids[0])) continue;
                 try {
-                    const swapped = apply(m, apply(m, before, birth, slots), previous, slots);
-                    const expected = apply(m, apply(m, before, previous, slots), birth, slots);
-                    if (expected.some((value, i) => swapped[i] !== value)) break;
-                } catch (_) { break; }
-                plan[index - 1] = birth; plan[index] = previous; index--;
+                    const afterBirth = apply(m, state, candidate, slots);
+                    replay(m, pending.filter((_, i) => i !== index), slots, afterBirth);
+                    immediate = index; break;
+                } catch (_) { /* Ready parents alone do not guarantee future residency. */ }
             }
+            const [action] = pending.splice(immediate === -1 ? 0 : immediate, 1);
+            state = apply(m, state, action, slots); plan.push(action);
         }
         return plan;
     }
@@ -314,8 +318,11 @@
             if (saved.plan) {
                 if (!Array.isArray(saved.plan) || saved.plan.length > m.nodes.length * 2 || !replay(m, saved.plan, saved.slots, state)[0]) return null;
             }
-            if (saved.lockedStepLength !== undefined && (saved.preparing !== true || !Number.isSafeInteger(saved.lockedStepLength) ||
-                saved.lockedStepLength < 1 || !Array.isArray(saved.plan) || saved.lockedStepLength !== batches(saved.plan)[0]?.length)) return null;
+            if (saved.lockedStepLength !== undefined) {
+                const count = saved.lockedStepLength;
+                if (saved.preparing !== true || !Number.isSafeInteger(count) || count < 1 || !Array.isArray(saved.plan) || count > saved.plan.length) return null;
+                if (count !== batches(saved.plan)[0]?.length && !saved.plan.slice(0, count).every(action => action.type === 'birth')) return null;
+            }
         } catch (_) { return null; }
         return { state, trips, saved };
     }
