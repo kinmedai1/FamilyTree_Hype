@@ -1470,8 +1470,7 @@
                     }
                 }
                 isLoadingFromHistory = false;
-                TrainingSupport.attach(tree, binary?.parsed.records || [], currentActiveHistoryId,
-                    getHistory().find(entry => entry.id === currentActiveHistoryId)?.trainingSupport);
+                TrainingSupport.attach(tree, binary?.parsed.records || []);
                 return true;
 
             } catch (e) {
@@ -1501,14 +1500,6 @@
         HyperionTransfer.install(receiveHyperionTree);
         HyperionFileImport.install((parsed, binaryId, unread = false) => receiveHyperionTree(parsed, binaryId, unread), () => hyperionNavigationVersion);
         TrainingSupport.install({
-            save: (historyId, progress) => {
-                const history = getHistory();
-                const entry = history.find(item => item.id === historyId);
-                if (!entry) return false;
-                entry.trainingSupport = progress;
-                localStorage.setItem('rsidHistory', JSON.stringify(history));
-                return true;
-            },
             qr: node => document.getElementById(node.uniqueId)?.querySelector('.qr-code')?.dataset.id || node.rsid
         });
 
