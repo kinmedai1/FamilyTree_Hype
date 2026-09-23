@@ -76,7 +76,7 @@
         stop(); const token = serial;
         computing = true; error = false; retry = false; message = '最短手順を計算しています…'; pageIndex = 0; render();
         try {
-            worker = new Worker('./js/training-worker.js?v=20260921-2');
+            worker = new Worker('./js/training-worker.js?v=20260923-4');
             worker.onmessage = event => {
                 if (token !== serial) return;
                 const result = event.data;
@@ -269,14 +269,56 @@
         if (pageIndex === data.pages.length - 1) content.append(el('p', 'training-note', '最後の手順です。この入居で家系図が完成します。'));
         content.append(pageNavigation());
     }
-    let dialog;
-    function closeQR() { if (dialog?.open) dialog.close(); dialog?.remove(); dialog = null; }
-    function showQR(id) {
-        closeQR(); dialog = el('dialog', 'training-qr-dialog');
-        dialog.append(el('h3', '', label(id)), face(id));
+    let dialog, dialogIds = [], dialogIndex = 0;
+    function closeQR() {
+        if (dialog?.open) dialog.close();
+        dialog?.remove(); dialog = null; dialogIds = []; dialogIndex = 0;
+    }
+    function renderQRDialog(focus) {
+        if (!dialog) return;
+        const id = dialogIds[dialogIndex];
+        dialog.replaceChildren();
+        const title = el('h3', '', label(id)); title.id = 'training-qr-title'; title.tabIndex = -1;
+        dialog.append(title, face(id));
         const value = getQR(id), code = el('div', 'training-large-qr');
         if (value && root.QRCode) new root.QRCode(code, { text: value.slice(0, 6), width: 280, height: 280 });
-        dialog.append(code, el('p', '', value), button('閉じる', closeQR));
+        const nav = el('nav', 'training-qr-navigation'); nav.setAttribute('aria-label', 'キャッチ対象のQRコード');
+        const move = (offset, control) => {
+            const next = dialogIndex + offset;
+            if (next < 0 || next >= dialogIds.length) return;
+            dialogIndex = next; renderQRDialog(control);
+        };
+        const prev = button('戻る', () => move(-1, 'prev'));
+        prev.dataset.qrControl = 'prev'; prev.disabled = dialogIndex === 0;
+        const next = button('次へ', () => move(1, 'next'), 'menu-button-gold');
+        next.dataset.qrControl = 'next'; next.disabled = dialogIndex === dialogIds.length - 1;
+        const counter = el('span', 'training-qr-counter', `${dialogIndex + 1} / ${dialogIds.length}`);
+        counter.setAttribute('aria-live', 'polite');
+        nav.append(prev, counter, next);
+        const close = button('閉じる', closeQR); close.dataset.qrControl = 'close';
+        dialog.append(code, el('p', 'training-qr-rsid', value), nav, close);
+        if (focus) {
+            const target = dialog.querySelector(`[data-qr-control="${focus}"]`);
+            (target && !target.disabled ? target : title).focus({ preventScroll: true });
+        }
+    }
+    function showQR(id) {
+        closeQR();
+        // Keep the page's catch order, including distinct individuals sharing a QR.
+        dialogIds = [...qrTargets].filter(([target]) => target.isConnected).map(([, targetId]) => targetId);
+        dialogIndex = dialogIds.indexOf(id);
+        if (dialogIndex < 0) { dialogIds = []; return; }
+        dialog = el('dialog', 'training-qr-dialog');
+        dialog.setAttribute('aria-labelledby', 'training-qr-title');
+        let pressedOutside = false;
+        const outside = event => {
+            const rect = dialog.getBoundingClientRect();
+            return event.target === dialog && (event.clientX < rect.left || event.clientX > rect.right || event.clientY < rect.top || event.clientY > rect.bottom);
+        };
+        dialog.addEventListener('pointerdown', event => { pressedOutside = outside(event); });
+        dialog.addEventListener('click', event => { if (pressedOutside && outside(event)) closeQR(); pressedOutside = false; });
+        dialog.addEventListener('cancel', event => { event.preventDefault(); closeQR(); });
+        renderQRDialog();
         document.body.append(dialog); dialog.showModal();
     }
     root.TrainingSupport = { install, attach, detach, refreshQR };

@@ -264,6 +264,57 @@
         }
         return plan;
     }
+    function immediateBirthIndex(m, state, pending, slots) {
+        for (let index = 0; index < pending.length; index++) {
+            const candidate = pending[index];
+            if (candidate.type !== 'birth' || !birthAllowed(m, state, candidate.ids[0])) continue;
+            try {
+                const afterBirth = apply(m, state, candidate, slots);
+                replay(m, pending.filter((_, i) => i !== index), slots, afterBirth);
+                return index;
+            } catch (_) { /* Ready parents alone do not guarantee future residency. */ }
+        }
+        return -1;
+    }
+    // Preorder IDs follow the tree's left-to-right branch order. Only commute
+    // adjacent captures: never cross a trip/birth or split a shared-QR capture.
+    // Equal end states preserve the entire suffix. Reject swaps that would leave
+    // a newly possible birth waiting between the swapped captures.
+    function orderCapturesLeftFirst(m, actions, slots, start = initial(m)) {
+        replay(m, actions, slots, start);
+        const plan = actions.map(action => ({ type: action.type, ids: action.ids.slice() }));
+        let changed;
+        do {
+            changed = false;
+            let state = start;
+            for (let i = 0; i < plan.length; i++) {
+                const current = plan[i], next = plan[i + 1];
+                if (current.type === 'capture') {
+                    if (current.ids.length === 2 && current.ids[0] > current.ids[1]) {
+                        const sorted = { type: 'capture', ids: [...current.ids].reverse() };
+                        try {
+                            apply(m, state, sorted, slots);
+                            plan[i] = sorted; changed = true;
+                        } catch (_) { /* Keep the required admission order within a shared QR. */ }
+                    }
+                    if (next?.type === 'capture' && Math.min(...next.ids) < Math.min(...plan[i].ids)) {
+                        try {
+                            const first = apply(m, state, next, slots);
+                            const swapped = apply(m, first, plan[i], slots);
+                            const expected = apply(m, apply(m, state, plan[i], slots), next, slots);
+                            const tail = [plan[i], ...plan.slice(i + 2)];
+                            if (swapped.every((value, id) => value === expected[id]) &&
+                                immediateBirthIndex(m, first, tail, slots) === -1) {
+                                [plan[i], plan[i + 1]] = [next, plan[i]]; changed = true;
+                            }
+                        } catch (_) { /* Residency or QR restrictions take priority over visual order. */ }
+                    }
+                }
+                state = apply(m, state, plan[i], slots);
+            }
+        } while (changed);
+        return plan;
+    }
     // Before every next action (especially after a trip), inspect ALL remaining
     // births. Execute each currently possible birth whose removal from the tail
     // leaves a valid full plan. Recheck after each birth because admission of the
@@ -272,20 +323,11 @@
         const pending = deferAdmissions(m, actions, slots, start), plan = [];
         let state = start;
         while (pending.length) {
-            let immediate = -1;
-            for (let index = 0; index < pending.length; index++) {
-                const candidate = pending[index];
-                if (candidate.type !== 'birth' || !birthAllowed(m, state, candidate.ids[0])) continue;
-                try {
-                    const afterBirth = apply(m, state, candidate, slots);
-                    replay(m, pending.filter((_, i) => i !== index), slots, afterBirth);
-                    immediate = index; break;
-                } catch (_) { /* Ready parents alone do not guarantee future residency. */ }
-            }
+            const immediate = immediateBirthIndex(m, state, pending, slots);
             const [action] = pending.splice(immediate === -1 ? 0 : immediate, 1);
             state = apply(m, state, action, slots); plan.push(action);
         }
-        return plan;
+        return orderCapturesLeftFirst(m, plan, slots, start);
     }
     // Leading births get their own confirmation after a trip, before showing
     // the next catches. No game action is recorded just by pressing training done.
@@ -326,7 +368,7 @@
         } catch (_) { return null; }
         return { state, trips, saved };
     }
-    const api = { VERSION, model, initial, apply, replay, lowerBound, solve, deferAdmissions, scheduleAdmissions, nextStep, batches, restore };
+    const api = { VERSION, model, initial, apply, replay, lowerBound, solve, deferAdmissions, scheduleAdmissions, orderCapturesLeftFirst, nextStep, batches, restore };
     root.TrainingCore = api;
     if (typeof module !== 'undefined' && module.exports) module.exports = api;
 })(globalThis);
