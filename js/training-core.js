@@ -329,6 +329,27 @@
         }
         return orderCapturesLeftFirst(m, plan, slots, start);
     }
+    // Explain only observable constraints on an earlier (left-side) capture.
+    // These notes never participate in optimization or change any operation.
+    function captureOrderNotes(m, state, action, following) {
+        if (action.type !== 'capture') return [];
+        const notes = action.ids.length === 2 ? [{ code: 'shared-qr', ids: action.ids.slice() }] : [];
+        const left = following.flatMap((a, index) => a.type === 'capture' ?
+            a.ids.filter(id => id < Math.min(...action.ids)).map(id => ({ id, index })) : [])
+            .sort((a, b) => a.id - b.id)[0];
+        if (!left) return notes;
+        const n = m.nodes[left.id], first = n.side === 1 ? m.nodes[n.parent].children[0] : -1;
+        const same = m.nodes.find(other => resident(state[other.id]) && other.identity === n.identity);
+        const qr = n.group && m.nodes.find(other => resident(state[other.id]) && other.group === n.group);
+        let code;
+        if (first >= 0 && !resident(state[first])) code = 'first-parent';
+        else if (same) code = 'same-person';
+        else if (qr) code = 'same-qr';
+        else if (following.slice(0, left.index).some(a => a.type === 'train')) code = 'later-trip';
+        else code = 'birth-order';
+        notes.push({ code, ids: [left.id], relatedId: code === 'first-parent' ? first : same?.id ?? qr?.id });
+        return notes;
+    }
     // Leading births get their own confirmation after a trip, before showing
     // the next catches. No game action is recorded just by pressing training done.
     function nextStep(actions) {
@@ -368,7 +389,7 @@
         } catch (_) { return null; }
         return { state, trips, saved };
     }
-    const api = { VERSION, model, initial, apply, replay, lowerBound, solve, deferAdmissions, scheduleAdmissions, orderCapturesLeftFirst, nextStep, batches, restore };
+    const api = { VERSION, model, initial, apply, replay, lowerBound, solve, deferAdmissions, scheduleAdmissions, orderCapturesLeftFirst, captureOrderNotes, nextStep, batches, restore };
     root.TrainingCore = api;
     if (typeof module !== 'undefined' && module.exports) module.exports = api;
 })(globalThis);

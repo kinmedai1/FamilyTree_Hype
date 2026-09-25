@@ -20,6 +20,29 @@
 .training-pager { margin: 14px 0; }
 .training-page-counter { font-variant-numeric: tabular-nums; font-size: .9rem; }
 .training-page-heading { scroll-margin-top: 16px; }
+.training-step-summary { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; padding: 12px; border-radius: 10px; background: #eaffffd9; color: #175c8e; }
+.training-step-summary > strong { width: 100%; font-size: .8rem; }
+.training-summary-arrow { color: #5795ad; }
+.training-summary-preview { font-size: .88rem; }
+.training-comparison, .training-waiting-panel { margin: 14px 0; border: 1px solid #83c3d3; border-radius: 10px; background: #eaffff60; }
+.training-comparison > summary, .training-waiting-panel > summary { padding: 10px 12px; cursor: pointer; font-weight: 700; }
+.training-comparison-body { padding: 0 12px 12px; }
+.training-comparison-table { width: 100%; border-collapse: collapse; margin-top: 12px; font-size: .88rem; }
+.training-comparison-table th, .training-comparison-table td { text-align: left; padding: 8px 4px; border-bottom: 1px solid #77bbce70; }
+.training-comparison-table .menu-button { padding: 6px 8px; font-size: .8rem; }
+.training-order-note { font-size: .8rem; color: #705222; border-left: 3px solid #c8a35b; padding: 5px 8px; background: #fff6d88c; }
+.training-current-target { display: inline-block; color: #17677b; border: 1px solid #83c3d3; border-radius: 6px; background: #d6f9ff; padding: 3px 8px; font-size: .8rem; }
+.training-compact-roster { display: flex; flex-wrap: wrap; gap: 8px; }
+.training-compact-person { display: grid; grid-template-columns: 44px minmax(0, 1fr); align-items: center; gap: 4px 8px; width: 190px; max-width: 100%; box-sizing: border-box; padding: 8px; border: 1px solid #83c3d3; border-radius: 10px; background: #ffffff85; }
+.training-compact-person .training-face, .training-compact-person .training-face canvas { width: 44px; height: 44px; }
+.training-compact-info { display: flex; flex-direction: column; min-width: 0; overflow-wrap: anywhere; font-size: .88rem; }
+.training-planned-status { font-size: .75rem; color: #376682; }
+.training-waiting-panel > p, .training-waiting-panel > .training-compact-roster { margin: 8px 12px 12px; }
+.training-panel .training-tree-link { padding: 3px 7px; box-shadow: none; border: 0; background: transparent; text-decoration: underline; font-size: .72rem; }
+.training-compact-person .training-tree-link { grid-column: 1 / -1; justify-self: start; }
+.player-card.training-tree-reveal { display: flex !important; }
+.player-card.training-tree-highlight { outline: 4px solid #ffe066; outline-offset: 5px; box-shadow: 0 0 24px #ffe066a0; }
+.training-tree-return { margin-top: 8px; position: relative; z-index: 2; }
 .training-slots { border: 0; display: flex; align-items: center; flex-wrap: wrap; gap: 6px; padding: 0; margin: 0; }
 .training-slots legend { font-weight: 700; margin-bottom: 8px; }
 .training-slots .menu-button { min-width: 36px; padding: 5px 10px; }
@@ -67,6 +90,9 @@
 .training-qr-dialog { max-width: calc(100vw - 44px); padding: 20px; border: 2px solid #72c6dd; border-radius: 16px; background: #e5faff; color: #264c68; text-align: center; }
 .training-qr-dialog::backdrop { background: #102e4ac4; }
 .training-qr-dialog .training-face { margin: 0 auto 12px; }
+.training-qr-dialog.training-pair-first { border: 3px solid #ed626c; }
+.training-qr-dialog.training-pair-second { border: 3px solid #469ee8; }
+.training-qr-dialog > .training-waiting, .training-qr-dialog > .training-current-target { margin-bottom: 12px; }
 .training-qr-navigation { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: 12px 0 16px; }
 .training-qr-counter { font-size: .9rem; font-variant-numeric: tabular-nums; }
 .training-large-qr { background: white; padding: 12px; }

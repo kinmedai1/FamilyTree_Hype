@@ -756,7 +756,7 @@
 
             function getElementPosition(id) {
                 const el = document.getElementById(id);
-                if (!el || el.classList.contains('collapsed')) return null;
+                if (!el || (el.classList.contains('collapsed') && !el.classList.contains('training-tree-reveal'))) return null;
                 const containerRect = container.getBoundingClientRect();
                 const elRect = el.getBoundingClientRect();
                 const anchorRect = el.querySelector('.champion-existing')?.getBoundingClientRect() || elRect;
@@ -1500,6 +1500,7 @@
         HyperionTransfer.install(receiveHyperionTree);
         HyperionFileImport.install((parsed, binaryId, unread = false) => receiveHyperionTree(parsed, binaryId, unread), () => hyperionNavigationVersion);
         TrainingSupport.install({
+            refreshTree: () => requestAnimationFrame(() => drawLines(currentRoundsData)),
             qr: node => document.getElementById(node.uniqueId)?.querySelector('.qr-code')?.dataset.id || node.rsid
         });
 
