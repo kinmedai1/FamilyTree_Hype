@@ -9,6 +9,8 @@
     let host, content, adapter, current = null, data = null, worker = null, computing = false, message = '', pageIndex = 0, serial = 0;
     let error = false, retry = false, qrFrame = 0;
     let comparison = null, comparisonWorker = null, comparisonSerial = 0, comparisonTimer = 0;
+    let autoComparisonTimer = 0;
+    const AUTO_COMPARISON_MS = 2000, AUTO_SLOT_MS = 500;
     let treeVisit = null;
     const qrTargets = new Map();
     const rsidTargets = new Map();
@@ -24,7 +26,8 @@
         try {
             current = { model: C.model(tree, records) };
             data = { slots: 7, pages: null, trips: 0 };
-            comparison = { open: false, running: false, results: new Map(), queue: [], active: null, message: '' };
+            comparison = { open: false, running: false, results: new Map(), queue: [], active: null, message: '',
+                automatic: false, attempted: new Set(), autoDisabled: false, autoRemaining: AUTO_COMPARISON_MS, deadline: 0 };
             const card = document.getElementById(tree.uniqueId);
             if (card && !card.querySelector('.training-shortcut')) {
                 const shortcut = button('育成サポート', () => {
@@ -36,6 +39,7 @@
             }
         } catch (e) { current = null; data = null; message = e.message; error = true; }
         render();
+        scheduleAutoComparison();
     }
     function detach() { stop(); stopComparison(); clearTreeVisit(); closeQR(); current = null; data = null; comparison = null; pageIndex = 0; message = ''; render(); }
     function setPlan(actions) {
@@ -43,7 +47,10 @@
         let offset = 0, trips = 0;
         while (offset < actions.length) {
             const batch = C.nextStep(actions.slice(offset));
-            pages.push({ actions: batch, trips, offset });
+            const previous = pages[pages.length - 1];
+            if (batch[0]?.type === 'birth' && previous?.actions.at(-1)?.type === 'train') {
+                previous.actions = previous.actions.concat(batch);
+            } else pages.push({ actions: batch, trips, offset });
             trips += batch.filter(action => action.type === 'train').length;
             offset += batch.length;
         }
@@ -100,6 +107,7 @@
                     error = true; message = 'この入居順と同一個体の制限では、この家系図を完成できません。同じ個体を両親に指定していないか確認してください。';
                 }
                 render();
+                scheduleAutoComparison();
             };
             worker.onerror = () => {
                 if (token !== serial) return;
@@ -114,22 +122,44 @@
         clearTreeVisit(); closeQR(); data.slots = value; data.pages = null; pageIndex = 0;
         message = '育成枠を変更しました。最初からの手順を再計算してください。'; error = false; retry = false;
         render();
+        scheduleAutoComparison();
     }
     function stopComparison() {
+        clearTimeout(autoComparisonTimer);
+        if (comparison?.running && comparison.automatic) comparison.autoRemaining = Math.max(0, comparison.deadline - performance.now());
         comparisonWorker?.terminate(); comparisonWorker = null; clearTimeout(comparisonTimer); comparisonSerial++;
         if (comparison) { comparison.running = false; comparison.active = null; comparison.queue = []; }
     }
     function comparisonSlots() { return [...new Set([1, 2, 3, 4, 5, 6, 7, data.slots])].sort((a, b) => a - b); }
-    function startComparison() {
+    function scheduleAutoComparison() {
+        clearTimeout(autoComparisonTimer);
+        if (!current || !comparison || computing || comparison.running || comparison.autoDisabled || comparison.autoRemaining <= 0) return;
+        autoComparisonTimer = setTimeout(() => startComparison(true), 120);
+    }
+    function startComparison(automatic = false) {
         if (!current || computing || comparison.running) return;
-        stopComparison(); comparison.open = true; comparison.message = '';
-        comparison.queue = comparisonSlots().filter(slots => !['optimal', 'impossible'].includes(comparison.results.get(slots)?.status));
+        if (automatic && (comparison.autoDisabled || comparison.autoRemaining <= 0)) return;
+        const queue = comparisonSlots().filter(slots => !['optimal', 'impossible'].includes(comparison.results.get(slots)?.status) &&
+            (!automatic || !comparison.attempted.has(slots)));
+        if (!queue.length) return;
+        stopComparison(); if (!automatic) comparison.open = true;
+        comparison.automatic = automatic; comparison.message = ''; comparison.queue = queue;
+        comparison.deadline = performance.now() + comparison.autoRemaining;
         comparison.running = true; compareNext(comparisonSerial);
     }
     function compareNext(token) {
         if (token !== comparisonSerial || !current) return;
+        if (comparison.automatic && performance.now() >= comparison.deadline) {
+            stopComparison(); comparison.message = '自動比較を短時間で打ち切りました。残りの枠は比較ボタンから計算できます。'; updateComparison(); return;
+        }
+        if (comparison.automatic) {
+            // Include a custom slot count selected while automatic work was running.
+            for (const slots of comparisonSlots()) if (!comparison.attempted.has(slots) &&
+                !['optimal', 'impossible'].includes(comparison.results.get(slots)?.status) && !comparison.queue.includes(slots)) comparison.queue.push(slots);
+        }
         const slots = comparison.queue.shift();
         if (slots === undefined) {
+            if (comparison.automatic) comparison.autoRemaining = Math.max(0, comparison.deadline - performance.now());
             comparison.running = false; comparison.active = null; comparison.message = '比較が終わりました。'; updateComparison(); return;
         }
         comparison.active = slots; updateComparison();
@@ -138,7 +168,7 @@
             if (settled || token !== comparisonSerial) return;
             settled = true;
             clearTimeout(comparisonTimer); comparisonWorker?.terminate(); comparisonWorker = null;
-            comparison.results.set(slots, result); compareNext(token);
+            comparison.results.set(slots, result); comparison.attempted.add(slots); compareNext(token);
         };
         try {
             comparisonWorker = new Worker('./js/training-worker.js?v=20260926-1');
@@ -147,19 +177,24 @@
                 finish(event.data.type === 'result' ? event.data.result : { status: 'error' });
             };
             comparisonWorker.onerror = () => finish({ status: 'error' });
-            comparisonTimer = setTimeout(() => finish({ status: 'limit' }), 7000);
-            comparisonWorker.postMessage({ model: current.model, slots, start: C.initial(current.model), maxMs: 5000, maxStates: 200000 });
+            const allowance = comparison.automatic ? Math.max(1, Math.min(AUTO_SLOT_MS, comparison.deadline - performance.now())) : 7000;
+            comparisonTimer = setTimeout(() => finish({ status: 'limit' }), allowance);
+            comparisonWorker.postMessage({ model: current.model, slots, start: C.initial(current.model),
+                maxMs: comparison.automatic ? Math.min(AUTO_SLOT_MS, allowance) : 5000,
+                maxStates: comparison.automatic ? 20000 : 200000 });
         } catch (_) { finish({ status: 'error' }); }
     }
     function updateComparison() {
         const body = content?.querySelector('.training-comparison-body');
         if (!body || !comparison) return;
         body.replaceChildren();
-        body.append(el('p', 'training-note', '1〜7枠と現在の指定枠を比較します。最短と確認できた回数のみ表示します。枠を選ぶと最初のページから表示します。'));
+        body.append(el('p', 'training-note', '1〜7枠と現在の指定枠を自動で比較します。時間のかかる枠は手動で続きを計算できます。最短と確認できた回数のみ表示します。'));
+        const pending = comparisonSlots().some(slots => !['optimal', 'impossible'].includes(comparison.results.get(slots)?.status));
         const control = comparison.running ? button('比較を中止', () => {
+            comparison.autoDisabled = true;
             stopComparison(); comparison.message = '比較を中止しました。計算済みの結果は利用できます。'; updateComparison();
-        }) : button(comparison.results.size ? '未計算・未確定の枠を比較' : '育成枠を比較', startComparison);
-        control.disabled = computing; body.append(control);
+        }) : button(!pending ? '比較済み' : comparison.results.size ? '未計算・未確定の枠を比較' : '育成枠を比較', () => startComparison());
+        control.disabled = computing || (!comparison.running && !pending); body.append(control);
         const table = el('table', 'training-comparison-table'), head = el('thead'), row = el('tr');
         for (const text of ['育成枠', '最短出撃', '手順']) { const cell = el('th', '', text); cell.scope = 'col'; row.append(cell); }
         head.append(row); table.append(head);
@@ -176,6 +211,7 @@
                     if (computing) return;
                     stopComparison(); clearTreeVisit(); closeQR(); data.slots = slots;
                     setPlan(result.actions); message = ''; error = false; retry = false; render();
+                    scheduleAutoComparison();
                     content.querySelector('.training-page-heading')?.scrollIntoView({ block: 'start' });
                 });
                 use.disabled = computing || selected; action.append(use);
@@ -183,7 +219,7 @@
             tr.append(action); rows.append(tr);
         }
         table.append(rows); body.append(table);
-        const status = el('p', 'training-note', comparison.running ? `${comparison.active}枠を比較中…` : comparison.message);
+        const status = el('p', 'training-note', comparison.running ? `${comparison.active}枠を${comparison.automatic ? '自動' : ''}比較中…` : comparison.message);
         status.setAttribute('role', 'status'); body.append(status);
         if ([...comparison.results.values()].some(r => r.status === 'limit')) body.append(el('p', 'training-note', '未確定の枠は、育成枠で選んで通常の「最短手順を計算」を使うと、より長く計算できます。'));
     }
@@ -304,12 +340,13 @@
         return family;
     }
     function renderActions(parent, actions, completedTrips, before, offset) {
-        const training = actions.find(a => a.type === 'train');
+        const trainIndex = actions.findIndex(a => a.type === 'train');
+        const training = trainIndex >= 0 ? actions[trainIndex] : null;
         const final = actions.some(action => action.type !== 'train' && action.ids.includes(0));
         const targets = new Set(training?.ids || []);
-        const prep = actions.filter(a => a.type !== 'train');
+        const prep = training ? actions.slice(0, trainIndex) : actions;
         if (prep.length) {
-            parent.append(el('h4', '', training ? `第${completedTrips + 1}回の出撃前：この順番で準備` : final ? '最終個体を入居させる手順（出撃不要）' : '育成が終わったら、この順番で出生'));
+            parent.append(el('h4', '', training ? `第${completedTrips + 1}回の出撃前：この順番で準備` : prep.every(a => a.type === 'birth') ? '出生' : '最終個体を入居させる手順（出撃不要）'));
             const list = el('ol', 'training-operations');
             let state = before;
             for (const [index, action] of prep.entries()) {
@@ -348,6 +385,10 @@
             parent.append(el('h4', '', `今回育成する個体（${training.ids.length}体）`));
             const roster = el('div', 'training-compact-roster'); training.ids.forEach(id => roster.append(compactPerson(id))); parent.append(roster);
             parent.append(el('p', 'training-note', '全員をLv.20まで育成してください。次の出生までに上限突破としあわせ度MAXの準備も行ってください。'));
+            if (trainIndex + 1 < actions.length) {
+                const afterTraining = C.replay(current.model, actions.slice(0, trainIndex + 1), data.slots, before);
+                renderActions(parent, actions.slice(trainIndex + 1), completedTrips + 1, afterTraining, offset + trainIndex + 1);
+            }
         } else if (!final) {
             parent.append(el('p', 'training-note', '生まれた個体は、育成対象として案内されるまで待機させてください。出生の完了後に、次の手順へ進みます。'));
         }
@@ -355,10 +396,10 @@
     function renderSummary(page) {
         const summary = el('section', 'training-step-summary'); summary.setAttribute('aria-label', '今回の要約');
         summary.append(el('strong', '', '今回の要約'));
-        const steps = [], append = (text, count, preview = false) => {
+        const steps = [], append = (text, count) => {
             if (!count) return;
             if (steps.length) summary.append(el('span', 'training-summary-arrow', '→'));
-            summary.append(el('span', preview ? 'training-summary-preview' : '', `${text}${count}体`)); steps.push(text);
+            summary.append(el('span', '', `${text}${count}体`)); steps.push(text);
         };
         // Preserve operation order even when a capture and birth share a page.
         let type = '', count = 0;
@@ -367,8 +408,6 @@
             type = action.type; count += action.ids.length;
         }
         append(type === 'capture' ? 'キャッチ' : type === 'train' ? '育成' : '出生', count);
-        const following = data.pages[pageIndex + 1]?.actions;
-        if (page.actions.some(a => a.type === 'train') && following?.[0]?.type === 'birth') append('次ページで出生', following.length, true);
         content.append(summary);
     }
     function renderWaiting(after) {
@@ -414,25 +453,10 @@
         if (!page) return;
         const batch = page.actions;
         const train = batch.find(a => a.type === 'train');
-        const birthOnly = !train && !batch.some(a => a.ids.includes(0));
-        const heading = el('h3', 'training-page-heading', train ? `第${page.trips + 1}回の出撃` : birthOnly ? `第${page.trips}回の育成後：今すぐ出生` : '最終個体の入居');
+        const heading = el('h3', 'training-page-heading', train ? `第${page.trips + 1}回の出撃` : batch.every(a => a.type === 'birth') ? '出生' : '最終個体の入居');
         heading.tabIndex = -1; content.append(heading); renderSummary(page); content.append(pageNavigation());
-        if (birthOnly) content.append(el('p', 'training-note', '次のキャッチに進む前に、以下の出生を済ませてください。'));
         const before = C.replay(current.model, data.actions.slice(0, page.offset), data.slots);
         renderActions(content, batch, page.trips, before, page.offset);
-        if (train) {
-            const following = data.pages[pageIndex + 1]?.actions;
-            if (following?.[0]?.type === 'birth') {
-                const preview = el('section', 'training-birth-preview');
-                preview.append(el('h4', '', `この出撃後にすぐ出生（${following.length}体）`));
-                const list = el('ol');
-                following.forEach(action => {
-                    const item = el('li'); item.append(birthFamily(action.ids[0])); list.append(item);
-                });
-                preview.append(list, el('p', 'training-note', '育成から戻ったら、次のキャッチより先に出生します。「次へ」で出生の手順を表示します。'));
-                content.append(preview);
-            }
-        }
         if (pageIndex === data.pages.length - 1) content.append(el('p', 'training-note', '最後の手順です。この入居で家系図が完成します。'));
         renderWaiting(C.replay(current.model, batch, data.slots, before));
         content.append(pageNavigation());
