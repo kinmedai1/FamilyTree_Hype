@@ -411,13 +411,30 @@
         content.append(summary);
     }
     function renderWaiting(after) {
-        const ids = current.model.nodes.filter(n => n.id !== 0 && (after[n.id] === 1 || after[n.id] === 2)).map(n => n.id);
+        const page = data.pages[pageIndex], end = page.offset + page.actions.length;
+        const admissions = [], births = new Map();
+        let birthNumber = 0;
+        // Rebuild from the displayed plan, so revisiting a page keeps the same
+        // admission order. Tree IDs are not the order used to catch or give birth.
+        data.actions.slice(0, end).forEach((action, index) => {
+            if (action.type === 'train') return;
+            admissions.push(...action.ids);
+            if (index >= page.offset && action.type === 'birth') births.set(action.ids[0], ++birthNumber);
+        });
+        const residents = admissions.filter(id => id !== 0 && (after[id] === 1 || after[id] === 2));
+        const ids = residents.filter(id => !births.has(id)).concat(residents.filter(id => births.has(id)));
         const panel = el('details', 'training-waiting-panel');
         panel.append(el('summary', '', `この手順の後に待機する個体（${ids.length}体）`));
         panel.append(el('p', 'training-note', 'このページの操作を終え、次のページに進む前の計画上の状態です。実際の進捗を記録するものではありません。'));
         if (ids.length) {
+            panel.append(el('p', 'training-note', '左から、残した個体（入居順）→ 今回生まれた個体（出生順）です。'));
             const roster = el('div', 'training-compact-roster');
-            ids.forEach(id => roster.append(compactPerson(id, after[id] === 2 ? '育成済み' : '未育成'))); panel.append(roster);
+            ids.forEach(id => {
+                const card = compactPerson(id, after[id] === 2 ? '育成済み' : '未育成');
+                const text = births.has(id) ? `今回${births.get(id)}体目に出生` : '残した個体';
+                card.querySelector('.training-compact-info').prepend(el('span', 'training-waiting-order', text));
+                roster.append(card);
+            }); panel.append(roster);
         } else panel.append(el('p', 'training-note', after[0] ? '最終個体以外に待機する個体はいません。' : '待機する個体はいません。'));
         content.append(panel);
     }
